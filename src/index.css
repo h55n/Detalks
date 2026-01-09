@@ -1,0 +1,207 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 10% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 10% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 10% 20%;
+
+    --primary: 285 19% 75%;  /* Plum Point */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 74 58% 68%; /* Kowloon */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 47 100% 58%;   /* Extreme Yellow */
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 12 89% 55%; /* Burning Orange */
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 285 19% 75%;      /* Plum Point */
+
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 222 20% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 20% 9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 20% 6%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 285 19% 75%;  /* Plum Point */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 74 58% 48%; /* Darker Kowloon for dark mode */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 47 80% 48%;    /* Darker Yellow for dark mode */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 12 69% 45%; /* Darker Orange for dark mode */
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 285 19% 65%;      /* Darker Plum Point for dark mode */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  html {
+    @apply transition-colors duration-200;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.01em;
+  }
+  
+  #root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .page-container {
+    @apply flex-1 overflow-y-auto pb-20 pt-0 px-4 transition-colors duration-300;
+  }
+  
+  .page-header {
+    @apply flex items-center justify-between mb-6;
+  }
+  
+  .welcome-image-container {
+    position: relative;
+    margin-top: -16px;
+    height: 180px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 0 0 1.5rem 1.5rem;
+    overflow: hidden;
+    transition: all 0.5s ease;
+  }
+  
+  .welcome-image-container img {
+    height: 100%;
+    object-position: center;
+    transition: transform 0.8s ease;
+  }
+  
+  .dark .welcome-image-container {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card-shadow {
+    @apply shadow-sm dark:shadow-none dark:border dark:border-gray-800;
+  }
+  
+  .wellness-card {
+    @apply flex p-4 rounded-2xl bg-white dark:bg-gray-800 dark:text-white 
+           mb-3 animate-scale-in transition-all duration-300 
+           hover:translate-y-[-2px] active:translate-y-[1px];
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.03);
+  }
+  
+  .wellness-card:active {
+    transform: scale(0.98);
+  }
+  
+  .dark .wellness-card {
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mood-emoji {
+    @apply flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 transition-transform duration-300;
+  }
+  
+  .mood-emoji:active {
+    transform: scale(0.9);
+  }
+  
+  .mood-emoji.selected {
+    @apply bg-green-100 dark:bg-green-900 border-2 border-green-500;
+  }
+  
+  .tab-button {
+    @apply text-gray-500 dark:text-gray-400 flex flex-col items-center text-xs font-medium transition-colors duration-300;
+  }
+  
+  .tab-button.active {
+    @apply text-icon-purple dark:text-icon-purple-light;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(131, 98, 242, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(131, 98, 242, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(131, 98, 242, 0); }
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+  
+  .pulse-glow {
+    animation: pulseGlow 2s infinite;
+  }
+  
+  .theme-toggle {
+    @apply p-2 rounded-full transition-colors;
+  }
+  
+  .stat-card {
+    @apply rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 transition-all duration-300 hover:translate-y-[-2px];
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.03);
+  }
+  
+  .glass-card {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm;
+  }
+}
