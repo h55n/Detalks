@@ -1,85 +1,75 @@
-# DeTalks - A Journey to Find You
+# DeTalks
 
-## 🌿 About DeTalks
+DeTalks is a mental health and wellness platform focused on self-guided support tools, access to professional therapy, and engagement features designed to support long-term habits.
 
-DeTalks is an AI-powered mental health platform designed to provide **self-guided mental wellness tools, professional therapy access, and gamification elements** to encourage long-term engagement and self-improvement.
+## Features
 
-## 🚀 Features
+- Self-guided support (mood tracking, journaling, calming exercises)
+- Conversational assistant for guided check-ins and support
+- Professional therapy discovery and session booking (where available)
+- Community features and discussions (where available)
+- Habit and streak-based engagement mechanics
 
-### 🔹 **Self-Guided Support** (Free Features)
-- **Mood Tracking** – Log and visualize emotional trends.
-- **AI Chatbot** – Conversational AI for personalized self-care.
-- **Journaling** – Text and audio journaling with AI insights.
-- **Calming Room** – Relaxation space with breathing exercises and meditation.
-- **Gamification** – Habit tracking with virtual tree-planting rewards.
+## Tech stack
 
-### 🔹 **Professional Therapy (Premium Features)**
-- **Therapist Directory** – Browse licensed mental health professionals.
-- **Therapy Sessions** – Book video or chat-based therapy.
-- **Dream Analysis & Self-Reflection** – AI-assisted insights into subconscious thoughts.
-- **Community Support** – Join group discussions and therapist-led Q&A.
+This repository is primarily a TypeScript front-end.
 
-### 🔹 **Gamification & Social Impact**
-- **OtterLand Progress Tracker** – Users grow virtual trees as they build habits.
-- **Leaderboard & Rewards** – Encourages consistency with achievements.
-- **Real-World Impact** – For every 30-day streak, a real tree is planted.
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
 
----
+> Note: The broader product may integrate with external services (databases, auth, payments, messaging, and AI providers). Refer to the code and environment configuration for the exact integrations used in this repo.
 
-## 🛠️ Tech Stack
+## Getting started
 
-DeTalks is built using **modern, scalable, and performance-driven technologies**:
+### Prerequisites
 
-- **Frontend:** React.js (for web), React Native (for mobile), Tailwind CSS, shadcn-ui
-- **Backend:** Node.js with Express.js
-- **Database:** Supabase (PostgreSQL), Firebase Firestore
-- **AI Integration:** Google Gemini API (AI-powered chatbot & mood insights)
-- **Authentication:** Firebase Auth, Supabase Auth
-- **Cloud Hosting & Storage:** Google Cloud, AWS S3
-- **Payments:** Stripe / Razorpay
-- **Notifications & Scheduling:** Twilio, Firebase Messaging, Google Calendar API
+- Node.js 18+ (recommended)
+- npm (or your preferred Node package manager)
 
----
+### Install
 
-## 📂 How to Run the Project Locally
-
-### 🔹 **Clone & Set Up the Repository**
-
-```sh
-# Clone the repository
-git clone <YOUR_GIT_URL>
-
-# Navigate to the project directory
-cd detalks
-
-# Install dependencies
+```bash
+git clone https://github.com/h55n/Detalks.git
+cd Detalks
 npm install
+```
 
-# Start the development server
+### Run locally
+
+```bash
 npm run dev
 ```
 
-This will start the project in development mode with auto-reloading enabled.
+Then open the URL printed by Vite (typically http://localhost:5173).
 
----
+### Build
 
-## 🌐 **Live Deployment & Contributions**
+```bash
+npm run build
+```
 
-This project is currently deployed via [Lovable](https://lovable.dev/projects/1f6470b0-af5e-4a04-baa5-01dc8b729476). Contributions are welcome via **GitHub pull requests**.
+### Lint (if configured)
 
-### 🔹 **Deploying Updates**
-- Edit via **Lovable.dev** and commit changes.
-- Work locally using **your preferred IDE** and push updates.
-- Use **GitHub Codespaces** for direct cloud-based development.
+```bash
+npm run lint
+```
 
----
+## Configuration
 
-## 📢 Community & Support
+If the app requires environment variables (API keys, endpoints, etc.), create a local `.env` file (or `.env.local`, depending on the setup) and populate the required values.
 
-Join our community to contribute, share feedback, and collaborate:
-- **Discord:** [Join our community](#)  
-- **Email:** hassan0rehman@gmail.com.com  
-- **Twitter:** [@DeTalks](#)
+- Check for example files such as `.env.example`
+- Search the codebase for `process.env` / `import.meta.env`
 
-Let's make mental health care more **accessible, engaging, and impactful!** 💙
+## Contributing
 
+1. Create a feature branch
+2. Make your changes
+3. Run tests/lint if available
+4. Open a pull request
+
+## License
+
+If you plan to open-source this project, add a LICENSE file and reference it here.
