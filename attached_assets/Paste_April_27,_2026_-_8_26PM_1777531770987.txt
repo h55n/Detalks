@@ -1,0 +1,812 @@
+# DeTalks' 
+
+## Project Overview
+
+Build the complete, pixel-perfect **mobile frontend** for **DeTalks'** — a three-tier mental wellness platform built for India. This is a React Native (or React with mobile-first responsive design) application. The app must feel like the safest, warmest room someone has ever walked into. Every design decision must reduce anxiety, not create it.
+
+**Stack:** React Native with NativeWind (Tailwind) OR React (mobile-first, max-width 430px, phone viewport). Use whichever the platform supports best. All UI must look and feel like a native iOS/Android app.
+
+**Fonts (Google Fonts — import both):**
+- `DM Serif Display` (weight 400, 400 italic) — all headlines, display text, emotional moments
+- `DM Sans` (weights 300, 400, 500, 600) — all body text, UI labels, buttons
+
+**Do NOT use:** Inter, Roboto, Arial, SF Pro, system fonts, or any other font family anywhere in the app.
+
+---
+
+## Design System — Implement as CSS Variables / Tailwind Config
+
+```css
+/* COLORS */
+--warm-sand: #F5EFE6;        /* Primary page background — papery warm beige */
+--warm-ivory: #FAF6F0;       /* Card surfaces, elevated containers */
+--warm-mist: #EDE7DC;        /* Secondary surfaces, inactive states */
+--parchment-deep: #EAE0D0;   /* Pressed states, inner dividers */
+--amber-sand: #F0E8C8;       /* Featured hero card only */
+
+--forest-green: #2D6A2D;     /* Primary brand, CTAs, active states */
+--dark-green: #1A3D1A;       /* Headers, maximum emphasis */
+--canopy-dark: #0F2210;      /* Dark section backgrounds */
+--moss-dark: #1A3D1A;        /* Elevated dark-theme containers */
+
+--gold-accent: #F5C518;      /* Milestones ONLY — never navigation */
+
+--ink-deep: #1C2B1A;         /* Primary body text */
+--ink-warm: #2E4A2E;         /* Secondary headings */
+--sage-mid: #4A6B4A;         /* Secondary text, subheadings */
+--fern-grey: #7A907A;        /* Tertiary text, metadata, timestamps */
+--sand-text: #8C7B6A;        /* Warm-neutral captions on beige */
+--mist-light: #B8C9B8;       /* Text on dark surfaces */
+--canopy-light: #E8F0E8;     /* High-emphasis text on dark */
+
+--border-whisper: #E0D8CC;   /* Standard light border */
+--border-gentle: #C9BFB0;    /* Prominent borders */
+--border-sand: #D4C9B8;      /* Inner dividers */
+
+--escalation-amber: #E8A020; /* Gentle alert — warm, not alarming */
+--crisis-red: #C0392B;       /* Level 4 crisis ONLY */
+
+/* SHADOWS — warm amber-brown tinted, never gray */
+--shadow-whisper: rgba(100, 70, 30, 0.07) 0px 4px 24px;
+--shadow-gentle: rgba(100, 70, 30, 0.12) 0px 8px 32px;
+--shadow-modal: rgba(100, 70, 30, 0.18) 0px 16px 64px;
+--ring-warm: rgba(140, 100, 60, 0.10) 0px 0px 0px 1px;
+--ring-green: rgba(45, 106, 45, 0.22) 0px 0px 0px 2px;
+--gold-halo: rgba(245, 197, 24, 0.20) 0px 0px 0px 3px;
+```
+
+**Global rules:**
+- Page background is ALWAYS `#F5EFE6` (Warm Sand) — never white, never gray
+- Cards are ALWAYS `#FAF6F0` (Warm Ivory) — lifting off the sand
+- Shadows are ALWAYS warm amber-brown tinted — never cool gray or pure black
+- Minimum border-radius on any interactive element: 8px — non-negotiable
+- One primary (Forest Green) button per screen — never two
+- Gold (`#F5C518`) is NEVER used for navigation, headers, or regular CTAs
+- All animations must respect `prefers-reduced-motion`
+
+---
+
+## App Architecture — Screens to Build
+
+Build ALL of the following screens with full navigation between them. Use React Navigation (stack + bottom tab) or equivalent.
+
+### NAVIGATION STRUCTURE
+
+```
+App Entry
+  └── Onboarding Flow (3 screens, skip-able after screen 1)
+        └── Dummy Login / Sign Up Screen
+              └── Main App
+                    ├── Tab 1: Home
+                    ├── Tab 2: Talk (Companion / Community)
+                    ├── Tab 3: Journal
+                    ├── Tab 4: Progress
+                    └── Tab 5: Profile
+```
+
+---
+
+## SCREEN 1 — SPLASH / BRAND SCREEN
+
+**Route:** `/splash`
+
+**Layout:**
+- Full-screen `#F5EFE6` (Warm Sand) background
+- Centered vertically and horizontally
+- The wordmark: `DeTalks'` in DM Serif Display 48px, color `#1C2B1A` (Ink Deep)
+- The apostrophe at the end is intentional and must be typographically correct
+- Below wordmark: tagline `"A Journey Towards Finding You"` in DM Sans 16px weight 400, `#4A6B4A` (Sage Mid), letter-spacing 0.5px
+- Below tagline: a single small Forest Green asterisk `*` motif, 20px, centered
+- Bottom of screen: `"Get Started"` button — Forest Green (`#2D6A2D`) background, Warm Ivory text, DM Sans 14px weight 500, 12px radius, full-width with 24px horizontal margin, shadow `rgba(45, 106, 45, 0.28) 0px 4px 16px`
+- Below button: ghost link `"I already have an account"` in Sand Text (`#8C7B6A`), DM Sans 14px
+
+**Animation on mount:**
+- Wordmark fades in from translateY(12px) → translateY(0) over 600ms ease-out
+- Tagline fades in 200ms delayed after wordmark
+- Asterisk pulses once (single gold ring emanating outward) after 800ms
+- Button slides up from bottom over 500ms, 400ms delay
+
+---
+
+## SCREEN 2 — ONBOARDING SCREEN 1 OF 3
+
+**Route:** `/onboarding/1`
+
+**Layout:**
+- Full-screen Warm Sand background
+- Top-right: `"Skip"` ghost button in Sand Text
+- Progress indicator: 3 dots, active dot is Forest Green filled, inactive are `#EDE7DC` (Warm Mist), centered near bottom
+- Large illustration area (top 45% of screen): An abstract, calm SVG illustration — a slow-breathing circle made of concentric rings in Forest Green at varying opacity levels (outermost: 10%, innermost: 60%). This is the breathing motif.
+- Below illustration:
+  - Headline: `"You don't have to figure it out alone."` — DM Serif Display 32px, Ink Deep, centered, line-height 1.20, 24px horizontal padding
+  - Body: `"DeTalks is a calm space where you can process what's on your mind — at your pace, in your own way."` — DM Sans 16px weight 400, Sage Mid, centered, line-height 1.65, 24px padding
+- Bottom CTA: `"Next"` button — Forest Green, full-width, 24px margin
+
+---
+
+## SCREEN 3 — ONBOARDING SCREEN 2 OF 3
+
+**Route:** `/onboarding/2`
+
+**Layout:**
+- Full-screen Warm Sand
+- Top-right: `"Skip"` ghost
+- Progress: dot 2 active
+- Illustration: Three stacked warm ivory cards with a small icon each — a leaf (self-guided), two chat bubbles (companion), and a shield (professional). Cards appear with a staggered slide-in animation, offset 100ms apart.
+- Headline: `"Three ways to find support — start wherever feels right."` — DM Serif Display 32px, Ink Deep, centered
+- Body: `"From quiet self-guided tools, to a conversation with a trained companion, to a licensed professional — DeTalks meets you where you are."` — DM Sans 16px, Sage Mid, centered
+- Bottom CTA: `"Next"` button — Forest Green
+
+---
+
+## SCREEN 4 — ONBOARDING SCREEN 3 OF 3
+
+**Route:** `/onboarding/3`
+
+**Layout:**
+- Full-screen Warm Sand
+- Progress: dot 3 active
+- Illustration: Two abstract figures — one represented by a soft Forest Green circle, one by a Warm Ivory circle with a Forest Green outline — side by side, slightly overlapping. Simple, abstract, not cartoonish.
+- Headline: `"Every conversation is safe, supervised, and yours alone."` — DM Serif Display 32px, Ink Deep
+- Body: `"Your sessions are private, monitored by our AI guardian Kavach, and never stored for advertising. You're in control."` — DM Sans 16px, Sage Mid
+- Bottom CTA: `"Create My Account"` — Forest Green, full-width
+- Below CTA: ghost link `"Sign in instead"` in Sand Text
+
+---
+
+## SCREEN 5 — SIGN UP / DUMMY LOGIN
+
+**Route:** `/auth`
+
+**Layout:**
+- Full-screen Warm Sand background
+- Top: back arrow (Ink Deep, 24px)
+- Headline: `"Let's set up your space"` — DM Serif Display 32px, Ink Deep, 24px padding
+- Subheading: `"No pressure. Takes 30 seconds."` — DM Sans 15px, Sage Mid
+
+**Form fields (Warm Ivory background, `#C9BFB0` border, 10px radius, 12px 16px padding):**
+- `"What should we call you?"` — placeholder: `"Your name or a nickname"` — Fern Grey placeholder
+- `"Your email"` — placeholder: `"we keep this private"` 
+- `"A safe password"` — password field with eye toggle
+
+**Below form:**
+- Toggle row: `"Are you a psychology student?"` — DM Sans 15px Ink Deep + toggle switch (Forest Green when on). If toggled ON, a new field slides down: `"Your college email"` with subtext `"Unlock student pricing (₹99/month)"` in Forest Green 13px DM Sans
+
+**Student toggle ON state** shows a soft amber-sand card (`#F0E8C8`, 16px radius) beneath the field with: `"Student benefits unlocked: ₹99/month · 30% off professional sessions"` — DM Sans 14px Ink Deep
+
+**Bottom CTA:** `"Start My Journey"` — Forest Green, full-width
+
+**Below CTA:** `"By continuing, you agree to our terms. Your data is encrypted and never sold."` — DM Sans 11px Sand Text, centered, 24px padding
+
+---
+
+## SCREEN 6 — DISHA PULSE CHECK (Triage / Onboarding Chat)
+
+**Route:** `/pulse-check`
+
+**This is the most important screen in the app. Build it with extra care.**
+
+**Layout:**
+- Full-screen Warm Sand background
+- Subtle radial gradient glow from center: `#F5EFE6` → `#EDE7DC` at 40% opacity — barely visible, like light on paper
+- Top-left: `DeTalks'` wordmark in DM Serif Display 18px, Ink Deep
+- Top-right: `"Disha"` label with a small soft green dot — DM Sans 13px Sage Mid
+
+**Chat area (scrollable, starts at bottom):**
+
+First message from Disha (AI):
+- Disha bubble: `#F5EFE6` background, `1px solid #C9BFB0` border, 18px radius, 16px 20px padding
+- Text: `"Hey. I'm Disha — I'm here to help you find the right space for you today."` — DM Sans 16px Ink Warm, line-height 1.65
+- Below it, a second Disha bubble: `"How have you been feeling lately? Take your time — there's no right answer."` — same style
+
+**Typing indicator** (shown while "Disha is composing"):
+- Three dots in Sand Text, 2000ms pulse cycle
+- Label: `"Listening..."` — NOT "Typing..." — DM Sans 12px Sand Text italic
+
+**Quick-reply chips** (shown below Disha's first question — horizontal scroll row):
+- `"Pretty rough lately"`, `"Could be better"`, `"I'm okay, just curious"`, `"I need to talk to someone now"`
+- Each chip: Warm Ivory background, `1px solid #C9BFB0` border, 9999px radius (pill), DM Sans 14px Forest Green text, 10px 16px padding
+- Selected state: Forest Green background, Warm Ivory text
+
+**After user taps a chip or types a reply:**
+- A new Disha response appears: `"Thank you for telling me. I want to understand a little more — what's been taking up the most space in your mind?"` 
+- Show one more round of quick-replies: `"Work / studies"`, `"Relationships"`, `"Just feeling low"`, `"Not sure, it's complex"`
+
+**After second answer:**
+- Disha: `"Got it. I think I know just the right place for you. Give me a moment."` 
+- Loading animation: a soft Forest Green breathing circle (expand 4s, hold 2s, contract 6s) — full screen overlay on Warm Sand, fades in over 500ms
+- Text below circle: `"Finding the right space for you..."` — DM Sans 15px Sage Mid, centered
+
+**Then transition to Home screen.**
+
+**Input area (bottom, always visible):**
+- Warm Ivory background, `1px solid #C9BFB0` top border
+- Text input: `"Share what's on your mind..."` placeholder in Fern Grey, 16px DM Sans
+- Send button: Forest Green circle, 40px, white arrow icon
+
+---
+
+## SCREEN 7 — HOME SCREEN (Tab 1)
+
+**Route:** `/home`
+
+**This is the daily hub. Warm, personal, one primary action.**
+
+**Layout (scrollable):**
+
+### Header (sticky)
+- Warm Ivory background, `1px solid #E0D8CC` bottom border
+- Left: `"Good evening, Rohan"` — DM Sans 16px weight 500, Ink Deep (time-aware greeting)
+- Right: Avatar circle — Forest Green 36px circle with white initials `"R"`, DM Sans 14px weight 600
+
+### Featured Journal Prompt Card (Hero)
+- Background: `#F0E8C8` (Amber Sand), 20px radius, `rgba(100,70,30,0.10) 0px 6px 28px` shadow, 16px margin horizontal, full-width minus margins
+- Top-left: small label `"TODAY'S PROMPT"` — DM Sans 10px weight 500, Sand Text, letter-spacing 0.8px, uppercase
+- Headline: `"What's one small thing that didn't go wrong today?"` — DM Serif Display 22px Ink Deep, line-height 1.35
+- Below: `"Take 5 minutes. Write anything."` — DM Sans 14px Sage Mid
+- CTA: `"Open Journal"` — Forest Green text only (ghost style), DM Sans 14px weight 500, right-aligned with arrow →
+
+### How Are You Feeling? (Mood Selector)
+- Section label: `"Quick check-in"` — DM Sans 13px weight 500, Sand Text, uppercase, letter-spacing 0.5px
+- 5 emoji-free mood buttons in a horizontal row: `Rough`, `Low`, `Okay`, `Good`, `Great`
+- Each: 56px circle, Warm Mist background unselected / Forest Green selected, DM Sans 11px label below, `1px solid #D4C9B8` border unselected
+- A single large abstract SVG icon per mood (no actual emojis — use SVG shapes): rough=jagged lines, low=drooping arc, okay=flat wave, good=gentle curve, great=rising arc
+
+### Disha Check-In Card
+- Warm Ivory card, `1px solid #E0D8CC` border, 16px radius, shadow-whisper
+- Left: small Forest Green avatar circle with `"D"` — Disha's icon
+- Right: `"Disha"` DM Sans 15px weight 600 Ink Deep, below it: `"Ready for a conversation when you are."` DM Sans 14px Sage Mid
+- Bottom: `"Start a conversation"` — Forest Green text link, DM Sans 14px weight 500
+
+### Your Tools (horizontal scroll)
+- Section label: `"Your tools"` — DM Sans 13px weight 500, Sand Text, uppercase
+
+Three tool cards in horizontal scroll (each 160px wide, no clip):
+1. **Mood Tracker** — `#F5EFE6` background, `1px solid #D4C9B8` border, `4px solid #2D6A2D` left accent stripe, 16px radius. Icon: small SVG line chart. Label: `"Mood Tracker"` DM Sans 15px weight 600 Ink Deep. Sub: `"7 days tracked"` DM Sans 13px Sage Mid.
+2. **Guided Journal** — same card style. Icon: SVG open book. Sub: `"3 entries this week"`
+3. **Breathe** — same card style. Icon: SVG expanding circle. Sub: `"2 min · anytime"`
+
+### Community Circles (if applicable)
+- Section label: `"Your circles"` — same label style
+- One card: Warm Ivory, 16px radius, showing circle name `"Academic Pressure"` in DM Serif Display 18px Ink Deep, member count `"142 voices"` in Sand Text DM Sans 13px, a soft `"Active now"` green dot
+- CTA: `"Visit Circle"` Forest Green ghost text
+
+### Bottom Tab Bar
+- Warm Ivory background, `1px solid #E0D8CC` top border, 68px height, safe-area padding bottom
+- 5 tabs: **Home** (house icon), **Talk** (chat bubble), **Journal** (pen icon), **Progress** (leaf/seedling), **Profile** (person circle)
+- Active tab: Forest Green icon + label, `2px solid #2D6A2D` top accent line
+- Inactive: Fern Grey icon + label
+- DM Sans 11px labels
+- No numbered badges — a subtle Forest Green dot (6px) only for unread indicators
+
+---
+
+## SCREEN 8 — TALK SCREEN (Tab 2)
+
+**Route:** `/talk`
+
+**Two sub-tabs within this screen:**
+
+Sub-tab bar (below main header):
+- `"Companions"` and `"Community"` — pill tabs, active: Forest Green background Warm Ivory text, inactive: Warm Mist background Sage Mid text, 9999px radius, DM Sans 14px weight 500
+
+### Sub-tab A: Companions
+
+**Header card (Warm Ivory, 16px radius, shadow-whisper, 16px margin):**
+- Headline: `"Talk to a trained companion"` — DM Serif Display 22px Ink Deep
+- Body: `"Every session is with a randomly assigned psychology student, supervised in real time."` — DM Sans 14px Sage Mid line-height 1.60
+- CTA: `"Start a Session"` — Forest Green full-width button, 12px radius
+
+**Session info strip (3 info pills in a row, Warm Mist background):**
+- `"45 min max"` · `"Text-based"` · `"Always supervised"`
+- Each pill: `#EDE7DC` background, 9999px radius, DM Sans 12px weight 500 Sage Mid, 6px 12px padding
+
+**Previous sessions section (if any):**
+- Section label: `"Your recent sessions"` — DM Sans 13px Sand Text uppercase
+- Session card: Warm Ivory, `1px solid #E0D8CC`, 16px radius, shadow-whisper
+  - Top: `"Session 3"` DM Sans 13px Sand Text + date right-aligned
+  - Middle: theme tags as Forest Green pills (9999px radius, 10% Forest Green bg): `"Academic pressure"` `"Stress"`
+  - Bottom: `"45 min · 198 messages"` DM Sans 12px Fern Grey
+
+**After tapping "Start a Session":**
+- Full-screen modal slide-up: Warm Ivory background, 24px top radius
+- `"Finding your companion..."` — DM Serif Display 24px Ink Deep centered
+- Forest Green breathing circle animation (same as Pulse Check)
+- `"Randomly assigning from available companions. This keeps every conversation fresh."` — DM Sans 14px Sage Mid centered, max-width 280px
+
+### Sub-tab B: Community
+
+**Community Circles list:**
+
+Header: `"Anonymous spaces to feel less alone"` — DM Serif Display 22px Ink Deep, 24px padding
+
+Circle cards (Warm Ivory, `1px solid #E0D8CC`, 16px radius, shadow-whisper, 16px margin):
+- Circle name in DM Serif Display 20px Ink Deep
+- Topic tag (Forest Green pill, small)
+- Member count in Sand Text DM Sans 13px
+- Latest post preview: `"'Sometimes just knowing others feel this way...' — TidePebble"` DM Sans 14px Sage Mid, line-height 1.60, italic, max 2 lines
+- `"Join Circle"` or `"Visit Circle"` — Forest Green ghost text button
+
+Show 4 circles:
+1. **Academic Pressure** — `"142 voices"` — tag: `"Studies"`
+2. **Loneliness** — `"89 voices"` — tag: `"Connection"`
+3. **Work Stress** — `"211 voices"` — tag: `"Career"`
+4. **Relationship Transitions** — `"76 voices"` — tag: `"Life Changes"`
+
+---
+
+## SCREEN 9 — COMPANION SESSION SCREEN
+
+**Route:** `/session/active`
+
+**This is the core interaction screen. Build it with the most care.**
+
+**Layout:**
+- Full-screen Warm Sand background (NOT Warm Ivory — the sand feels like the walls of a private room)
+- Top bar (Warm Ivory, `1px solid #E0D8CC` bottom border, 56px height):
+  - Left: back arrow (but tapping shows a confirmation: "Are you sure? Your session will be saved.")
+  - Center: `"Session in progress"` DM Sans 14px weight 500 Ink Deep
+  - Right: a subtle timer `"32:14"` in Fern Grey DM Sans 13px, monospace or DM Sans
+  - Below timer: thin progress bar (full width of header) in `#EDE7DC`, fill in Forest Green, represents 45-minute window
+
+**Session limit indicator (subtle, below header):**
+- `"198 / 200 messages"` — Fern Grey DM Sans 12px, right-aligned with 16px padding (shown near end of session)
+
+**Chat area (scrollable):**
+
+**Companion message bubble:**
+- Background: Warm Ivory (`#FAF6F0`)
+- Border: `1px solid #E0D8CC`
+- Text: Ink Deep, DM Sans 16px, line-height 1.60
+- Radius: 18px 18px 18px 4px (tail bottom-left)
+- Max-width: 75%
+- Companion label above first message: `"Companion"` DM Sans 11px Sand Text — never a real name
+
+**Seeker (user) message bubble:**
+- Background: Forest Green (`#2D6A2D`)
+- Text: Warm Ivory, DM Sans 16px, line-height 1.60
+- Radius: 18px 18px 4px 18px (tail bottom-right)
+- Max-width: 75%, right-aligned
+
+**Typing indicator:**
+- Three dots, Sand Text color, 2000ms pulse
+- Label: `"Listening..."` — DM Sans 12px Sand Text italic — never "Typing..."
+
+**Sample conversation to pre-populate (dummy data):**
+```
+Companion: "I'm glad you're here. What's been on your mind lately?"
+User: "Just a lot of pressure from exams and I haven't been sleeping well"
+Companion: "That sounds exhausting — carrying both the pressure and the sleep deprivation together. How long has this been going on?"
+User: "Maybe 3 weeks now. I keep waking up at 3am thinking about everything"
+Companion: "3am thoughts are their own kind of heavy. When you wake up, what's usually the first thing your mind goes to?"
+```
+
+**Input area (bottom):**
+- Warm Ivory background, `1px solid #E0D8CC` top border
+- Textarea: `"Share what's on your mind..."` placeholder, Fern Grey, 16px DM Sans, Warm Ivory background, auto-expand to max 4 lines
+- Right: Forest Green circle send button (40px, white arrow icon)
+- Left: small microphone icon in Fern Grey (for future voice — disabled with opacity 0.4)
+
+**Kavach escalation alert panel (build but keep hidden — shown only when triggered):**
+- Slides up from bottom (only visible to companion in a real app — show as a demo state)
+- Warm Ivory background, `3px solid #E8A020` top border, 20px top radius
+- `"A gentle reminder"` — DM Sans 18px weight 600 Ink Deep
+- `"The conversation seems to be shifting. Check in with how your seeker is doing."` — DM Sans 15px Sage Mid
+- Two buttons: `"I've got this"` (secondary) + `"Get supervisor support"` (Forest Green primary)
+
+**Session close screen (shown at 45min or 200 messages):**
+- Warm Sand overlay fades in over the chat (1000ms)
+- Centered: `"This conversation has been saved to your journey."` — DM Serif Display 24px Ink Deep, centered
+- Below: `"Take what you need from it."` — DM Sans 16px Sage Mid
+- After 3 seconds: `"Return Home"` button fades in — Forest Green, full-width
+
+---
+
+## SCREEN 10 — COMMUNITY CIRCLE SCREEN
+
+**Route:** `/community/circle/:id`
+
+**Layout:**
+- Header: Warm Ivory, `1px solid #E0D8CC` bottom border
+  - Circle name in DM Serif Display 20px Ink Deep
+  - Sub: `"142 voices · Anonymous"` DM Sans 13px Sand Text
+  - Right: `"Your alias: WarmPebble"` — DM Sans 12px Sage Mid, italic. Tap shows tooltip: `"Your alias rotates every 30 days. No one knows who you are."`
+
+**Posts feed (scrollable, no real-time — asynchronous):**
+
+Post card (Warm Ivory, `1px solid #E0D8CC`, 16px radius, shadow-whisper, 16px margin):
+- Top: alias in DM Sans 13px Forest Green weight 500 + timestamp in Fern Grey DM Sans 12px right-aligned
+- Body: DM Sans 15px Ink Deep line-height 1.65
+- No reply button to specific user — only a `"This resonates"` reaction (heart outline that fills Forest Green on tap, counter in Sage Mid DM Sans 13px)
+- No @mentions, no quote-reply, no threading
+
+Sample posts:
+```
+TidePebble · 2 hours ago
+"Submitted my project at 4am. Feeling hollow now instead of relieved. Anyone else feel like the relief never quite arrives the way you expected?"
+❤ 12 resonated
+
+CalmRiver · 5 hours ago  
+"Third week of barely sleeping. I keep telling myself it'll get better after this deadline but there's always another one."
+❤ 28 resonated
+
+SoftMoss · Yesterday
+"Had to drop a course today. Felt like failure but also like a breath of air. Still processing."
+❤ 34 resonated
+```
+
+**Write a post panel (bottom):**
+- Warm Ivory background, `1px solid #E0D8CC` top border
+- Textarea: `"Share a thought with the circle..."` placeholder, 4-line max visible
+- Right: `"Share"` Forest Green small button (pill shape, 9999px radius)
+- Below: `"Posted anonymously as WarmPebble"` — DM Sans 12px Fern Grey
+
+---
+
+## SCREEN 11 — JOURNAL SCREEN (Tab 3)
+
+**Route:** `/journal`
+
+**Layout:**
+
+**Header:**
+- Warm Ivory, `1px solid #E0D8CC` bottom border
+- `"Your Journal"` — DM Serif Display 28px Ink Deep
+- Right: `"New Entry"` — Forest Green ghost text + pencil icon
+
+**Featured prompt card (same amber-sand hero card as home):**
+- `#F0E8C8`, 20px radius, shadow
+- `"Today's prompt"` label — DM Sans 10px Sand Text uppercase
+- Prompt: `"What's one thing you'd tell yourself from last week?"` — DM Serif Display 20px Ink Deep
+- `"Write Now →"` Forest Green ghost
+
+**Journal entry list:**
+
+Each entry card (Warm Ivory, `1px solid #E0D8CC`, 16px radius, shadow-whisper):
+- Date + day: `"Monday, 14 April"` DM Sans 13px Sand Text
+- Mood indicator: small colored dot (Forest Green = good, Warm Mist = neutral, `#E8A020` = rough)
+- Entry preview: first 2 lines of text, DM Sans 15px Ink Deep, line-height 1.60, truncated with `...`
+- Time: DM Sans 12px Fern Grey right-aligned
+- Tap to open full entry in a modal/page
+
+Show 3-4 sample entries with different moods.
+
+**Empty state (if no entries):**
+- `"Your journal is waiting."` — DM Serif Display 24px Ink Deep, centered
+- `"Write anything. Even one sentence counts."` — DM Sans 15px Sage Mid, centered
+- `"Start Writing"` — Forest Green button
+
+---
+
+## SCREEN 12 — JOURNAL ENTRY EDITOR
+
+**Route:** `/journal/write`
+
+**Layout:**
+- Full-screen Warm Sand background — feels like an open page
+- Top bar: back arrow left + `"Save"` Forest Green text right, DM Sans 14px weight 500
+- Date: `"Monday, 14 April 2026"` — DM Sans 13px Sand Text, centered, top of content area
+- Mood selector (horizontal, 5 moods — same circles as home screen) — single tap to tag mood
+- Divider: `1px solid #D4C9B8`, thin horizontal
+- Full-width textarea (no border, no background — just the sand):
+  - Placeholder: `"Write anything. There's no right way to do this."` — Fern Grey, DM Sans 16px italic
+  - Actual text: Ink Deep, DM Sans 17px, line-height 1.80
+  - No character limit shown
+- If prompt was tapped: show prompt at top in a `#F0E8C8` amber strip with Forest Green left border 3px: `"Prompt: What's one thing you'd tell yourself from last week?"` — DM Sans 14px Ink Warm
+
+---
+
+## SCREEN 13 — BREATHING EXERCISE (Micro-Practice)
+
+**Route:** `/practice/breathe`
+
+**This screen should be meditative. Near zero UI.**
+
+**Layout:**
+- Full-screen Warm Sand — nothing else visible except the core UI
+- Centered breathing circle: Forest Green, starts at 80px diameter
+  - Inhale 4s: expands to 240px, opacity 0.8 → 1.0
+  - Hold 2s: stays at 240px
+  - Exhale 6s: contracts back to 80px, opacity 1.0 → 0.7
+  - CSS animation loop
+- During inhale: text `"Breathe in"` fades in — DM Sans 18px weight 400 Sage Mid, centered below circle
+- During hold: text `"Hold"` — same style
+- During exhale: text `"Breathe out"` — same style
+- Text fades in/out with each phase — no jarring transitions
+- No other UI elements during the cycle
+- After 3 cycles: a soft `"Well done. Take a moment."` appears — DM Serif Display 22px Ink Deep, fades in
+- Bottom: subtle `"End Practice"` ghost link in Sand Text
+
+**Top bar (barely visible — low opacity until tapped):**
+- Back arrow in Forest Green at 40% opacity — tapping raises to 100% and shows exit prompt: `"Done for now?"` with `"Yes, exit"` and `"Keep going"` options
+
+---
+
+## SCREEN 14 — PROGRESS SCREEN (Tab 4)
+
+**Route:** `/progress`
+
+**Layout:**
+
+**Header:**
+- `"Your Journey"` — DM Serif Display 32px Ink Deep, 24px padding top
+
+**Streak card (Warm Ivory, 16px radius, shadow-whisper):**
+- `"7 days showing up"` — DM Serif Display 24px Ink Deep
+- Sub: `"That matters more than it sounds."` — DM Sans 14px Sage Mid
+- Row of 7 day circles: Forest Green filled for checked days, Warm Mist + `1px solid #D4C9B8` for today/future
+- NO shaming text if a day is missed — just the neutral state
+
+**Mood trend (last 7 days):**
+- Section: `"How you've been feeling"` — DM Sans 13px Sand Text uppercase
+- Simple bar chart using CSS — 7 bars, Forest Green color at varying heights (dummy data), spacing generous, no numbers on bars — just visual shape
+- Below chart: `"Your mood has been generally stable this week."` — DM Sans 14px Sage Mid
+
+**Milestone section:**
+- `"Moments that mattered"` — DM Sans 13px Sand Text uppercase
+- Milestone cards (background `#FFF8E0`, `1px solid rgba(245,197,24,0.45)`, 16px radius, `rgba(245,197,24,0.18) 0px 4px 20px` shadow):
+  - Small gold asterisk top-right
+  - `"First session completed"` — DM Serif Display 18px Ink Deep
+  - Date + description in DM Sans 14px Sage Mid
+  - When milestone is earned: single gold ring pulse animation (one pulse only, not looping)
+
+Show 2-3 sample milestones.
+
+**Sessions summary:**
+- `"3 companion conversations"` — DM Sans 16px Ink Deep weight 500
+- `"0 community circles joined"` — DM Sans 16px Ink Deep weight 500
+- `"4 journal entries"` — DM Sans 16px Ink Deep weight 500
+
+---
+
+## SCREEN 15 — PROFILE / SETTINGS SCREEN (Tab 5)
+
+**Route:** `/profile`
+
+**Layout:**
+
+**Avatar header (Canopy Dark `#0F2210` background, full-width, 200px height):**
+- Large initials avatar: Forest Green circle, 72px, white initials DM Sans 28px weight 600
+- Name: `"Rohan"` — DM Serif Display 24px Canopy Light (`#E8F0E8`)
+- Sub: `"Member since April 2026"` — DM Sans 13px Mist Light
+
+**Settings list (Warm Ivory cards with sections):**
+
+Section: `"Your Account"`
+- Email · `"rohan@example.com"` — DM Sans 15px Ink Deep + Fern Grey right
+- Language · `"English"` — with chevron
+- Student Verification · `"Verified ✓"` — Forest Green text
+
+Section: `"Privacy & Safety"`
+- Data & Privacy — chevron
+- Session History — `"Private to you"` — Sage Mid sub-text
+- Download My Data — Forest Green ghost text
+
+Section: `"Support"`
+- About DeTalks' — chevron
+- Crisis Resources — taps open a bottom sheet with iCall (9152987821) and Vandrevala Foundation (1860-2662-345) displayed as large tappable phone number buttons in Forest Green
+
+Section: `"Subscription"`
+- Current plan: `"Free Plan"` — with a soft `"Upgrade"` Forest Green pill button
+- Upgrade card (Warm Ivory, `1px solid #E0D8CC`, 16px radius):
+  - `"Companion+"` plan — `₹199/month` — `₹99/month for students`
+  - `"More sessions · Faster matching"` — DM Sans 14px Sage Mid
+  - `"Upgrade"` Forest Green button
+
+**Sign out** — Ghost link, Sand Text, centered, bottom of list, DM Sans 14px
+
+---
+
+## SCREEN 16 — SUBSCRIPTION / PRICING SCREEN
+
+**Route:** `/subscription`
+
+**Layout:**
+- Warm Sand background, 24px padding
+
+**Headline:** `"Choose your space"` — DM Serif Display 32px Ink Deep
+**Sub:** `"Every path starts free."` — DM Sans 16px Sage Mid
+
+**Three tier cards (stacked, full-width, each a distinct Warm Ivory card):**
+
+**Card 1 — Free (always)**
+- Border: `1px solid #E0D8CC`, 16px radius, shadow-whisper
+- Label `"FREE"` pill — Warm Mist background, Sage Mid text
+- `"Self-Guided"` — DM Serif Display 20px Ink Deep
+- Feature list (DM Sans 14px Sage Mid, `✓` in Forest Green):
+  - ✓ Mood Tracker
+  - ✓ Guided Journal
+  - ✓ Breathing exercises
+  - ✓ 4 companion sessions/month
+- CTA: `"Your current plan"` — disabled state, Fern Grey text, Warm Mist background
+
+**Card 2 — Companion+ (featured — slightly elevated shadow)**
+- Border: `1px solid #C9BFB0`, 16px radius, `rgba(100,70,30,0.12) 0px 8px 32px` (featured shadow)
+- Top-right badge: `"MOST CHOSEN"` in Forest Green 10px DM Sans uppercase, Forest Green pill
+- Label `"₹199 / MONTH"` — DM Sans 16px weight 600 Ink Deep
+- `"Companion+"` — DM Serif Display 20px Ink Deep
+- Feature list:
+  - ✓ Everything in Free
+  - ✓ Unlimited companion sessions
+  - ✓ Faster matching
+  - ✓ Voice escalation access
+- CTA: `"Start Companion+"` — Forest Green full-width, 12px radius
+
+**Card 3 — Professional**
+- Same style as Card 1
+- `"₹500–₹1,500 / session"` — DM Sans 15px Ink Deep
+- `"Professional"` — DM Serif Display 20px Ink Deep
+- Features: ✓ Licensed psychologist · ✓ Kavach-prepared handoff · ✓ Session reports
+- CTA: `"Book a session"` — Secondary Sand Ring button
+
+**Student section (below cards, `#F0E8C8` amber-sand background, 16px radius):**
+- `"Are you a student?"` — DM Serif Display 22px Ink Deep
+- `"Verify with your college email and get Companion+ for ₹99/month. Plus 30% off professional sessions."` — DM Sans 14px Sage Mid
+- `"Verify Student Status"` — Forest Green ghost text + arrow
+
+**Government schemes info (below student section, Warm Ivory card):**
+- `"You may be eligible for"` — DM Sans 13px Sand Text uppercase
+- List items with Forest Green checkmarks:
+  - Ayushman Bharat PM-JAY mental health provisions
+  - National Mental Health Programme referrals
+  - Maharashtra Student Welfare Fund
+  - UGC Mental Health Guidelines — institutional access
+- `"Learn more about each scheme →"` Forest Green ghost
+
+**Bottom quiet link:**
+`"Can't afford a session right now? Apply for access."` — DM Sans 13px Sand Text, centered, underline on hover
+
+---
+
+## GLOBAL COMPONENTS — Build These Reusably
+
+### Bottom Sheet / Modal
+- Slides up with `20px 20px 0 0` top radius
+- Warm Ivory background
+- Handle bar: 4px wide, 36px wide, `#D4C9B8`, rounded, centered top
+- Backdrop: `rgba(15, 34, 16, 0.50)` (Canopy Dark tinted)
+
+### Toast / Notification
+- Slides down from top
+- Warm Ivory background, `1px solid #E0D8CC`, 12px radius, shadow-gentle
+- Forest Green dot + DM Sans 14px Ink Deep message
+- Auto-dismiss after 3s with fade-out
+
+### Loading State / Skeleton
+- Use `#EAE0D0` (Parchment Deep) skeleton blocks — never spinners, never percentage counters
+- Skeleton blocks animate with a slow shimmer left-to-right, warm amber tinted
+- Loading messages: `"Finding the right space for you..."`, `"Preparing your session..."`, `"Almost there..."` — never `"Loading..."`
+
+### Empty States
+- Never show `"No data available"` or `"Nothing here"`
+- Always: A warm DM Serif Display 22px headline + DM Sans 14px Sage Mid description + optional Forest Green CTA
+- Example: `"Your conversations will live here."` + `"Start a session when you're ready."`
+
+### Confirmation Dialogs
+- Bottom sheet style (not center modal)
+- Headline in DM Serif Display 22px Ink Deep
+- Body in DM Sans 15px Sage Mid
+- Two buttons: secondary (sand ring) + primary (forest green)
+
+---
+
+## ANIMATIONS — IMPLEMENT ALL OF THESE
+
+### 1. Breathing Canvas (Home background)
+Extremely subtle radial pulse on the Warm Sand background:
+- Cycle: 8 seconds
+- Opacity oscillates: `#F5EFE6` → `#EDE7DC` at center, 2% shift
+- Barely perceptible — felt, not seen
+
+### 2. Screen Transitions
+All screens fade in + translateY(8px → 0), 500ms cubic-bezier(0.4, 0, 0.2, 1). Nothing slides or slams.
+
+### 3. Disha Typing Pulse
+Three dots, 2000ms cycle, Sand Text color. Label reads `"Listening..."` not `"Typing..."`.
+
+### 4. Card Lift
+On hover/press: cards lift 4px (translateY -4px), shadow deepens from shadow-whisper to shadow-gentle, 350ms ease-in-out.
+
+### 5. Session Closing Animation
+Chat area fades to Warm Sand overlay, 1000ms. Centered DM Serif Display text appears: `"This conversation has been saved to your journey."` No abrupt cut.
+
+### 6. Milestone Gold Flash
+On milestone unlock: a single concentric gold ring pulses outward from the milestone element once. Not twice. Not three times. Once — like a bell struck once. `rgba(245,197,24,0.6)` → `rgba(245,197,24,0)`, scale 1.0 → 1.8, 600ms ease-out.
+
+### 7. Micro-Practices Breathing Circle
+Forest Green circle: inhale 4s expand, hold 2s, exhale 6s contract. No text during the cycle — only phase label fades in/out. No other UI.
+
+### 8. Quick-Reply Chips Appear
+Staggered fade-in from below, 80ms offset per chip, 300ms each.
+
+### 9. Reduced Motion
+All animations wrapped in `@media (prefers-reduced-motion: reduce)` — fallback to instant opacity transitions only, no movement, no scale.
+
+---
+
+## COPY / LANGUAGE RULES — ENFORCE THROUGHOUT
+
+**Always use:**
+- `"Start a conversation"` — not "Connect now"
+- `"Finding the right space for you..."` — not "Loading..."
+- `"Done. Take a breath."` — not "Success ✓"
+- `"A gentle reminder"` — not "ALERT" or "WARNING"
+- `"Connect with support"` — not "EMERGENCY"
+- `"You showed up today. That matters."` — not "Great job! 🎉"
+- `"Listening..."` — not "Typing..."
+- `"Share what's on your mind..."` — not "Type a message"
+- `"Take care. We're here when you're ready."` — app exit/farewell
+
+**Never use:**
+- `"disorder"`, `"symptoms"`, `"diagnosis"`, `"patient"` anywhere in consumer UI
+- Red color for anything except Level 4 crisis (the `"Connect with support"` crisis button)
+- Emoji in clinical/emotional contexts — use designed SVG icons only
+- Streaks that shame (no "You broke your streak!")
+- Leaderboards, rankings, or any competitive mechanic
+- `"ERROR:"` messages — always use warm error language: `"Something went a little sideways. Let's try again."`
+
+---
+
+## DUMMY DATA TO POPULATE
+
+**User:** Rohan, 21, College student, Free plan, student verified
+**Mood history:** [3, 3, 4, 2, 3, 4, 4] for last 7 days (1=rough, 5=great)
+**Sessions:** 3 completed companion sessions
+**Journal entries:** 4 entries this week
+**Milestones:** "First session completed" (April 8), "7-day mood tracker streak" (April 14)
+**Community circles joined:** Academic Pressure, Loneliness
+**Alias in Academic Pressure circle:** `"WarmPebble"`
+
+---
+
+## TECHNICAL REQUIREMENTS
+
+1. **Mobile-only viewport** — max-width 430px, centered on desktop with Warm Sand background extending to full desktop width
+2. **Bottom safe area** — always respect device safe-area-inset-bottom for tab bar and input areas
+3. **Keyboard handling** — input areas must push content up when keyboard opens, never cover input
+4. **Scroll behavior** — chat screens scroll to bottom on new message, smooth scroll
+5. **No horizontal overflow** — all content fits within screen width
+6. **Touch targets** — minimum 44×44px for all interactive elements
+7. **Font loading** — show Warm Ivory skeleton while fonts load, never FOUT with system fallback visible
+8. **State management** — use React state/context for: current user, active tab, session state, mood selection, journal entries
+
+---
+
+## WHAT TO BUILD FIRST (Priority Order)
+
+If the tool has limits, build in this order:
+1. Splash + Onboarding (3 screens) + Dummy Login
+2. Disha Pulse Check screen
+3. Home screen
+4. Companion Session screen (the most important)
+5. Journal screen + Editor
+6. Community Circle screen
+7. Progress screen
+8. Profile + Subscription screens
+9. Breathing exercise
+
+---
+
+## FINAL CHECKLIST — BEFORE CONSIDERING DONE
+
+- [ ] Warm Sand (`#F5EFE6`) is the page background on every screen — never white
+- [ ] DM Serif Display used for ALL headlines, display text, emotional moments
+- [ ] DM Sans used for ALL body, labels, buttons — no other fonts
+- [ ] Gold (`#F5C518`) appears ONLY on milestone cards/moments
+- [ ] No two Forest Green primary buttons on any single screen
+- [ ] `"Listening..."` not `"Typing..."` in chat typing indicator
+- [ ] Session close animation implemented on companion session screen
+- [ ] Breathing circle animation implemented on exercise screen
+- [ ] All empty states use warm, human language (not "No data")
+- [ ] Crisis resources (iCall + Vandrevala) accessible from profile
+- [ ] Bottom tab bar has 5 tabs with correct active/inactive states
+- [ ] Onboarding is skippable after screen 1
+- [ ] Student toggle on signup screen shows student pricing when enabled
+- [ ] Community circle shows alias `"WarmPebble"` — not real name
+- [ ] Kavach escalation panel is built (even if hidden) in session screen
+- [ ] `prefers-reduced-motion` respected on all animations
+
+---
+
+*DeTalks' · A Journey Towards Finding You · detalks1809@gmail.com · www.detalks.in*
+
