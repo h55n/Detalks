@@ -16,11 +16,11 @@ export default function Home() {
   };
 
   const moods = [
-    { label: "Rough", id: 1, icon: <path d="M4 12L8 4L12 20L16 8L20 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> },
-    { label: "Low", id: 2, icon: <path d="M4 8C8 16 16 16 20 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> },
-    { label: "Okay", id: 3, icon: <path d="M4 12C9.33333 12 14.6667 12 20 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> },
-    { label: "Good", id: 4, icon: <path d="M4 16C8 8 16 8 20 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> },
-    { label: "Great", id: 5, icon: <path d="M4 20L8 4L12 16L16 8L20 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> },
+    { label: "Rough", id: 1, emoji: "😣" },
+    { label: "Low", id: 2, emoji: "😔" },
+    { label: "Okay", id: 3, emoji: "😐" },
+    { label: "Good", id: 4, emoji: "🙂" },
+    { label: "Great", id: 5, emoji: "😄" },
   ];
 
   return (
@@ -56,13 +56,12 @@ export default function Home() {
                 <div key={m.id} className="flex flex-col items-center">
                   <button
                     onClick={() => setCurrentMood(m.id)}
-                    className={`w-[56px] h-[56px] rounded-full flex items-center justify-center mb-1 transition-colors ${
-                      currentMood === m.id ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-[#D4C9B8]"
+                    className={`w-[56px] h-[56px] rounded-full flex items-center justify-center mb-1 transition-all duration-300 text-[26px] leading-none active:scale-95 ${
+                      currentMood === m.id ? "bg-primary/15 ring-2 ring-primary scale-105" : "bg-muted border border-[#D4C9B8] hover:bg-muted/70"
                     }`}
+                    aria-label={m.label}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      {m.icon}
-                    </svg>
+                    <span aria-hidden="true">{m.emoji}</span>
                   </button>
                   <span className="font-sans text-[11px] text-foreground">{m.label}</span>
                 </div>

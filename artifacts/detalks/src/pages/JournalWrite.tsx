@@ -10,11 +10,11 @@ export default function JournalWrite() {
   const [content, setContent] = useState("");
 
   const moods = [
-    { id: 1, color: "bg-[#2D6A2D]" },
-    { id: 2, color: "bg-[#4A6B4A]" },
-    { id: 3, color: "bg-[#EDE7DC]" },
-    { id: 4, color: "bg-[#E8A020]" },
-    { id: 5, color: "bg-[#C0392B]" },
+    { id: 1, emoji: "😣", label: "Rough" },
+    { id: 2, emoji: "😔", label: "Low" },
+    { id: 3, emoji: "😐", label: "Okay" },
+    { id: 4, emoji: "🙂", label: "Good" },
+    { id: 5, emoji: "😄", label: "Great" },
   ];
 
   return (
@@ -29,8 +29,15 @@ export default function JournalWrite() {
             <button
               key={m.id}
               onClick={() => setCurrentMood(m.id)}
-              className={`w-6 h-6 rounded-full border-2 ${currentMood === m.id ? "border-foreground" : "border-transparent"} ${m.color}`}
-            />
+              aria-label={m.label}
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-[18px] leading-none transition-all duration-300 active:scale-95 ${
+                currentMood === m.id
+                  ? "bg-primary/15 ring-2 ring-primary scale-105"
+                  : "bg-muted border border-[#D4C9B8]"
+              }`}
+            >
+              <span aria-hidden="true">{m.emoji}</span>
+            </button>
           ))}
         </div>
         
