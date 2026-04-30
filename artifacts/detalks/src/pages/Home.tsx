@@ -89,10 +89,11 @@ export default function Home() {
           <section>
             <h3 className="font-sans text-[13px] font-medium text-[#8C7B6A] uppercase tracking-[0.5px] mb-3">Your tools</h3>
             <div className="flex overflow-x-auto space-x-3 pb-2 no-scrollbar -mx-4 px-4">
-              <div className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3">
+              <div onClick={() => setLocation("/tools/mood-tracker")} className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3 cursor-pointer">
                 <Activity className="w-5 h-5 text-primary mb-2" />
                 <div className="font-sans text-[15px] font-semibold text-foreground">Mood Tracker</div>
-                <div className="font-sans text-[13px] text-secondary-foreground">7 days tracked</div>
+                <div className="font-sans text-[13px] text-secondary-foreground mb-2">7 days tracked</div>
+                <div className="font-sans text-[12px] font-medium text-primary flex items-center">Open mood tracker <ArrowRight className="w-3 h-3 ml-1" /></div>
               </div>
               <div className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3">
                 <BookOpen className="w-5 h-5 text-primary mb-2" />

@@ -161,7 +161,7 @@ export default function ActiveSession() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 3 }}
-              onClick={() => setLocation("/talk")}
+              onClick={() => setLocation("/session/reflection")}
               className="w-full max-w-[300px] bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px] min-h-[44px]"
             >
               Return Home

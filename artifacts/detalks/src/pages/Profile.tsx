@@ -30,6 +30,13 @@ export default function Profile() {
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
+            <div onClick={() => setLocation("/history")} className="p-4 border-b border-border flex items-center justify-between cursor-pointer min-h-[44px]">
+              <div className="flex items-center text-foreground">
+                <Shield className="w-5 h-5 mr-3 text-secondary-foreground opacity-0" />
+                <span className="font-sans text-[15px] font-medium">Session History</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
             <div className="p-4 border-b border-border flex items-center justify-between cursor-pointer min-h-[44px]">
               <div className="flex items-center text-foreground">
                 <Lock className="w-5 h-5 mr-3 text-secondary-foreground" />

@@ -28,6 +28,11 @@ import PreCheck from "@/pages/PreCheck";
 import Progress from "@/pages/Progress";
 import Profile from "@/pages/Profile";
 import Subscription from "@/pages/Subscription";
+import MoodTracker from "@/pages/MoodTracker";
+import SessionReflection from "@/pages/SessionReflection";
+import Professional from "@/pages/Professional";
+import SessionHistory from "@/pages/SessionHistory";
+import Consent from "@/pages/Consent";
 
 const queryClient = new QueryClient();
 
@@ -44,8 +49,13 @@ function Router() {
         <Route path="/pulse-check" component={PulseCheck} />
         <Route path="/home" component={Home} />
         <Route path="/talk" component={Talk} />
+        <Route path="/consent" component={Consent} />
         <Route path="/session/precheck" component={PreCheck} />
         <Route path="/session/active" component={ActiveSession} />
+        <Route path="/session/reflection" component={SessionReflection} />
+        <Route path="/professional" component={Professional} />
+        <Route path="/history" component={SessionHistory} />
+        <Route path="/tools/mood-tracker" component={MoodTracker} />
         <Route path="/community/circle/:id" component={CommunityCircle} />
         <Route path="/journal" component={Journal} />
         <Route path="/journal/write" component={JournalWrite} />

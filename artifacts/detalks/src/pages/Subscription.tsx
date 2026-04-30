@@ -57,7 +57,7 @@ export default function Subscription() {
               <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">Video or text sessions</span></li>
               <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">Personalized care plan</span></li>
             </ul>
-            <button className="w-full bg-transparent border border-primary text-primary font-sans text-[14px] font-medium py-3 rounded-[12px]">
+            <button onClick={() => setLocation("/professional")} className="w-full bg-transparent border border-primary text-primary font-sans text-[14px] font-medium py-3 rounded-[12px]">
               Book a Session
             </button>
           </div>

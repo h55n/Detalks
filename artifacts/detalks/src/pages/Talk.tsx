@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { MainLayout } from "@/components/MainLayout";
 import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 
 export default function Talk() {
   const [, setLocation] = useLocation();
@@ -10,7 +11,11 @@ export default function Talk() {
   const [finding, setFinding] = useState(false);
 
   const startSession = () => {
-    setLocation("/session/precheck");
+    if (sessionStorage.getItem('detalks-consent')) {
+      setLocation("/session/precheck");
+    } else {
+      setLocation("/consent");
+    }
   };
 
   const circles = [
@@ -48,6 +53,12 @@ export default function Talk() {
         )}
 
         <div className="px-4 pt-4 pb-2">
+          <div className="flex justify-between items-center mb-4">
+            <div />
+            <button onClick={() => setLocation("/professional")} className="font-sans text-[12px] font-medium text-primary flex items-center bg-primary/10 px-3 py-1.5 rounded-full">
+              Looking for a licensed professional? <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </button>
+          </div>
           <div className="flex bg-muted p-1 rounded-full w-max mx-auto">
             <button
               onClick={() => setTab("companions")}
