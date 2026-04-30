@@ -37,6 +37,7 @@ export default function Grounding() {
       }, 4000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [autoPace, step, prompts.length]);
 
   const handleNext = () => {

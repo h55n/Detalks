@@ -1,9 +1,22 @@
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { useAppContext } from "@/context/AppContext";
-import { ArrowRight, Activity, BookOpen, CircleDot, ChevronRight, User as UserIcon, Library, HeartHandshake } from "lucide-react";
+import {
+  ArrowRight,
+  Activity,
+  BookOpen,
+  CircleDot,
+  Library,
+  HeartHandshake,
+} from "lucide-react";
 import { MainLayout } from "@/components/MainLayout";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -16,6 +29,12 @@ export default function Home() {
     return "Good evening";
   };
 
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
   const moods = [
     { label: "Rough", id: 1, emoji: "😣" },
     { label: "Low", id: 2, emoji: "😔" },
@@ -26,142 +45,247 @@ export default function Home() {
 
   return (
     <MainLayout>
-      <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto pb-6 relative">
-        <header className="sticky top-0 z-20 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
-          <h1 className="font-sans text-[16px] font-medium text-foreground">
-            {getGreeting()}, {user.name}
-          </h1>
-          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-sans text-[14px] font-semibold">
-            {user.name.charAt(0)}
+      <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto relative">
+        {/* Quiet, typography-first greeting */}
+        <header className="px-6 pt-10 pb-2 flex items-start justify-between">
+          <div>
+            <p className="font-sans text-[12px] tracking-[0.18em] uppercase text-[#8C7B6A]/80 mb-2">
+              {today}
+            </p>
+            <h1 className="font-serif text-[28px] leading-[1.15] text-foreground font-normal">
+              {getGreeting()},
+              <br />
+              <span className="text-foreground/85">{user.name}.</span>
+            </h1>
           </div>
+          <button
+            onClick={() => setLocation("/profile")}
+            className="w-9 h-9 rounded-full bg-foreground/[0.04] border border-border/60 flex items-center justify-center text-foreground/70 font-sans text-[13px] font-medium mt-1 transition-colors hover:bg-foreground/[0.07]"
+            aria-label="Profile"
+          >
+            {user.name.charAt(0)}
+          </button>
         </header>
 
-        <div className="p-4 space-y-6">
-          <div className="bg-[#F0E8C8] rounded-[20px] p-5 shadow-sm relative overflow-hidden" style={{ boxShadow: "rgba(100,70,30,0.10) 0px 6px 28px" }}>
-            <div className="font-sans text-[10px] font-medium text-[#8C7B6A] tracking-[0.8px] uppercase mb-2">TODAY'S PROMPT</div>
-            <h2 className="font-serif text-[22px] text-foreground leading-[1.35] mb-2">What's one small thing that didn't go wrong today?</h2>
-            <p className="font-sans text-[14px] text-secondary-foreground mb-4">Take 5 minutes. Write anything.</p>
-            <button 
+        <div className="px-6 space-y-10 pt-6">
+          {/* Hero — today's prompt (the focal point) */}
+          <section
+            className="relative rounded-[24px] p-7 overflow-hidden"
+            style={{
+              background:
+                "linear-gradient(180deg, #F2E9CE 0%, #ECE0BD 100%)",
+              boxShadow: "rgba(100,70,30,0.08) 0px 4px 24px",
+            }}
+          >
+            <p className="font-sans text-[10px] font-medium text-[#8C7B6A] tracking-[0.22em] uppercase mb-4">
+              Today's prompt
+            </p>
+            <h2 className="font-serif text-[26px] text-foreground leading-[1.30] mb-3">
+              What's one small thing that didn't go wrong today?
+            </h2>
+            <p className="font-sans text-[14px] text-[#5A5040] mb-6 leading-relaxed">
+              Take five minutes. Write anything.
+            </p>
+            <button
               onClick={() => setLocation("/journal/write")}
-              className="font-sans text-[14px] font-medium text-primary flex items-center float-right"
+              className="font-sans text-[13px] font-medium text-foreground/90 inline-flex items-center group"
             >
-              Open Journal <ArrowRight className="w-4 h-4 ml-1" />
+              Open journal
+              <ArrowRight className="w-3.5 h-3.5 ml-1.5 transition-transform group-hover:translate-x-0.5" strokeWidth={1.75} />
             </button>
-            <div className="clear-both" />
-          </div>
+          </section>
 
+          {/* Quick check-in — quieter */}
           <section>
-            <h3 className="font-sans text-[13px] font-medium text-[#8C7B6A] uppercase tracking-[0.5px] mb-3">Quick check-in</h3>
+            <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-5">
+              Quick check-in
+            </p>
             <div className="flex justify-between">
               {moods.map((m) => (
                 <div key={m.id} className="flex flex-col items-center">
                   <button
                     onClick={() => setCurrentMood(m.id)}
-                    className={`w-[56px] h-[56px] rounded-full flex items-center justify-center mb-1 transition-all duration-300 text-[26px] leading-none active:scale-95 ${
-                      currentMood === m.id ? "bg-primary/15 ring-2 ring-primary scale-105" : "bg-muted border border-[#D4C9B8] hover:bg-muted/70"
+                    className={`w-[52px] h-[52px] rounded-full flex items-center justify-center mb-2 transition-all duration-300 text-[24px] leading-none active:scale-95 ${
+                      currentMood === m.id
+                        ? "bg-foreground/[0.06] ring-1 ring-foreground/30 scale-105"
+                        : "bg-foreground/[0.025] hover:bg-foreground/[0.05]"
                     }`}
                     aria-label={m.label}
                   >
                     <span aria-hidden="true">{m.emoji}</span>
                   </button>
-                  <span className="font-sans text-[11px] text-foreground">{m.label}</span>
+                  <span className={`font-sans text-[11px] transition-colors ${currentMood === m.id ? "text-foreground" : "text-[#8C7B6A]"}`}>
+                    {m.label}
+                  </span>
                 </div>
               ))}
             </div>
           </section>
 
-          <div className="bg-card border border-border rounded-[16px] p-4 flex shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0">
-              <span className="font-sans text-[16px] font-semibold text-primary">D</span>
+          {/* Disha — minimal row */}
+          <section
+            onClick={() => setLocation("/pulse-check")}
+            className="flex items-center justify-between cursor-pointer group py-3"
+          >
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-foreground/[0.04] border border-border/60 flex items-center justify-center mr-3">
+                <span className="font-serif text-[16px] text-foreground/70">D</span>
+              </div>
+              <div>
+                <div className="font-sans text-[14px] font-medium text-foreground">
+                  Disha
+                </div>
+                <div className="font-sans text-[13px] text-[#8C7B6A]">
+                  Ready when you are.
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <div className="font-sans text-[15px] font-semibold text-foreground mb-1">Disha</div>
-              <div className="font-sans text-[14px] text-secondary-foreground mb-2">Ready for a conversation when you are.</div>
-              <button 
-                onClick={() => setLocation("/pulse-check")}
-                className="font-sans text-[14px] font-medium text-primary"
-              >
-                Start a conversation
-              </button>
-            </div>
-          </div>
+            <ArrowRight className="w-4 h-4 text-foreground/40 transition-all group-hover:text-foreground/70 group-hover:translate-x-0.5" strokeWidth={1.75} />
+          </section>
 
+          {/* Tools — quieter rows, not bordered tiles */}
           <section>
-            <h3 className="font-sans text-[13px] font-medium text-[#8C7B6A] uppercase tracking-[0.5px] mb-3">Your tools</h3>
-            <div className="flex overflow-x-auto space-x-3 pb-2 no-scrollbar -mx-4 px-4">
-              <div onClick={() => setLocation("/tools/mood-tracker")} className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3 cursor-pointer">
-                <Activity className="w-5 h-5 text-primary mb-2" />
-                <div className="font-sans text-[15px] font-semibold text-foreground">Mood Tracker</div>
-                <div className="font-sans text-[13px] text-secondary-foreground mb-2">7 days tracked</div>
-                <div className="font-sans text-[12px] font-medium text-primary flex items-center">Open mood tracker <ArrowRight className="w-3 h-3 ml-1" /></div>
-              </div>
-              <div className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3">
-                <BookOpen className="w-5 h-5 text-primary mb-2" />
-                <div className="font-sans text-[15px] font-semibold text-foreground">Guided Journal</div>
-                <div className="font-sans text-[13px] text-secondary-foreground">3 entries this week</div>
-              </div>
-              <div onClick={() => setLocation("/practice")} className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3 cursor-pointer">
-                <CircleDot className="w-5 h-5 text-primary mb-2" />
-                <div className="font-sans text-[15px] font-semibold text-foreground">Practices</div>
-                <div className="font-sans text-[13px] text-secondary-foreground">Recentering moments</div>
-              </div>
-              <div onClick={() => setLocation("/resources")} className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3 cursor-pointer">
-                <Library className="w-5 h-5 text-primary mb-2" />
-                <div className="font-sans text-[15px] font-semibold text-foreground">Resource Library</div>
-                <div className="font-sans text-[13px] text-secondary-foreground">Calm reads</div>
-              </div>
+            <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-5">
+              Your tools
+            </p>
+            <div className="space-y-1">
+              <ToolRow
+                icon={<Activity className="w-[18px] h-[18px]" strokeWidth={1.5} />}
+                title="Mood Tracker"
+                meta="7 days tracked"
+                onClick={() => setLocation("/tools/mood-tracker")}
+              />
+              <ToolRow
+                icon={<BookOpen className="w-[18px] h-[18px]" strokeWidth={1.5} />}
+                title="Guided Journal"
+                meta="3 entries this week"
+                onClick={() => setLocation("/journal")}
+              />
+              <ToolRow
+                icon={<CircleDot className="w-[18px] h-[18px]" strokeWidth={1.5} />}
+                title="Practices"
+                meta="Recentering moments"
+                onClick={() => setLocation("/practice")}
+              />
+              <ToolRow
+                icon={<Library className="w-[18px] h-[18px]" strokeWidth={1.5} />}
+                title="Resource Library"
+                meta="Calm reads"
+                onClick={() => setLocation("/resources")}
+              />
             </div>
           </section>
 
+          {/* Circle — single quiet card */}
           <section>
-            <h3 className="font-sans text-[13px] font-medium text-[#8C7B6A] uppercase tracking-[0.5px] mb-3">Your circles</h3>
-            <div className="bg-card border border-border rounded-[16px] p-4 shadow-sm">
-              <h4 className="font-serif text-[18px] text-foreground mb-1">Academic Pressure</h4>
-              <div className="flex items-center text-[#8C7B6A] font-sans text-[13px] mb-3">
+            <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-5">
+              Your circle
+            </p>
+            <button
+              onClick={() => setLocation("/community/circle/academic")}
+              className="w-full text-left py-3 group"
+            >
+              <h4 className="font-serif text-[19px] text-foreground mb-1">
+                Academic Pressure
+              </h4>
+              <div className="flex items-center text-[#8C7B6A] font-sans text-[12px]">
                 <span>142 voices</span>
-                <span className="mx-2">·</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-[#2D6A2D] mr-1.5" />
-                <span className="text-[#4A6B4A]">Active now</span>
+                <span className="mx-2 opacity-50">·</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5" />
+                <span>Active now</span>
               </div>
-              <button 
-                onClick={() => setLocation("/community/circle/academic")}
-                className="font-sans text-[14px] font-medium text-primary flex items-center"
-              >
-                Visit Circle
-              </button>
-            </div>
+            </button>
           </section>
-        </div>
-        
-        {/* Support Need */}
-        <div className="flex justify-center mt-4 mb-2 pb-safe">
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="font-sans text-[12px] font-medium text-[#8C7B6A] flex items-center px-4 py-2 hover:bg-muted/50 rounded-full transition-colors">
-                <HeartHandshake className="w-3.5 h-3.5 mr-1.5 text-[#E8A020]" /> Need support now?
-              </button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="rounded-t-[24px] bg-card border-t border-border">
-              <SheetHeader className="text-left pb-4 border-b border-border mb-4">
-                <SheetTitle className="font-serif text-[22px] text-foreground">You're not alone. These lines are open.</SheetTitle>
-                <p className="font-sans text-[14px] text-secondary-foreground">Free, confidential, 24/7.</p>
-              </SheetHeader>
-              <div className="space-y-4 pb-8">
-                <div className="bg-background rounded-[12px] p-4 border border-border">
-                  <div className="font-sans text-[15px] font-semibold text-primary mb-1">iCall Mental Health Helpline</div>
-                  <a href="tel:9152987821" className="font-sans text-[22px] font-serif text-foreground block mb-2">9152987821</a>
-                  <a href="tel:9152987821" className="font-sans text-[14px] font-bold text-primary block">Call now</a>
+
+          {/* Need support */}
+          <div className="flex justify-center pt-2 pb-2">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="font-sans text-[12px] font-medium text-[#8C7B6A] flex items-center px-4 py-2 hover:text-foreground/70 transition-colors">
+                  <HeartHandshake className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} />
+                  Need support now?
+                </button>
+              </SheetTrigger>
+              <SheetContent
+                side="bottom"
+                className="rounded-t-[28px] bg-card border-t border-border/60"
+              >
+                <SheetHeader className="text-left pb-5 mb-2">
+                  <SheetTitle className="font-serif text-[24px] text-foreground font-normal leading-tight">
+                    You're not alone.
+                    <br />
+                    These lines are open.
+                  </SheetTitle>
+                  <p className="font-sans text-[14px] text-[#8C7B6A] mt-1">
+                    Free, confidential, 24/7.
+                  </p>
+                </SheetHeader>
+                <div className="space-y-3 pb-8">
+                  <a
+                    href="tel:9152987821"
+                    className="block bg-background rounded-[16px] p-5 border border-border/60 hover:border-primary/40 transition-colors"
+                  >
+                    <div className="font-sans text-[13px] font-medium text-primary mb-1">
+                      iCall Mental Health Helpline
+                    </div>
+                    <div className="font-serif text-[22px] text-foreground">
+                      9152987821
+                    </div>
+                  </a>
+                  <a
+                    href="tel:18602662345"
+                    className="block bg-background rounded-[16px] p-5 border border-border/60 hover:border-primary/40 transition-colors"
+                  >
+                    <div className="font-sans text-[13px] font-medium text-primary mb-1">
+                      Vandrevala Foundation
+                    </div>
+                    <div className="font-serif text-[22px] text-foreground">
+                      1860-2662-345
+                    </div>
+                  </a>
                 </div>
-                <div className="bg-background rounded-[12px] p-4 border border-border">
-                  <div className="font-sans text-[15px] font-semibold text-primary mb-1">Vandrevala Foundation</div>
-                  <a href="tel:18602662345" className="font-sans text-[22px] font-serif text-foreground block mb-2">1860-2662-345</a>
-                  <a href="tel:18602662345" className="font-sans text-[14px] font-bold text-primary block">Call now</a>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </AnimatedPage>
     </MainLayout>
+  );
+}
+
+function ToolRow({
+  icon,
+  title,
+  meta,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  meta: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center justify-between py-3.5 px-1 group transition-colors"
+    >
+      <div className="flex items-center">
+        <div className="w-9 h-9 rounded-full bg-foreground/[0.04] flex items-center justify-center mr-3 text-foreground/60 group-hover:text-foreground/80 transition-colors">
+          {icon}
+        </div>
+        <div className="text-left">
+          <div className="font-sans text-[14px] font-medium text-foreground leading-tight">
+            {title}
+          </div>
+          <div className="font-sans text-[12px] text-[#8C7B6A] mt-0.5">
+            {meta}
+          </div>
+        </div>
+      </div>
+      <ArrowRight
+        className="w-4 h-4 text-foreground/30 transition-all group-hover:text-foreground/60 group-hover:translate-x-0.5"
+        strokeWidth={1.5}
+      />
+    </button>
   );
 }

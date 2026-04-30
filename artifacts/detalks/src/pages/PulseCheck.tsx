@@ -15,6 +15,7 @@ export default function PulseCheck() {
       const timer = setTimeout(() => setStep(1), 1000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [step]);
 
   const handleFirstRound = () => {
