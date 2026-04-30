@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Mic, ArrowUp } from "lucide-react";
+import { ArrowLeft, Mic, ArrowUp, X } from "lucide-react";
 
 export default function ActiveSession() {
   const [, setLocation] = useLocation();
   const [showExit, setShowExit] = useState(false);
   const [showKavach, setShowKavach] = useState(false); // Can be triggered for demo
+  const [showTimeWarning, setShowTimeWarning] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
   const chat = [
@@ -18,6 +19,14 @@ export default function ActiveSession() {
     { sender: "Companion", text: "3am thoughts are their own kind of heavy. When you wake up, what's usually the first thing your mind goes to?" },
   ];
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTimeWarning(true);
+    }, 8000); // Demo delay for 5-min warning
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const triggerClose = () => {
     setShowExit(true);
   };
@@ -25,8 +34,8 @@ export default function ActiveSession() {
   return (
     <AnimatedPage className="flex flex-col h-full bg-background relative overflow-hidden">
       {/* Header */}
-      <div className="bg-card border-b border-border h-[56px] flex items-center px-4 justify-between relative z-10">
-        <button onClick={triggerClose} className="p-2 -ml-2">
+      <div className="bg-card border-b border-border h-[56px] flex items-center px-4 justify-between relative z-10 pt-safe">
+        <button onClick={triggerClose} className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
         <div className="font-sans text-[14px] font-medium text-foreground">Session in progress</div>
@@ -39,6 +48,27 @@ export default function ActiveSession() {
       <div className="text-right px-4 pt-2 font-sans text-[12px] text-muted-foreground">
         198 / 200 messages
       </div>
+
+      {/* Time Warning Toast */}
+      <AnimatePresence>
+        {showTimeWarning && (
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -20, opacity: 0 }}
+            className="absolute top-[80px] left-4 right-4 z-20"
+          >
+            <div className="bg-card border border-[#E0D8CC] rounded-full p-3 px-4 shadow-sm flex items-center justify-between">
+              <span className="font-sans text-[13px] text-secondary-foreground">
+                You've been talking for a while. Take a breath — this session will close in 5 minutes.
+              </span>
+              <button onClick={() => setShowTimeWarning(false)} className="ml-2 text-muted-foreground p-1">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto px-4 pb-4 pt-2 space-y-4">
@@ -69,7 +99,7 @@ export default function ActiveSession() {
 
       {/* Input Area */}
       <div className="bg-card border-t border-border p-3 pb-safe z-10 flex items-end space-x-3">
-        <button className="p-2 text-muted-foreground opacity-40 mb-1">
+        <button className="p-2 text-muted-foreground opacity-40 mb-1 min-w-[44px] min-h-[44px] flex items-center justify-center">
           <Mic className="w-6 h-6" />
         </button>
         <div className="flex-1 bg-card rounded-xl">
@@ -81,7 +111,7 @@ export default function ActiveSession() {
             rows={1}
           />
         </div>
-        <button className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mb-1">
+        <button className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mb-1 active:scale-95 transition-transform">
           <ArrowUp className="w-5 h-5 text-primary-foreground" />
         </button>
       </div>
@@ -100,10 +130,10 @@ export default function ActiveSession() {
               The conversation seems to be shifting. Check in with how your seeker is doing.
             </p>
             <div className="flex flex-col space-y-3">
-              <button className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px]">
+              <button className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px] min-h-[44px]">
                 Get supervisor support
               </button>
-              <button onClick={() => setShowKavach(false)} className="w-full bg-transparent text-secondary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px]">
+              <button onClick={() => setShowKavach(false)} className="w-full bg-transparent text-secondary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px] min-h-[44px]">
                 I've got this
               </button>
             </div>
@@ -132,7 +162,7 @@ export default function ActiveSession() {
               animate={{ opacity: 1 }}
               transition={{ delay: 3 }}
               onClick={() => setLocation("/talk")}
-              className="w-full max-w-[300px] bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px]"
+              className="w-full max-w-[300px] bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px] min-h-[44px]"
             >
               Return Home
             </motion.button>

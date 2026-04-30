@@ -1,54 +1,88 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
 export default function Breathe() {
   const [, setLocation] = useLocation();
-  const [phase, setPhase] = useState<"inhale" | "hold" | "exhale" | "done">("inhale");
+  const search = useSearch();
+  const searchParams = new URLSearchParams(search);
+  const technique = searchParams.get("t") || "belly"; // belly, box, 478
+
+  const [phase, setPhase] = useState<"inhale" | "hold1" | "exhale" | "hold2" | "done">("inhale");
   const [cycles, setCycles] = useState(0);
 
+  const getTimings = () => {
+    if (technique === "box") return { inhale: 4000, hold1: 4000, exhale: 4000, hold2: 4000, totalCycles: 4 };
+    if (technique === "478") return { inhale: 4000, hold1: 7000, exhale: 8000, hold2: 0, totalCycles: 4 };
+    return { inhale: 4000, hold1: 2000, exhale: 6000, hold2: 0, totalCycles: 4 }; // belly
+  };
+
+  const getLabel = () => {
+    if (technique === "box") return "Box Breathing";
+    if (technique === "478") return "4-7-8 Technique";
+    return "Belly Breathing";
+  };
+
   useEffect(() => {
-    if (cycles >= 3) {
+    const timings = getTimings();
+
+    if (cycles >= timings.totalCycles) {
       setPhase("done");
       return;
     }
 
     let timer: NodeJS.Timeout;
     if (phase === "inhale") {
-      timer = setTimeout(() => setPhase("hold"), 4000);
-    } else if (phase === "hold") {
-      timer = setTimeout(() => setPhase("exhale"), 2000);
+      timer = setTimeout(() => setPhase(timings.hold1 > 0 ? "hold1" : "exhale"), timings.inhale);
+    } else if (phase === "hold1") {
+      timer = setTimeout(() => setPhase("exhale"), timings.hold1);
     } else if (phase === "exhale") {
       timer = setTimeout(() => {
+        if (timings.hold2 > 0) {
+          setPhase("hold2");
+        } else {
+          setCycles(c => c + 1);
+          if (cycles < timings.totalCycles - 1) setPhase("inhale");
+        }
+      }, timings.exhale);
+    } else if (phase === "hold2") {
+      timer = setTimeout(() => {
         setCycles(c => c + 1);
-        if (cycles < 2) setPhase("inhale");
-      }, 6000);
+        if (cycles < timings.totalCycles - 1) setPhase("inhale");
+      }, timings.hold2);
     }
 
     return () => clearTimeout(timer);
-  }, [phase, cycles]);
+  }, [phase, cycles, technique]);
 
   const getSize = () => {
-    if (phase === "inhale" || phase === "hold") return 240;
+    if (phase === "inhale" || phase === "hold1") return 240;
     return 80;
   };
 
   const getDuration = () => {
-    if (phase === "inhale") return 4;
-    if (phase === "hold") return 0;
-    return 6;
+    const timings = getTimings();
+    if (phase === "inhale") return timings.inhale / 1000;
+    if (phase === "hold1") return 0;
+    if (phase === "exhale") return timings.exhale / 1000;
+    if (phase === "hold2") return 0;
+    return 0;
   };
 
   return (
     <AnimatedPage className="flex flex-col h-full bg-background relative overflow-hidden items-center justify-center">
       <button 
-        onClick={() => setLocation("/home")}
-        className="absolute top-safe right-4 p-4 z-20"
+        onClick={() => setLocation("/practice")}
+        className="absolute top-safe right-4 p-4 z-20 min-w-[44px] min-h-[44px] flex items-center justify-center"
       >
         <X className="w-6 h-6 text-secondary-foreground opacity-50" />
       </button>
+
+      <div className="absolute top-24 left-0 right-0 text-center text-[#8C7B6A] font-sans text-[13px] font-medium tracking-[0.5px] uppercase">
+        {getLabel()}
+      </div>
 
       <div className="relative flex items-center justify-center w-[300px] h-[300px]">
         {phase !== "done" && (
@@ -68,7 +102,7 @@ export default function Breathe() {
           {phase === "inhale" && (
             <motion.div key="inhale" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="font-serif text-[28px] text-foreground">Inhale</motion.div>
           )}
-          {phase === "hold" && (
+          {(phase === "hold1" || phase === "hold2") && (
             <motion.div key="hold" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="font-serif text-[28px] text-foreground">Hold</motion.div>
           )}
           {phase === "exhale" && (
@@ -79,8 +113,8 @@ export default function Breathe() {
               <div className="font-serif text-[28px] text-foreground mb-2">Well done.</div>
               <div className="font-sans text-[16px] text-secondary-foreground">Take a moment.</div>
               <button 
-                onClick={() => setLocation("/home")}
-                className="mt-8 bg-transparent text-secondary-foreground border border-border px-6 py-2 rounded-full font-sans text-[14px]"
+                onClick={() => setLocation("/practice")}
+                className="mt-8 bg-transparent text-secondary-foreground border border-border px-6 py-2 rounded-full font-sans text-[14px] min-h-[44px]"
               >
                 Return
               </button>

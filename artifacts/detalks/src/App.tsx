@@ -20,6 +20,11 @@ import CommunityCircle from "@/pages/CommunityCircle";
 import Journal from "@/pages/Journal";
 import JournalWrite from "@/pages/JournalWrite";
 import Breathe from "@/pages/Breathe";
+import Practices from "@/pages/Practices";
+import Grounding from "@/pages/Grounding";
+import Reflection from "@/pages/Reflection";
+import Resources from "@/pages/Resources";
+import PreCheck from "@/pages/PreCheck";
 import Progress from "@/pages/Progress";
 import Profile from "@/pages/Profile";
 import Subscription from "@/pages/Subscription";
@@ -39,11 +44,16 @@ function Router() {
         <Route path="/pulse-check" component={PulseCheck} />
         <Route path="/home" component={Home} />
         <Route path="/talk" component={Talk} />
+        <Route path="/session/precheck" component={PreCheck} />
         <Route path="/session/active" component={ActiveSession} />
         <Route path="/community/circle/:id" component={CommunityCircle} />
         <Route path="/journal" component={Journal} />
         <Route path="/journal/write" component={JournalWrite} />
+        <Route path="/practice" component={Practices} />
         <Route path="/practice/breathe" component={Breathe} />
+        <Route path="/practice/grounding/:id" component={Grounding} />
+        <Route path="/practice/reflection" component={Reflection} />
+        <Route path="/resources" component={Resources} />
         <Route path="/progress" component={Progress} />
         <Route path="/profile" component={Profile} />
         <Route path="/subscription" component={Subscription} />

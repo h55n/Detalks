@@ -1,0 +1,142 @@
+**Prompt: DeTalks Feature Integration + Design Consistency**
+
+You are building and integrating a complete feature system into an existing mental wellness app based on the DeTalks architecture. Your goal is to **implement all features cohesively**, fill any missing gaps, and ensure **strict design and behavioral consistency across the entire product**.
+
+### Core Objective
+
+Integrate all Tier 1, Tier 2, Tier 3 features, AI systems (Disha & Kavach), and session architecture into the current app without breaking UX flow, while preserving emotional tone, safety rules, and system boundaries.
+
+---
+
+### System Rules (Non-Negotiable)
+
+* Follow strict **3-tier separation** (Self-Guided / Community / Professional)
+* Maintain **one primary action per screen**
+* No feature should break **anti-dependency design**
+* Use **progressive disclosure** — don’t overwhelm users
+* No clinical language anywhere in UI
+* Every flow must feel **warm, safe, and non-judgmental**
+
+---
+
+### Features to Integrate
+
+Ensure ALL of the following exist and are connected logically:
+
+#### Tier 1 (Self-Guided)
+
+* Mood Tracker (with private trend visualization)
+* Guided Journaling (prompt-based + optional sharing)
+* Micro-Practices (breathing, grounding, reflection)
+* Resource Library (India-focused, offline-ready)
+* Progress Journey (private milestones, no gamification)
+
+#### Tier 2 (Community + Companion)
+
+* Anonymous Community Circles (no identity persistence, no DMs)
+* Student Companion Sessions (random assignment, limited sessions)
+* Session enforcement (200 messages / 45 mins)
+* Voice + Video escalation (restricted, triggered only)
+* Anti-attachment system (no repeat companions)
+
+#### Tier 3 (Professional)
+
+* Licensed psychologist sessions
+* Warm handoff with AI-generated summaries
+* Session history + exportable reports
+
+---
+
+### AI Systems
+
+* **Disha (visible)**: conversational triage → routing engine
+* **Kavach (invisible)**: real-time safety monitoring + escalation + learning
+
+Ensure:
+
+* Disha appears only at entry and session transitions
+* Kavach never interrupts UI directly
+* Routing is invisible but accurate
+
+---
+
+### Session Architecture
+
+* Enforce all limits server-side
+* Maintain flow:
+  Entry → Disha → Routing → Session → Kavach monitoring → Closure → Reflection
+* Ensure smooth transitions (no abrupt endings)
+
+---
+
+### Safety & Compliance
+
+* Crisis escalation always overrides everything
+* Show helplines with **soft UI (not alarming)**
+* Require explicit consent before monitored sessions
+* No data misuse (no ads, no sharing)
+
+---
+
+### Design System Enforcement
+
+Strictly follow:
+
+#### Colors
+
+* Forest Green (#2D6A2D) → primary actions
+* Warm Sand (#F5EFE6) → background
+* Gold (#F5C518) → rare milestones only
+* No red except crisis
+
+#### Typography
+
+* DM Serif → emotional headings only
+* DM Sans → all body text
+* No bold serif
+
+#### UI Behavior
+
+* Soft animations only (calming, not decorative)
+* No sharp edges (min 8px radius)
+* No emoji in emotional/clinical contexts
+* Maintain breathing space (48px spacing)
+
+---
+
+### UX Consistency Rules
+
+* Every screen must answer: *“What should the user do next?”*
+* No feature should feel like a separate product
+* Maintain consistent tone:
+
+  * “Let’s talk” (not “Start session”)
+  * “Take a breath” (not “Success”)
+
+---
+
+### Fill Missing Gaps
+
+If anything is unclear or missing:
+
+* Add logical connectors between features
+* Ensure smooth onboarding → engagement → escalation journey
+* Avoid feature duplication or overlap
+* Prioritize emotional clarity over feature density
+
+---
+
+### Output Expectation
+
+* A fully integrated, scalable product system
+* Seamless navigation between tiers
+* Emotionally consistent experience
+* Technically enforceable architecture
+
+---
+
+Reference the full feature specification here: 
+
+---
+
+**End Goal:** The app should feel like a single, calm, intelligent space — not a collection of features.

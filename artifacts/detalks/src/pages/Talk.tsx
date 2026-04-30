@@ -10,17 +10,16 @@ export default function Talk() {
   const [finding, setFinding] = useState(false);
 
   const startSession = () => {
-    setFinding(true);
-    setTimeout(() => {
-      setLocation("/session/active");
-    }, 3000);
+    setLocation("/session/precheck");
   };
 
   const circles = [
     { id: "academic", name: "Academic Pressure", voices: 142, tag: "Studies", post: "'Sometimes just knowing others feel this way...' — TidePebble" },
     { id: "loneliness", name: "Loneliness", voices: 89, tag: "Connection", post: "'Is it normal to feel lonely even in a crowded dorm?' — QuietBranch" },
-    { id: "work", name: "Work Stress", voices: 211, tag: "Career", post: "'The emails never stop coming...' — RushedRiver" },
+    { id: "grief", name: "Grief", voices: 64, tag: "Loss", post: "'It comes in waves, unexpectedly.' — AutumnMist" },
     { id: "relationship", name: "Relationship Transitions", voices: 76, tag: "Life Changes", post: "'Moving on is harder than I thought.' — FallenLeaf" },
+    { id: "work", name: "Work Stress", voices: 211, tag: "Career", post: "'The emails never stop coming...' — RushedRiver" },
+    { id: "identity", name: "Identity", voices: 92, tag: "Self", post: "'Who am I when nobody is watching?' — DeepRoot" },
   ];
 
   return (
@@ -79,18 +78,24 @@ export default function Talk() {
                 </p>
                 <button
                   onClick={startSession}
-                  className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px]"
+                  className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px] min-h-[44px]"
                 >
-                  Start a Session
+                  Let's talk
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="flex flex-wrap gap-2 justify-center pb-2">
                 {["45 min max", "Text-based", "Always supervised"].map(txt => (
                   <span key={txt} className="bg-muted text-secondary-foreground font-sans text-[12px] font-medium px-3 py-1.5 rounded-full">
                     {txt}
                   </span>
                 ))}
+              </div>
+              
+              <div className="text-center px-4">
+                <p className="font-sans text-[12px] text-[#8C7B6A] italic">
+                  You'll be matched with a different companion each time — a fresh space, every conversation.
+                </p>
               </div>
 
               <div>
@@ -111,7 +116,7 @@ export default function Talk() {
               </div>
             </motion.div>
           ) : (
-            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4 pb-6">
               <h2 className="font-serif text-[22px] text-foreground mb-4 px-2">Anonymous spaces to feel less alone</h2>
               {circles.map(circle => (
                 <div key={circle.id} className="bg-card border border-border rounded-[16px] p-5 shadow-sm space-y-3">
@@ -127,7 +132,7 @@ export default function Talk() {
                   </p>
                   <button 
                     onClick={() => setLocation(`/community/circle/${circle.id}`)}
-                    className="font-sans text-[14px] font-medium text-primary mt-2"
+                    className="font-sans text-[14px] font-medium text-primary mt-2 min-h-[44px] flex items-center"
                   >
                     Visit Circle
                   </button>

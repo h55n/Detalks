@@ -1,8 +1,9 @@
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { useAppContext } from "@/context/AppContext";
-import { ArrowRight, Activity, BookOpen, CircleDot, ChevronRight, User as UserIcon } from "lucide-react";
+import { ArrowRight, Activity, BookOpen, CircleDot, ChevronRight, User as UserIcon, Library, HeartHandshake } from "lucide-react";
 import { MainLayout } from "@/components/MainLayout";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -25,7 +26,7 @@ export default function Home() {
 
   return (
     <MainLayout>
-      <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto pb-6">
+      <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto pb-6 relative">
         <header className="sticky top-0 z-20 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
           <h1 className="font-sans text-[16px] font-medium text-foreground">
             {getGreeting()}, {user.name}
@@ -98,10 +99,15 @@ export default function Home() {
                 <div className="font-sans text-[15px] font-semibold text-foreground">Guided Journal</div>
                 <div className="font-sans text-[13px] text-secondary-foreground">3 entries this week</div>
               </div>
-              <div onClick={() => setLocation("/practice/breathe")} className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3 cursor-pointer">
+              <div onClick={() => setLocation("/practice")} className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3 cursor-pointer">
                 <CircleDot className="w-5 h-5 text-primary mb-2" />
-                <div className="font-sans text-[15px] font-semibold text-foreground">Breathe</div>
-                <div className="font-sans text-[13px] text-secondary-foreground">2 min · anytime</div>
+                <div className="font-sans text-[15px] font-semibold text-foreground">Practices</div>
+                <div className="font-sans text-[13px] text-secondary-foreground">Recentering moments</div>
+              </div>
+              <div onClick={() => setLocation("/resources")} className="w-[160px] flex-shrink-0 bg-background border border-[#D4C9B8] border-l-[4px] border-l-primary rounded-[16px] p-3 cursor-pointer">
+                <Library className="w-5 h-5 text-primary mb-2" />
+                <div className="font-sans text-[15px] font-semibold text-foreground">Resource Library</div>
+                <div className="font-sans text-[13px] text-secondary-foreground">Calm reads</div>
               </div>
             </div>
           </section>
@@ -124,6 +130,35 @@ export default function Home() {
               </button>
             </div>
           </section>
+        </div>
+        
+        {/* Support Need */}
+        <div className="flex justify-center mt-4 mb-2 pb-safe">
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="font-sans text-[12px] font-medium text-[#8C7B6A] flex items-center px-4 py-2 hover:bg-muted/50 rounded-full transition-colors">
+                <HeartHandshake className="w-3.5 h-3.5 mr-1.5 text-[#E8A020]" /> Need support now?
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-[24px] bg-card border-t border-border">
+              <SheetHeader className="text-left pb-4 border-b border-border mb-4">
+                <SheetTitle className="font-serif text-[22px] text-foreground">You're not alone. These lines are open.</SheetTitle>
+                <p className="font-sans text-[14px] text-secondary-foreground">Free, confidential, 24/7.</p>
+              </SheetHeader>
+              <div className="space-y-4 pb-8">
+                <div className="bg-background rounded-[12px] p-4 border border-border">
+                  <div className="font-sans text-[15px] font-semibold text-primary mb-1">iCall Mental Health Helpline</div>
+                  <a href="tel:9152987821" className="font-sans text-[22px] font-serif text-foreground block mb-2">9152987821</a>
+                  <a href="tel:9152987821" className="font-sans text-[14px] font-bold text-primary block">Call now</a>
+                </div>
+                <div className="bg-background rounded-[12px] p-4 border border-border">
+                  <div className="font-sans text-[15px] font-semibold text-primary mb-1">Vandrevala Foundation</div>
+                  <a href="tel:18602662345" className="font-sans text-[22px] font-serif text-foreground block mb-2">1860-2662-345</a>
+                  <a href="tel:18602662345" className="font-sans text-[14px] font-bold text-primary block">Call now</a>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </AnimatedPage>
     </MainLayout>
