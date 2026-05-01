@@ -15,40 +15,47 @@ export default function SessionHistory() {
 
   return (
     <MainLayout>
-      <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto pb-6">
-        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-md px-4 py-4 border-b border-border">
-          <div className="flex items-center">
-            <button onClick={() => setLocation("/profile")} className="p-2 -ml-2 mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
-              <ArrowLeft className="w-6 h-6 text-foreground" />
-            </button>
-            <div>
-              <h1 className="font-serif text-[28px] text-foreground leading-tight">Your Sessions</h1>
-              <p className="font-sans text-[13px] text-[#8C7B6A] italic">Private to you.</p>
-            </div>
-          </div>
+      <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto">
+        <header className="px-6 pt-10 pb-4">
+          <button
+            onClick={() => setLocation("/profile")}
+            className="p-2 -ml-2 mb-4 min-h-[44px] min-w-[44px] flex items-center"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
+          </button>
+          <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-2">
+            Private to you
+          </p>
+          <h1 className="font-serif text-[30px] text-foreground font-normal leading-[1.15]">
+            Session History
+          </h1>
         </header>
 
-        <div className="p-4 space-y-4">
+        <div className="px-6 space-y-3 pb-8">
           {sessions.map((s, i) => (
-            <div key={s.id} className="bg-card border border-[#E0D8CC] rounded-[16px] p-5 shadow-sm space-y-3" style={{ boxShadow: "rgba(100, 70, 30, 0.05) 0px 4px 20px" }}>
-              <div className="flex justify-between items-center">
+            <div
+              key={s.id}
+              className="bg-card rounded-[20px] p-5 border border-border/60"
+              style={{ boxShadow: "rgba(100,70,30,0.05) 0px 4px 16px" }}
+            >
+              <div className="flex justify-between items-center mb-3">
                 <span className="font-sans text-[13px] text-[#8C7B6A]">Session {s.id}</span>
-                <span className="font-sans text-[13px] text-secondary-foreground">{s.date}</span>
+                <span className="font-sans text-[12px] text-[#8C7B6A]">{s.date}</span>
               </div>
-              <div className="flex gap-2 flex-wrap">
-                {s.tags.map(t => (
-                  <span key={t} className="bg-primary/10 text-primary font-sans text-[12px] font-medium px-3 py-1 rounded-full">
+              <div className="flex gap-2 flex-wrap mb-3">
+                {s.tags.map((t) => (
+                  <span key={t} className="bg-foreground/[0.05] text-foreground/70 font-sans text-[12px] px-3 py-1 rounded-full">
                     {t}
                   </span>
                 ))}
               </div>
-              <div className="font-sans text-[12px] text-secondary-foreground">
+              <div className="font-sans text-[12px] text-[#8C7B6A]">
                 {s.duration} · {s.messages} messages
               </div>
               {i === sessions.length - 1 && (
-                <div className="pt-2 border-t border-border mt-2 font-sans text-[11px] text-[#8C7B6A] italic">
-                  Companion was different each time. By design.
-                </div>
+                <p className="font-sans text-[11px] text-[#8C7B6A] italic mt-3 pt-3 border-t border-border/50">
+                  A different companion each time. By design.
+                </p>
               )}
             </div>
           ))}

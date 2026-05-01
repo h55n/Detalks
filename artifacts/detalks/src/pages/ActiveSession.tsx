@@ -34,14 +34,14 @@ export default function ActiveSession() {
   return (
     <AnimatedPage className="flex flex-col h-full bg-background relative overflow-hidden">
       {/* Header */}
-      <div className="bg-card border-b border-border h-[56px] flex items-center px-4 justify-between relative z-10 pt-safe">
+      <div className="h-[56px] flex items-center px-5 justify-between relative z-10 border-b border-border/50">
         <button onClick={triggerClose} className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+          <ArrowLeft className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
         </button>
-        <div className="font-sans text-[14px] font-medium text-foreground">Session in progress</div>
-        <div className="font-sans text-[13px] text-muted-foreground font-mono">32:14</div>
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-muted">
-          <div className="h-full bg-primary w-[70%]" />
+        <div className="font-sans text-[13px] font-medium text-[#8C7B6A]">Session in progress</div>
+        <div className="font-sans text-[13px] text-[#8C7B6A] font-mono">32:14</div>
+        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-foreground/[0.04]">
+          <div className="h-full bg-primary/60 w-[70%]" />
         </div>
       </div>
 
@@ -98,21 +98,21 @@ export default function ActiveSession() {
       </div>
 
       {/* Input Area */}
-      <div className="bg-card border-t border-border p-3 pb-safe z-10 flex items-end space-x-3">
-        <button className="p-2 text-muted-foreground opacity-40 mb-1 min-w-[44px] min-h-[44px] flex items-center justify-center">
-          <Mic className="w-6 h-6" />
+      <div className="bg-card/90 backdrop-blur-md border-t border-border/50 p-4 pb-8 z-10 flex items-end gap-3">
+        <button className="p-2 text-foreground/30 mb-0.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
+          <Mic className="w-5 h-5" strokeWidth={1.5} />
         </button>
-        <div className="flex-1 bg-card rounded-xl">
+        <div className="flex-1 bg-background/80 border border-border/60 rounded-[14px] px-4 py-2.5">
           <textarea
-            placeholder="Share what's on your mind..."
+            placeholder="Share what's on your mind…"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            className="w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground placeholder:text-muted-foreground resize-none max-h-[100px] py-3"
+            className="w-full bg-transparent border-none outline-none font-sans text-[15px] text-foreground placeholder:text-[#8C7B6A] resize-none max-h-[100px]"
             rows={1}
           />
         </div>
-        <button className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mb-1 active:scale-95 transition-transform">
-          <ArrowUp className="w-5 h-5 text-primary-foreground" />
+        <button className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform">
+          <ArrowUp className="w-4 h-4 text-background" strokeWidth={2} />
         </button>
       </div>
 

@@ -17,52 +17,68 @@ export default function JournalWrite() {
     { id: 5, emoji: "😄", label: "Great" },
   ];
 
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
   return (
-    <AnimatedPage className="flex flex-col h-full bg-background relative">
-      <div className="flex items-center justify-between px-4 py-4 sticky top-0 z-10">
-        <button onClick={() => setLocation("/journal")} className="p-2 -ml-2">
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+    <AnimatedPage className="flex flex-col h-full bg-background">
+      {/* Minimal top bar */}
+      <div className="flex items-center justify-between px-5 py-4">
+        <button
+          onClick={() => setLocation("/journal")}
+          className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center"
+        >
+          <ArrowLeft className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
         </button>
-        
-        <div className="flex space-x-2">
-          {moods.map(m => (
+
+        {/* Mood row */}
+        <div className="flex gap-2">
+          {moods.map((m) => (
             <button
               key={m.id}
               onClick={() => setCurrentMood(m.id)}
               aria-label={m.label}
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-[18px] leading-none transition-all duration-300 active:scale-95 ${
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-[18px] leading-none transition-all duration-200 active:scale-95 ${
                 currentMood === m.id
-                  ? "bg-primary/15 ring-2 ring-primary scale-105"
-                  : "bg-muted border border-[#D4C9B8]"
+                  ? "bg-foreground/[0.07] ring-1 ring-foreground/30 scale-110"
+                  : "bg-foreground/[0.025]"
               }`}
             >
               <span aria-hidden="true">{m.emoji}</span>
             </button>
           ))}
         </div>
-        
-        <button onClick={() => setLocation("/journal")} className="p-2 -mr-2">
-          <Check className="w-5 h-5 text-primary" />
+
+        <button
+          onClick={() => setLocation("/journal")}
+          className="p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-end"
+        >
+          <Check className="w-5 h-5 text-primary" strokeWidth={2} />
         </button>
       </div>
 
-      <div className="flex-1 p-6 pt-2">
-        <div className="font-sans text-[13px] text-[#8C7B6A] mb-6">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </div>
-        
-        <div className="bg-[#F0E8C8] rounded-xl p-4 mb-6 relative">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#E8A020] rounded-l-xl" />
-          <p className="font-serif text-[18px] text-foreground italic">
+      <div className="flex-1 px-6 pt-2 pb-8 flex flex-col">
+        <p className="font-sans text-[12px] text-[#8C7B6A] mb-6">{today}</p>
+
+        {/* Prompt */}
+        <div
+          className="rounded-[18px] p-5 mb-6"
+          style={{ background: "linear-gradient(160deg, #F2E9CE 0%, #ECE0BD 100%)" }}
+        >
+          <p className="font-serif text-[18px] text-foreground leading-[1.40] italic">
             "What's one small thing that didn't go wrong today?"
           </p>
         </div>
 
+        {/* Writing area */}
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Start writing..."
-          className="w-full h-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground leading-[1.80] placeholder:text-muted-foreground resize-none"
+          placeholder="Start writing…"
+          className="flex-1 w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground leading-[1.85] placeholder:text-[#8C7B6A]/60 resize-none"
           autoFocus
         />
       </div>

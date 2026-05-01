@@ -6,70 +6,115 @@ export default function Subscription() {
   const [, setLocation] = useLocation();
 
   return (
-    <AnimatedPage className="flex flex-col h-full bg-background relative overflow-y-auto pb-12">
-      <div className="p-4 sticky top-0 z-10 bg-background/80 backdrop-blur-md">
-        <button onClick={() => setLocation("/profile")} className="p-2 -ml-2">
-          <ArrowLeft className="w-6 h-6 text-foreground" />
+    <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto">
+      <header className="px-6 pt-10 pb-4">
+        <button
+          onClick={() => setLocation("/profile")}
+          className="p-2 -ml-2 mb-4 min-h-[44px] min-w-[44px] flex items-center"
+        >
+          <ArrowLeft className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
         </button>
-      </div>
-
-      <div className="px-6 pt-2 pb-6">
-        <h1 className="font-serif text-[32px] text-foreground mb-2">Choose your space</h1>
-        <p className="font-sans text-[15px] text-secondary-foreground mb-8">
-          Find the level of support that fits your current needs.
+        <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-2">
+          Support levels
         </p>
+        <h1 className="font-serif text-[30px] text-foreground font-normal leading-[1.15] mb-1">
+          Choose your space
+        </h1>
+        <p className="font-sans text-[14px] text-[#8C7B6A]">
+          Find the level of support that fits your needs.
+        </p>
+      </header>
 
-        <div className="space-y-4">
-          <div className="bg-card border border-border rounded-[20px] p-6 shadow-sm">
-            <h2 className="font-sans text-[18px] font-semibold text-foreground mb-1">Free</h2>
-            <div className="font-serif text-[28px] text-foreground mb-4">₹0<span className="font-sans text-[14px] text-muted-foreground font-normal">/month</span></div>
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">Access to Community Circles</span></li>
-              <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">3 Journal Entries per week</span></li>
-              <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">1 Companion Session per week</span></li>
-            </ul>
-            <button className="w-full bg-muted text-secondary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px]">
-              Current Plan
-            </button>
+      <div className="px-6 space-y-4 pb-10">
+        {/* Free */}
+        <div
+          className="bg-card rounded-[24px] p-6 border border-border/60"
+          style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
+        >
+          <h2 className="font-sans text-[15px] font-semibold text-foreground mb-1">Free</h2>
+          <div className="flex items-baseline gap-1 mb-5">
+            <span className="font-serif text-[36px] text-foreground">₹0</span>
+            <span className="font-sans text-[14px] text-[#8C7B6A]">/month</span>
           </div>
-
-          <div className="bg-[#F0E8C8] border-2 border-[#E8A020] rounded-[20px] p-6 shadow-md relative">
-            <div className="absolute top-0 right-0 bg-[#E8A020] text-[#FAF6F0] font-sans text-[10px] font-bold uppercase tracking-[1px] px-3 py-1 rounded-bl-[12px] rounded-tr-[18px]">
-              Student
-            </div>
-            <h2 className="font-sans text-[18px] font-semibold text-foreground mb-1">Companion+</h2>
-            <div className="font-serif text-[28px] text-foreground mb-4">₹99<span className="font-sans text-[14px] text-[#8C7B6A] font-normal">/month</span></div>
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start"><Check className="w-4 h-4 text-[#2D6A2D] mr-2 mt-0.5" /><span className="font-sans text-[14px] text-foreground">Unlimited Companion Sessions</span></li>
-              <li className="flex items-start"><Check className="w-4 h-4 text-[#2D6A2D] mr-2 mt-0.5" /><span className="font-sans text-[14px] text-foreground">Unlimited Journaling</span></li>
-              <li className="flex items-start"><Check className="w-4 h-4 text-[#2D6A2D] mr-2 mt-0.5" /><span className="font-sans text-[14px] text-foreground">Priority matching</span></li>
-            </ul>
-            <button className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px]">
-              Upgrade to Companion+
-            </button>
-          </div>
-
-          <div className="bg-card border border-border rounded-[20px] p-6 shadow-sm">
-            <h2 className="font-sans text-[18px] font-semibold text-foreground mb-1">Professional</h2>
-            <div className="font-serif text-[28px] text-foreground mb-4">₹899<span className="font-sans text-[14px] text-muted-foreground font-normal">/session</span></div>
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">Licensed therapists</span></li>
-              <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">Video or text sessions</span></li>
-              <li className="flex items-start"><Check className="w-4 h-4 text-primary mr-2 mt-0.5" /><span className="font-sans text-[14px] text-secondary-foreground">Personalized care plan</span></li>
-            </ul>
-            <button onClick={() => setLocation("/professional")} className="w-full bg-transparent border border-primary text-primary font-sans text-[14px] font-medium py-3 rounded-[12px]">
-              Book a Session
-            </button>
-          </div>
+          <ul className="space-y-3 mb-6">
+            {["Community Circles access", "3 journal entries per week", "1 companion session per week"].map((item) => (
+              <li key={item} className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
+                <span className="font-sans text-[14px] text-[#8C7B6A]">{item}</span>
+              </li>
+            ))}
+          </ul>
+          <button className="w-full bg-foreground/[0.04] border border-border/60 text-[#8C7B6A] font-sans text-[14px] font-medium py-3.5 rounded-[12px]">
+            Current plan
+          </button>
         </div>
 
-        <div className="mt-8 bg-card border border-border rounded-[16px] p-5 shadow-sm">
-          <h3 className="font-sans text-[15px] font-medium text-foreground mb-2">Government Schemes</h3>
-          <p className="font-sans text-[13px] text-secondary-foreground leading-[1.60] mb-4">
+        {/* Companion+ — featured */}
+        <div
+          className="rounded-[24px] p-6 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(160deg, #F2E9CE 0%, #E8DDB5 100%)",
+            boxShadow: "rgba(232,160,32,0.18) 0px 0px 0px 1.5px, rgba(100,70,30,0.08) 0px 6px 28px",
+          }}
+        >
+          <div className="absolute top-0 right-0 bg-[#E8A020] text-[#FAF6F0] font-sans text-[10px] font-bold uppercase tracking-[1px] px-3 py-1.5 rounded-bl-[12px] rounded-tr-[22px]">
+            Student
+          </div>
+          <h2 className="font-sans text-[15px] font-semibold text-foreground mb-1">Companion+</h2>
+          <div className="flex items-baseline gap-1 mb-5">
+            <span className="font-serif text-[36px] text-foreground">₹99</span>
+            <span className="font-sans text-[14px] text-[#8C7B6A]">/month</span>
+          </div>
+          <ul className="space-y-3 mb-6">
+            {["Unlimited companion sessions", "Unlimited journaling", "Priority matching"].map((item) => (
+              <li key={item} className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
+                <span className="font-sans text-[14px] text-foreground">{item}</span>
+              </li>
+            ))}
+          </ul>
+          <button className="w-full bg-foreground text-background font-sans text-[14px] font-medium py-3.5 rounded-[12px]">
+            Upgrade to Companion+
+          </button>
+        </div>
+
+        {/* Professional */}
+        <div
+          className="bg-card rounded-[24px] p-6 border border-border/60"
+          style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
+        >
+          <h2 className="font-sans text-[15px] font-semibold text-foreground mb-1">Professional</h2>
+          <div className="flex items-baseline gap-1 mb-5">
+            <span className="font-serif text-[36px] text-foreground">₹899</span>
+            <span className="font-sans text-[14px] text-[#8C7B6A]">/session</span>
+          </div>
+          <ul className="space-y-3 mb-6">
+            {["Licensed therapists", "Video or text sessions", "Personalized care plan"].map((item) => (
+              <li key={item} className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
+                <span className="font-sans text-[14px] text-[#8C7B6A]">{item}</span>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={() => setLocation("/professional")}
+            className="w-full border border-foreground/20 text-foreground font-sans text-[14px] font-medium py-3.5 rounded-[12px]"
+          >
+            Book a session
+          </button>
+        </div>
+
+        {/* Gov scheme */}
+        <div
+          className="bg-card rounded-[20px] p-5 border border-border/60"
+          style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
+        >
+          <h3 className="font-sans text-[14px] font-semibold text-foreground mb-2">Government Schemes</h3>
+          <p className="font-sans text-[13px] text-[#8C7B6A] leading-[1.65] mb-4">
             If you need professional support but cannot afford it, you may be eligible for free sessions through our government partnerships.
           </p>
-          <button className="font-sans text-[13px] font-medium text-primary">
-            Apply for access
+          <button className="font-sans text-[13px] font-medium text-primary min-h-[44px]">
+            Apply for access →
           </button>
         </div>
       </div>

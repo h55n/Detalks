@@ -51,8 +51,8 @@ export default function Reflection() {
               <textarea
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                placeholder="Type your thoughts here..."
-                className="w-full bg-card border border-border rounded-xl p-4 font-sans text-[16px] text-foreground min-h-[120px] resize-none mb-8 placeholder:text-muted-foreground outline-none focus:border-primary/50 transition-colors"
+                placeholder="Type your thoughts here…"
+                className="w-full bg-card border border-border/60 rounded-[14px] p-4 font-sans text-[16px] text-foreground min-h-[120px] resize-none mb-8 placeholder:text-[#8C7B6A] outline-none transition-colors"
               />
               
               <div className="flex justify-end">
