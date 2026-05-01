@@ -7,7 +7,7 @@ type User = {
   alias: string;
 };
 
-type MoodHistory = number[]; // e.g. [3,3,4,2,3,4,4] (1-5 scale)
+type MoodHistory = number[];
 
 export type JournalEntry = {
   id: string;
@@ -28,6 +28,8 @@ type AppState = {
   setCurrentTab: (tab: string) => void;
   currentMood: number | null;
   setCurrentMood: (mood: number | null) => void;
+  streakNudge: boolean;
+  dismissNudge: () => void;
 };
 
 const defaultState: AppState = {
@@ -81,6 +83,8 @@ const defaultState: AppState = {
   setCurrentTab: () => {},
   currentMood: null,
   setCurrentMood: () => {},
+  streakNudge: true,
+  dismissNudge: () => {},
 };
 
 const AppContext = createContext<AppState>(defaultState);
@@ -88,6 +92,9 @@ const AppContext = createContext<AppState>(defaultState);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentTab, setCurrentTab] = useState("home");
   const [currentMood, setCurrentMood] = useState<number | null>(null);
+  const [streakNudge, setStreakNudge] = useState(true);
+
+  const dismissNudge = () => setStreakNudge(false);
 
   return (
     <AppContext.Provider
@@ -97,6 +104,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentTab,
         currentMood,
         setCurrentMood,
+        streakNudge,
+        dismissNudge,
       }}
     >
       {children}

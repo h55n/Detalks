@@ -8,6 +8,8 @@ import {
   CircleDot,
   Library,
   HeartHandshake,
+  X,
+  Flame,
 } from "lucide-react";
 import { MainLayout } from "@/components/MainLayout";
 import {
@@ -17,10 +19,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { user, currentMood, setCurrentMood } = useAppContext();
+  const { user, currentMood, setCurrentMood, streakNudge, dismissNudge } = useAppContext();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -66,6 +69,40 @@ export default function Home() {
             {user.name.charAt(0)}
           </button>
         </header>
+
+        {/* Streak nudge — dismissible */}
+        <AnimatePresence>
+          {streakNudge && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="mx-6 mt-4"
+            >
+              <div className="flex items-center justify-between bg-[#F5C518]/10 border border-[#F5C518]/30 rounded-[18px] px-4 py-3.5">
+                <div className="flex items-center gap-3">
+                  <Flame className="w-4 h-4 text-[#E8A020] flex-shrink-0" strokeWidth={1.75} />
+                  <div>
+                    <p className="font-sans text-[13px] font-medium text-foreground leading-tight">
+                      7-day streak — keep it going today
+                    </p>
+                    <p className="font-sans text-[11px] text-[#8C7B6A] mt-0.5">
+                      A quick check-in takes under a minute.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={dismissNudge}
+                  className="p-1.5 text-foreground/30 hover:text-foreground/60 transition-colors flex-shrink-0"
+                  aria-label="Dismiss"
+                >
+                  <X className="w-3.5 h-3.5" strokeWidth={2} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="px-6 space-y-10 pt-6">
           {/* Hero — today's prompt (the focal point) */}

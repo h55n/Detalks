@@ -31,24 +31,25 @@ export default function Talk() {
     <MainLayout>
       <AnimatedPage className="flex flex-col h-full bg-background overflow-hidden relative">
         {finding && (
-          <div className="absolute inset-0 bg-background z-50 flex flex-col items-center justify-center p-6">
+          <div className="absolute inset-0 bg-background z-50 flex flex-col items-center justify-center px-8">
+            {/* Calm breathing orb — on-brand, no harsh blob */}
             <motion.div
-              animate={{ scale: [1, 1.5, 1], opacity: [0.15, 0.5, 0.15] }}
+              animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.9, 0.5] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-[120px] h-[120px] rounded-full bg-primary/30"
+              className="w-14 h-14 rounded-full border border-primary/30 bg-primary/10 mb-10"
             />
             <motion.h2
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="font-serif text-[26px] text-foreground z-10 mb-3 text-center"
+              className="font-serif text-[28px] text-foreground mb-3 text-center leading-[1.30]"
             >
-              Finding your companion…
+              Finding your companion.
             </motion.h2>
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="font-sans text-[14px] text-[#8C7B6A] text-center max-w-[280px] z-10 leading-relaxed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="font-sans text-[14px] text-[#8C7B6A] text-center leading-relaxed"
             >
               Randomly assigned. Fresh every time.
             </motion.p>

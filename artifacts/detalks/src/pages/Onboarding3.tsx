@@ -1,12 +1,21 @@
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 
 export default function Onboarding3() {
   const [, setLocation] = useLocation();
 
   return (
     <AnimatedPage className="bg-background flex flex-col h-full relative">
+      <div className="absolute top-0 left-0 p-4 z-10">
+        <button
+          onClick={() => setLocation("/onboarding/2")}
+          className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground/60"
+        >
+          <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+        </button>
+      </div>
       <div className="flex-1 flex flex-col pt-12">
         <div className="h-[45%] w-full flex items-center justify-center relative">
           <div className="relative w-[200px] h-[120px] flex items-center justify-center">

@@ -1,13 +1,21 @@
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion } from "framer-motion";
-import { Leaf, MessageCircle, Shield } from "lucide-react";
+import { Leaf, MessageCircle, Shield, ArrowLeft } from "lucide-react";
 
 export default function Onboarding2() {
   const [, setLocation] = useLocation();
 
   return (
     <AnimatedPage className="bg-background flex flex-col h-full relative">
+      <div className="absolute top-0 left-0 p-4 z-10">
+        <button
+          onClick={() => setLocation("/onboarding/1")}
+          className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground/60"
+        >
+          <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+        </button>
+      </div>
       <div className="absolute top-0 right-0 p-6 z-10">
         <button 
           onClick={() => setLocation("/auth")}

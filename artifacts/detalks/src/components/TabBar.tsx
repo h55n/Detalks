@@ -1,11 +1,13 @@
 import { Link, useLocation } from "wouter";
 import { Home, MessageCircle, PenLine, Sprout, User } from "lucide-react";
+import { useAppContext } from "@/context/AppContext";
 
 export function TabBar() {
   const [location] = useLocation();
+  const { streakNudge } = useAppContext();
 
   const tabs = [
-    { name: "Home", path: "/home", icon: Home },
+    { name: "Home", path: "/home", icon: Home, badge: streakNudge },
     { name: "Talk", path: "/talk", icon: MessageCircle },
     { name: "Journal", path: "/journal", icon: PenLine },
     { name: "Progress", path: "/progress", icon: Sprout },
@@ -37,13 +39,17 @@ export function TabBar() {
             }`}
           >
             <Icon
-              className={`w-[18px] h-[18px] transition-colors duration-300`}
+              className="w-[18px] h-[18px] transition-colors duration-300"
               strokeWidth={1.5}
             />
             {isActive && (
               <span className="ml-2 text-[12px] font-sans font-medium tracking-tight">
                 {tab.name}
               </span>
+            )}
+            {/* Notification badge */}
+            {tab.badge && !isActive && (
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#E8A020]" />
             )}
           </Link>
         );
