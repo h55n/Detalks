@@ -28,7 +28,7 @@ export default function Resources() {
   return (
     <MainLayout>
       <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto">
-        <header className="px-6 pt-10 pb-4">
+        <header className="shrink-0 px-6 pt-10 pb-4">
           <button
             onClick={() => setLocation("/home")}
             className="p-2 -ml-2 mb-4 min-h-[44px] min-w-[44px] flex items-center"
@@ -45,12 +45,12 @@ export default function Resources() {
         </header>
 
         {/* Topic filter pills */}
-        <div className="flex overflow-x-auto gap-2 px-6 pb-5 no-scrollbar">
+        <div className="shrink-0 flex overflow-x-auto gap-2 px-6 pb-5 no-scrollbar">
           {topics.map((topic) => (
             <button
               key={topic}
               onClick={() => setSelectedTopic(topic === "All" ? null : topic)}
-              className={`whitespace-nowrap font-sans text-[13px] font-medium px-4 py-2 rounded-full min-h-[36px] transition-all ${
+              className={`shrink-0 whitespace-nowrap font-sans text-[13px] font-medium px-4 py-2 rounded-full min-h-[36px] transition-all ${
                 (topic === "All" && !selectedTopic) || selectedTopic === topic
                   ? "bg-foreground text-background"
                   : "bg-foreground/[0.04] border border-border/60 text-[#8C7B6A]"
@@ -61,7 +61,7 @@ export default function Resources() {
           ))}
         </div>
 
-        <div className="px-6 space-y-4 pb-8">
+        <div className="shrink-0 px-6 space-y-4 pb-8">
           {filtered.map((article) => (
             <button
               key={article.id}
