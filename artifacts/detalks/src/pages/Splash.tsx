@@ -30,7 +30,7 @@ export default function Splash() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center"
         >
-          <h1 className="font-serif text-[48px] text-foreground tracking-tight">DeTalks'</h1>
+          <h1 className="font-serif text-[48px] text-foreground tracking-tight">DeTalks</h1>
         </motion.div>
 
         <motion.div
