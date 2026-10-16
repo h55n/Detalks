@@ -13,17 +13,37 @@ if (!databaseUrl) {
 
 const { db, migrate } = createDb(databaseUrl);
 const app = createApp({ db });
-const ready = migrate().then((applied) => {
-  if (applied.length > 0) {
-    logger.info({ applied }, "Database migrations applied");
+let ready: Promise<void> | null = null;
+function ensureReady(): Promise<void> {
+  if (!ready) {
+    ready = migrate()
+      .then((applied) => {
+        if (applied.length > 0) {
+          logger.info({ applied }, "Database migrations applied");
+        }
+      })
+      .catch((err) => {
+        // Retry on the next request instead of poisoning this instance.
+        ready = null;
+        throw err;
+      });
   }
-});
+  return ready;
+}
 
 export default async function handler(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> {
-  await ready;
+  try {
+    await ensureReady();
+  } catch (err) {
+    logger.error({ err }, "Database not ready");
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ error: "Service is waking up. Try again in a moment." }));
+    return;
+  }
   return new Promise((resolve, reject) => {
     res.on("finish", resolve);
     res.on("error", reject);
