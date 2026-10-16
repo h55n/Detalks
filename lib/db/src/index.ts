@@ -32,7 +32,16 @@ export function createDb(connectionString: string): DbHandle {
   const pool = new Pool({
     connectionString: cleaned,
     ...(wantsSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+    // Serverless instances idle for a while and the managed Postgres drops
+    // quiet connections. Keep the pool small, probe with TCP keepalive and
+    // recycle idle clients quickly so a dead socket is not reused.
+    max: 5,
+    idleTimeoutMillis: 8_000,
+    connectionTimeoutMillis: 10_000,
+    keepAlive: true,
   });
+  // A backend-side disconnect of an idle client must not crash the process.
+  pool.on("error", () => undefined);
   const db = drizzle(pool, { schema });
   return {
     db,
