@@ -35,8 +35,8 @@ export function createDb(connectionString: string): DbHandle {
     // Serverless instances idle for a while and the managed Postgres drops
     // quiet connections. Keep the pool small, probe with TCP keepalive and
     // recycle idle clients quickly so a dead socket is not reused.
-    max: 5,
-    idleTimeoutMillis: 8_000,
+    max: Number(process.env["DB_POOL_MAX"] ?? 2),
+    idleTimeoutMillis: 2_000,
     connectionTimeoutMillis: 10_000,
     keepAlive: true,
   });
