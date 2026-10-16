@@ -101,7 +101,8 @@ export function createApp({ db, disha }: AppDeps): Express {
   // Central error handler: no stack traces leak to clients.
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     logger.error({ err }, "Unhandled error");
-    res.status(500).json({ error: "Something went wrong on our side" });
+    const code = (err as { code?: string } | null)?.code;
+    res.status(500).json({ error: "Something went wrong on our side", ...(code ? { code } : {}) });
   });
 
   return app;
