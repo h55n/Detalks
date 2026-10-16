@@ -2,5 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "pnpm install --frozen-lockfile --prod=false",
   "buildCommand": "pnpm --filter detalks run build && pnpm --filter @workspace/api-server run build",
-  "outputDirectory": "artifacts/detalks/dist"
+  "outputDirectory": "artifacts/detalks/dist",
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

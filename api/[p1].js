@@ -1,5 +1,5 @@
-// Vercel Node function entrypoint: lazily loads the bundled handler (ESM)
-// via dynamic import, which works from this CommonJS shim.
+// Vercel Node function shim: lazily loads the bundled handler (ESM) via
+// dynamic import, which works from this CommonJS module.
 let cached;
 module.exports = async (req, res) => {
   if (!cached) {
