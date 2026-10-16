@@ -13,6 +13,8 @@ after(async () => {
 
 test("kavach flags crisis language but not ordinary talk", () => {
   assert.equal(kavachScan("I want to kill myself").flagged, true);
+  assert.equal(kavachScan("I want to hurt myself").flagged, true);
+  assert.equal(kavachScan("hurting myself").flagged, true);
   assert.equal(kavachScan("thinking about suicide").flagged, true);
   assert.equal(kavachScan("everyone would be better off without me").flagged, true);
   assert.equal(kavachScan("I don't want to live anymore").flagged, true);

@@ -8,7 +8,7 @@
  */
 
 const CRISIS_PATTERNS: RegExp[] = [
-  /\b(kill|end|hurt|harm|cut)ing?\s+(myself|me)\b/i,
+  /\b(kill|end|hurt|harm|cut)(ing)?\s+(myself|me)\b/i,
   /\b(want|wanting|going|plan(ning)?|about)\s+to\s+(die|kill myself|end (it|my life|everything)|disappear forever)\b/i,
   /\b(suicid\w*)\b/i,
   /\b(self[- ]?harm\w*)\b/i,
