@@ -67,7 +67,7 @@ export default function PreCheck() {
           <div className="w-2 h-2 rounded-full bg-primary/60" />
           <span className="font-serif text-[15px] text-foreground">Disha</span>
         </div>
-        <div className="w-9" />
+        <div className="w-[44px]" />
       </header>
 
       <div className="flex-1 flex flex-col justify-center px-6 pb-20">

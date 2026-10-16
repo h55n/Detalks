@@ -111,3 +111,5 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+.top-safe { top: calc(env(safe-area-inset-top, 0px) + 12px); }
