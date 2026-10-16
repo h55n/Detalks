@@ -3,10 +3,13 @@
   "installCommand": "pnpm install --frozen-lockfile --prod=false",
   "buildCommand": "pnpm --filter detalks run build && pnpm --filter @workspace/api-server run build",
   "outputDirectory": "artifacts/detalks/dist",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
