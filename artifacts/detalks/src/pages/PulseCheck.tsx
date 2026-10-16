@@ -195,7 +195,7 @@ export default function PulseCheck() {
             onChange={(e) => setInputValue(e.target.value)}
             className="flex-1 bg-transparent border-none outline-none font-sans text-[15px] text-foreground placeholder:text-[#8C7B6A]"
           />
-          <button className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center flex-shrink-0">
+          <button aria-label="Send" className="w-11 h-11 -mr-2 rounded-full bg-foreground flex items-center justify-center flex-shrink-0">
             <ArrowUp className="w-3.5 h-3.5 text-background" strokeWidth={2} />
           </button>
         </div>

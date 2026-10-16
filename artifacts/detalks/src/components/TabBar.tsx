@@ -31,8 +31,8 @@ export function TabBar() {
             aria-label={tab.name}
             className={`relative flex items-center justify-center transition-all duration-300 ease-out rounded-full ${
               isActive
-                ? "bg-foreground/[0.06] text-foreground px-4 py-2"
-                : "text-muted-foreground hover:text-foreground/70 px-3 py-2"
+                ? "bg-foreground/[0.06] text-foreground px-4 min-h-[44px]"
+                : "text-muted-foreground hover:text-foreground/70 px-3.5 min-h-[44px] min-w-[44px]"
             }`}
           >
             <Icon

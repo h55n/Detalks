@@ -75,6 +75,7 @@ export default function Breathe() {
     <AnimatedPage className="flex flex-col h-full bg-background relative overflow-hidden items-center justify-center">
       <button 
         onClick={() => setLocation("/practice")}
+        aria-label="Close practice"
         className="absolute top-safe right-4 p-4 z-20 min-w-[44px] min-h-[44px] flex items-center justify-center"
       >
         <X className="w-6 h-6 text-secondary-foreground opacity-50" />

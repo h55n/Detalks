@@ -60,7 +60,7 @@ export default function Consent() {
           style={{ boxShadow: "rgba(100,70,30,0.05) 0px 4px 16px" }}
         >
           <span className="font-sans text-[15px] font-medium text-foreground">I understand and consent</span>
-          <Switch checked={consented} onCheckedChange={setConsented} />
+          <Switch aria-label="I understand and consent" checked={consented} onCheckedChange={setConsented} />
         </div>
 
         <button

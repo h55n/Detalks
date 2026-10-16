@@ -52,7 +52,7 @@ export default function Grounding() {
         {id === "scan" && (
           <button 
             onClick={() => setAutoPace(!autoPace)}
-            className={`font-sans text-[13px] font-medium px-3 py-1.5 rounded-full transition-colors ${autoPace ? 'bg-primary text-primary-foreground' : 'bg-muted text-secondary-foreground'}`}
+            className={`font-sans text-[13px] font-medium px-4 min-h-[44px] rounded-full transition-colors ${autoPace ? 'bg-primary text-primary-foreground' : 'bg-muted text-secondary-foreground'}`}
           >
             Auto-pace
           </button>
@@ -60,6 +60,7 @@ export default function Grounding() {
       </div>
       <button 
         onClick={() => setLocation("/practice")}
+        aria-label="Close practice"
         className="absolute top-safe right-4 p-4 z-20 min-w-[44px] min-h-[44px] flex items-center justify-center"
       >
         <X className="w-6 h-6 text-secondary-foreground opacity-50" />
