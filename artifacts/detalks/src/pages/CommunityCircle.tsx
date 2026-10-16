@@ -116,7 +116,7 @@ export default function CommunityCircle({ id }: { id: string }) {
           <button
             onClick={share}
             disabled={!inputValue.trim() || postMutation.isPending}
-            className="w-10 h-10 rounded-full bg-foreground disabled:opacity-30 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
+            aria-label="Share to the circle" className="w-11 h-11 rounded-full bg-foreground disabled:opacity-30 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
           >
             <ArrowUp className="w-4 h-4 text-background" strokeWidth={2} />
           </button>

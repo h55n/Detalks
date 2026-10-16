@@ -88,7 +88,7 @@ export default function JournalWrite({ id }: { id?: string }) {
               key={m.id}
               onClick={() => setMood(mood === m.id ? null : m.id)}
               aria-label={m.label}
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-[18px] leading-none transition-all duration-200 active:scale-95 ${
+              className={`w-11 h-11 rounded-full flex items-center justify-center text-[18px] leading-none transition-all duration-200 active:scale-95 ${
                 mood === m.id
                   ? "bg-foreground/[0.07] ring-1 ring-foreground/30 scale-110"
                   : "bg-foreground/[0.025]"

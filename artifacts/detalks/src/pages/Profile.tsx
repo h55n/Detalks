@@ -48,7 +48,7 @@ export default function Profile() {
               </div>
               <button
                 onClick={() => setLocation("/subscription")}
-                className="font-sans text-[12px] font-medium text-primary border border-primary/40 px-3 py-1.5 rounded-full min-h-[36px] hover:bg-primary/5 transition-colors"
+                className="font-sans text-[12px] font-medium text-primary border border-primary/40 px-3 py-1.5 rounded-full min-h-[44px] hover:bg-primary/5 transition-colors"
               >
                 Upgrade
               </button>

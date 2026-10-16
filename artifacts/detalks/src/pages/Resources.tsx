@@ -50,7 +50,7 @@ export default function Resources() {
             <button
               key={topic}
               onClick={() => setSelectedTopic(topic === "All" ? null : topic)}
-              className={`shrink-0 whitespace-nowrap font-sans text-[13px] font-medium px-4 py-2 rounded-full min-h-[36px] transition-all ${
+              className={`shrink-0 whitespace-nowrap font-sans text-[13px] font-medium px-4 py-2 rounded-full min-h-[44px] transition-all ${
                 (topic === "All" && !selectedTopic) || selectedTopic === topic
                   ? "bg-foreground text-background"
                   : "bg-foreground/[0.04] border border-border/60 text-[#8C7B6A]"

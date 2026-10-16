@@ -39,7 +39,7 @@ export default function Talk() {
           <div className="flex bg-foreground/[0.04] p-1 rounded-full w-max">
             <button
               onClick={() => setTab("companions")}
-              className={`px-5 py-2 rounded-full font-sans text-[13px] font-medium transition-all duration-200 ${
+              className={`px-5 py-2 min-h-[44px] rounded-full font-sans text-[13px] font-medium transition-all duration-200 ${
                 tab === "companions" ? "bg-card text-foreground shadow-sm" : "text-[#8C7B6A]"
               }`}
             >
@@ -47,7 +47,7 @@ export default function Talk() {
             </button>
             <button
               onClick={() => setTab("community")}
-              className={`px-5 py-2 rounded-full font-sans text-[13px] font-medium transition-all duration-200 ${
+              className={`px-5 py-2 min-h-[44px] rounded-full font-sans text-[13px] font-medium transition-all duration-200 ${
                 tab === "community" ? "bg-card text-foreground shadow-sm" : "text-[#8C7B6A]"
               }`}
             >

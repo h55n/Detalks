@@ -54,7 +54,7 @@ export default function Journal() {
             </h2>
             <button
               onClick={() => setLocation("/journal/write")}
-              className="font-sans text-[13px] font-medium text-foreground/80 inline-flex items-center group"
+              className="font-sans text-[13px] font-medium text-foreground/80 inline-flex items-center min-h-[44px] group"
             >
               Write now
               <ArrowRight className="w-3.5 h-3.5 ml-1.5 transition-transform group-hover:translate-x-0.5" strokeWidth={1.75} />

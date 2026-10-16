@@ -47,7 +47,7 @@ export default function Auth() {
   return (
     <AnimatedPage className="bg-background flex flex-col h-full overflow-y-auto">
       <div className="p-6 pb-2">
-        <button aria-label="Back" onClick={() => setLocation("/splash")} className="p-2 -ml-2 mb-6">
+        <button aria-label="Back" onClick={() => setLocation("/splash")} className="p-2 -ml-2 mb-6 min-h-[44px] min-w-[44px] flex items-center">
           <ArrowLeft className="w-6 h-6 text-foreground" />
         </button>
 
@@ -98,7 +98,7 @@ export default function Auth() {
                 className="w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground pb-2 pt-1 placeholder:text-muted-foreground"
               />
             </div>
-            <button onClick={() => setShowPassword(!showPassword)} className="p-2 text-muted-foreground">
+            <button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword(!showPassword)} className="flex min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground">
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
@@ -108,7 +108,7 @@ export default function Auth() {
           <div className="py-2">
             <div className="flex items-center justify-between mb-4">
               <span className="font-sans text-[14px] text-foreground">I'm a student</span>
-              <Switch checked={isStudent} onCheckedChange={setIsStudent} />
+              <Switch aria-label="I am a student" checked={isStudent} onCheckedChange={setIsStudent} />
             </div>
             <p className="font-sans text-[12px] text-[#8C7B6A] leading-relaxed">
               Your public face here is an anonymous alias we create for you. Circles never show your name or email.

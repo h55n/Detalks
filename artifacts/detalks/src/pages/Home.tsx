@@ -87,7 +87,7 @@ export default function Home() {
           </div>
           <button
             onClick={() => setLocation("/profile")}
-            className="w-9 h-9 rounded-full bg-foreground/[0.04] border border-border/60 flex items-center justify-center text-foreground/70 font-sans text-[13px] font-medium mt-1 transition-colors hover:bg-foreground/[0.07]"
+            className="w-11 h-11 rounded-full bg-foreground/[0.04] border border-border/60 flex items-center justify-center text-foreground/70 font-sans text-[13px] font-medium mt-1 transition-colors hover:bg-foreground/[0.07]"
             aria-label="Profile"
           >
             {user?.name?.charAt(0) ?? "·"}
@@ -149,7 +149,7 @@ export default function Home() {
             </p>
             <button
               onClick={() => setLocation("/journal/write")}
-              className="font-sans text-[13px] font-medium text-foreground/90 inline-flex items-center group"
+              className="font-sans text-[13px] font-medium text-foreground/90 inline-flex items-center min-h-[44px] group"
             >
               Open journal
               <ArrowRight className="w-3.5 h-3.5 ml-1.5 transition-transform group-hover:translate-x-0.5" strokeWidth={1.75} />
@@ -259,7 +259,7 @@ export default function Home() {
           <div className="flex justify-center pt-2 pb-2">
             <Sheet>
               <SheetTrigger asChild>
-                <button className="font-sans text-[12px] font-medium text-[#8C7B6A] flex items-center px-4 py-2 hover:text-foreground/70 transition-colors">
+                <button className="font-sans text-[12px] font-medium text-[#8C7B6A] flex items-center px-4 py-2 min-h-[44px] hover:text-foreground/70 transition-colors">
                   <HeartHandshake className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} />
                   Need support now?
                 </button>
