@@ -1,3 +1,10 @@
-// Vercel Node function entrypoint: the handler is bundled at build time by
-// artifacts/api-server/build.mjs (esbuild, same pipeline as the server).
-export { default } from "../artifacts/api-server/dist/serverless.mjs";
+// Vercel Node function entrypoint: lazily loads the bundled handler (ESM)
+// via dynamic import, which works from this CommonJS shim.
+let cached;
+module.exports = async (req, res) => {
+  if (!cached) {
+    cached = import("../artifacts/api-server/dist/serverless.mjs").then((m) => m.default);
+  }
+  const handler = await cached;
+  return handler(req, res);
+};
