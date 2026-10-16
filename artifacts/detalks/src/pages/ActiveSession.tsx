@@ -1,11 +1,11 @@
+import { CareCard } from "@/components/CareCard";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowUp, X, Phone } from "lucide-react";
+import { ArrowLeft, ArrowUp, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "@/lib/api";
-import { CRISIS_LINES } from "@/lib/content";
 
 const SESSION_LIMIT_SECONDS = 45 * 60;
 const MESSAGE_LIMIT = 200;
@@ -155,16 +155,7 @@ export default function ActiveSession({ id }: { id: string }) {
               </div>
             </div>
             {msg.role === "companion" && msg.flagged && (
-              <div className="mt-2 max-w-[85%] bg-card border border-[#E8A020]/40 rounded-[14px] p-4">
-                <p className="font-sans text-[12px] font-medium text-[#8C7B6A] mb-2 flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5" strokeWidth={1.5} /> Free, confidential lines
-                </p>
-                {CRISIS_LINES.slice(0, 4).map((line) => (
-                  <a key={line.phone} href={`tel:${line.phone}`} className="block font-sans text-[13px] text-primary py-1">
-                    {line.name} — {line.display}
-                  </a>
-                ))}
-              </div>
+              <CareCard className="mt-3 max-w-[92%]" />
             )}
           </div>
         ))}
