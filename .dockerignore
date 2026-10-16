@@ -1,0 +1,6 @@
+.git
+node_modules
+**/node_modules
+artifacts/detalks/dist
+artifacts/api-server/dist
+*.log
