@@ -31,9 +31,18 @@ export default function SessionHistory() {
 
         <div className="px-6 space-y-3 pb-8">
           {sessions.length === 0 ? (
-            <p className="font-sans text-[14px] text-[#8C7B6A] italic">
-              No sessions yet. When you talk with Disha, the notes land here.
-            </p>
+            <div className="bg-card rounded-[24px] border border-border/60 p-6 text-center">
+              <h2 className="font-serif text-[20px] text-foreground mb-2">Nothing here yet</h2>
+              <p className="font-sans text-[14px] text-secondary-foreground mb-5">
+                When you talk with Disha, a short private note from each session lands here.
+              </p>
+              <button
+                onClick={() => setLocation("/talk")}
+                className="bg-primary text-primary-foreground font-sans text-[15px] font-medium px-6 rounded-full min-h-[44px]"
+              >
+                Talk to Disha
+              </button>
+            </div>
           ) : (
             sessions.map((s, i) => (
               <div
