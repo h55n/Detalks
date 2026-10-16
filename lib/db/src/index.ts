@@ -19,7 +19,20 @@ export interface DbHandle {
 }
 
 export function createDb(connectionString: string): DbHandle {
-  const pool = new Pool({ connectionString });
+  // Managed Postgres providers (Aiven, Render) terminate TLS with a private
+  // CA the host does not carry. sslmode=require already encrypts the wire;
+  // skip chain verification so the driver can connect without a bundled CA.
+  const wantsSsl = /sslmode=(require|verify-ca|verify-full)/.test(connectionString);
+  // pg-connection-string maps sslmode=require to verify-full and lets URL
+  // params win over the config object, so strip it and pass TLS options
+  // directly instead.
+  const cleaned = connectionString
+    .replace(/([?&])sslmode=[^&]*&?/, "$1")
+    .replace(/[?&]$/, "");
+  const pool = new Pool({
+    connectionString: cleaned,
+    ...(wantsSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+  });
   const db = drizzle(pool, { schema });
   return {
     db,
