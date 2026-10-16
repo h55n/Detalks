@@ -24,7 +24,7 @@ export default function Consent() {
   return (
     <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto">
       <header className="px-6 pt-10 pb-4">
-        <button
+        <button aria-label="Back"
           onClick={() => setLocation("/talk")}
           className="p-2 -ml-2 mb-6 min-h-[44px] min-w-[44px] flex items-center"
         >

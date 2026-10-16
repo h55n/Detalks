@@ -9,7 +9,7 @@ export default function Onboarding3() {
   return (
     <AnimatedPage className="bg-background flex flex-col h-full relative">
       <div className="absolute top-0 left-0 p-4 z-10">
-        <button
+        <button aria-label="Back"
           onClick={() => setLocation("/onboarding/2")}
           className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground/60"
         >

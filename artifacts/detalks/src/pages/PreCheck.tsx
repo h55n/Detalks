@@ -57,7 +57,7 @@ export default function PreCheck() {
     <AnimatedPage className="flex flex-col h-full bg-background relative">
       {/* Back button */}
       <header className="px-5 pt-8 pb-4 flex items-center justify-between">
-        <button
+        <button aria-label="Back"
           onClick={() => setLocation("/talk")}
           className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center"
         >

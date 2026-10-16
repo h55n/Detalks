@@ -1,3 +1,4 @@
+import { MoodFace } from "@/components/MoodFace";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
@@ -74,7 +75,7 @@ export default function JournalWrite({ id }: { id?: string }) {
   return (
     <AnimatedPage className="flex flex-col h-full bg-background">
       <div className="flex items-center justify-between px-5 py-4">
-        <button
+        <button aria-label="Back"
           onClick={() => setLocation("/journal")}
           className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center"
         >
@@ -93,7 +94,7 @@ export default function JournalWrite({ id }: { id?: string }) {
                   : "bg-foreground/[0.025]"
               }`}
             >
-              <span aria-hidden="true">{m.emoji}</span>
+              <MoodFace mood={m.id} />
             </button>
           ))}
         </div>

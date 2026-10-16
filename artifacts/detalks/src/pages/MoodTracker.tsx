@@ -1,3 +1,4 @@
+import { MoodFace } from "@/components/MoodFace";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
@@ -51,7 +52,7 @@ export default function MoodTracker() {
     <MainLayout>
       <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto">
         <header className="px-6 pt-10 pb-4">
-          <button
+          <button aria-label="Back"
             onClick={() => setLocation("/home")}
             className="p-2 -ml-2 mb-4 min-h-[44px] min-w-[44px] flex items-center"
           >
@@ -86,7 +87,7 @@ export default function MoodTracker() {
                     }`}
                     aria-label={m.label}
                   >
-                    <span aria-hidden="true">{m.emoji}</span>
+                    <MoodFace mood={m.id} />
                   </button>
                   <span className={`font-sans text-[11px] transition-colors ${currentMood === m.id ? "text-foreground" : "text-[#8C7B6A]"}`}>
                     {m.label}
@@ -169,7 +170,7 @@ export default function MoodTracker() {
                     className="flex items-start py-4 border-b border-border/50 last:border-0"
                   >
                     <span className="text-[22px] leading-none mr-3 flex-shrink-0">
-                      {MOODS.find((m) => m.id === entry.mood)?.emoji ?? "😐"}
+                      <MoodFace mood={entry.mood} size={22} />
                     </span>
                     <div>
                       <div className="font-sans text-[12px] text-[#8C7B6A] mb-0.5">{timeAgo(entry.createdAt)}</div>

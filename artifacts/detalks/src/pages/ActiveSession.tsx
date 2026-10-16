@@ -97,7 +97,7 @@ export default function ActiveSession({ id }: { id: string }) {
     <AnimatedPage className="flex flex-col h-full bg-background relative overflow-hidden">
       {/* Header */}
       <div className="h-[56px] flex items-center px-5 justify-between relative z-10 border-b border-border/50">
-        <button onClick={closeSession} className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
+        <button aria-label="Back" onClick={closeSession} className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
           <ArrowLeft className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
         </button>
         <div className="font-sans text-[13px] font-medium text-[#8C7B6A]">

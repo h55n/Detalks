@@ -1,3 +1,4 @@
+import { MoodFace } from "@/components/MoodFace";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
@@ -172,7 +173,7 @@ export default function Home() {
                     }`}
                     aria-label={m.label}
                   >
-                    <span aria-hidden="true">{m.emoji}</span>
+                    <MoodFace mood={m.id} />
                   </button>
                   <span className={`font-sans text-[11px] transition-colors ${currentMood === m.id ? "text-foreground" : "text-[#8C7B6A]"}`}>
                     {m.label}

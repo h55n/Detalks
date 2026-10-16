@@ -47,7 +47,7 @@ export default function Auth() {
   return (
     <AnimatedPage className="bg-background flex flex-col h-full overflow-y-auto">
       <div className="p-6 pb-2">
-        <button onClick={() => setLocation("/splash")} className="p-2 -ml-2 mb-6">
+        <button aria-label="Back" onClick={() => setLocation("/splash")} className="p-2 -ml-2 mb-6">
           <ArrowLeft className="w-6 h-6 text-foreground" />
         </button>
 

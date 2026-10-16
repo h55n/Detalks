@@ -1,3 +1,4 @@
+import { MoodFace } from "@/components/MoodFace";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
@@ -27,7 +28,7 @@ export default function SessionReflection({ id }: { id: string }) {
   return (
     <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto pb-8">
       <header className="px-6 pt-10 pb-6">
-        <button
+        <button aria-label="Back"
           onClick={() => setLocation("/progress")}
           className="p-2 -ml-2 mb-6 min-h-[44px] min-w-[44px] flex items-center"
         >
@@ -67,7 +68,7 @@ export default function SessionReflection({ id }: { id: string }) {
                   }`}
                   aria-label={m.label}
                 >
-                  <span aria-hidden="true">{m.emoji}</span>
+                  <MoodFace mood={m.id} />
                 </button>
                 <span className={`font-sans text-[11px] ${mood === m.id ? "text-foreground" : "text-[#8C7B6A]"}`}>
                   {m.label}
