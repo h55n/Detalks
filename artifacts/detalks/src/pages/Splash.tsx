@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
+import { useAppContext } from "@/context/AppContext";
 import { motion } from "framer-motion";
 
 export default function Splash() {
@@ -8,6 +9,7 @@ export default function Splash() {
   const [showTagline, setShowTagline] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [showButton, setShowButton] = useState(false);
+  const { user, authLoading } = useAppContext();
 
   useEffect(() => {
     const timer1 = setTimeout(() => setShowTagline(true), 200);
@@ -65,19 +67,34 @@ export default function Splash() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="w-full pb-8 flex flex-col items-center space-y-4"
       >
-        <button
-          onClick={() => setLocation("/onboarding/1")}
-          className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px] shadow-md min-h-[44px]"
-          style={{ boxShadow: "rgba(45, 106, 45, 0.28) 0px 4px 16px" }}
-        >
-          Get Started
-        </button>
-        <button
-          onClick={() => setLocation("/auth")}
-          className="font-sans text-[14px] text-[#8C7B6A] min-h-[44px] px-4"
-        >
-          I already have an account
-        </button>
+        {user ? (
+          <button
+            onClick={() => setLocation("/home")}
+            className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px] shadow-md min-h-[44px]"
+            style={{ boxShadow: "rgba(45, 106, 45, 0.28) 0px 4px 16px" }}
+          >
+            Continue, {user.name}
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => setLocation("/onboarding/1")}
+              className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px] shadow-md min-h-[44px]"
+              style={{ boxShadow: "rgba(45, 106, 45, 0.28) 0px 4px 16px" }}
+            >
+              Get Started
+            </button>
+            <button
+              onClick={() => setLocation("/auth")}
+              className="font-sans text-[14px] text-[#8C7B6A] min-h-[44px] px-4"
+            >
+              I already have an account
+            </button>
+          </>
+        )}
+        <p className="font-sans text-[11px] text-[#8C7B6A]/80 text-center leading-relaxed max-w-[280px]">
+          DeTalks is a wellness companion, not a medical or crisis service. In crisis, call Tele-MANAS 14416 (free, 24/7).
+        </p>
       </motion.div>
     </AnimatedPage>
   );

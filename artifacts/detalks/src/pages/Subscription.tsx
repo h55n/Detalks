@@ -5,6 +5,19 @@ import { ArrowLeft, Check } from "lucide-react";
 export default function Subscription() {
   const [, setLocation] = useLocation();
 
+  const free = [
+    "Unlimited check-ins, journal and practices",
+    "Disha companion sessions",
+    "All community circles",
+    "Crisis resources, always free",
+  ];
+
+  const later = [
+    "Longer and richer companion sessions",
+    "Supervised human companions",
+    "Licensed therapist booking",
+  ];
+
   return (
     <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto">
       <header className="px-6 pt-10 pb-4">
@@ -18,104 +31,56 @@ export default function Subscription() {
           Support levels
         </p>
         <h1 className="font-serif text-[30px] text-foreground font-normal leading-[1.15] mb-1">
-          Choose your space
+          Free while we grow
         </h1>
         <p className="font-sans text-[14px] text-[#8C7B6A]">
-          Find the level of support that fits your needs.
+          DeTalks is in pilot. Every feature is free for everyone right now.
         </p>
       </header>
 
-      <div className="px-6 space-y-4 pb-10">
-        {/* Free */}
+      <div className="px-6 space-y-6 pb-10">
         <div
           className="bg-card rounded-[24px] p-6 border border-border/60"
-          style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
+          style={{ boxShadow: "rgba(100,70,30,0.06) 0px 4px 24px" }}
         >
-          <h2 className="font-sans text-[15px] font-semibold text-foreground mb-1">Free</h2>
-          <div className="flex items-baseline gap-1 mb-5">
-            <span className="font-serif text-[36px] text-foreground">₹0</span>
-            <span className="font-sans text-[14px] text-[#8C7B6A]">/month</span>
-          </div>
-          <ul className="space-y-3 mb-6">
-            {["Community Circles access", "3 journal entries per week", "1 companion session per week"].map((item) => (
-              <li key={item} className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
-                <span className="font-sans text-[14px] text-[#8C7B6A]">{item}</span>
-              </li>
-            ))}
-          </ul>
-          <button className="w-full bg-foreground/[0.04] border border-border/60 text-[#8C7B6A] font-sans text-[14px] font-medium py-3.5 rounded-[12px]">
-            Current plan
-          </button>
-        </div>
-
-        {/* Companion+ — featured */}
-        <div
-          className="rounded-[24px] p-6 relative overflow-hidden"
-          style={{
-            background: "linear-gradient(160deg, #F2E9CE 0%, #E8DDB5 100%)",
-            boxShadow: "rgba(232,160,32,0.18) 0px 0px 0px 1.5px, rgba(100,70,30,0.08) 0px 6px 28px",
-          }}
-        >
-          <div className="absolute top-0 right-0 bg-[#E8A020] text-[#FAF6F0] font-sans text-[10px] font-bold uppercase tracking-[1px] px-3 py-1.5 rounded-bl-[12px] rounded-tr-[22px]">
-            Student
-          </div>
-          <h2 className="font-sans text-[15px] font-semibold text-foreground mb-1">Companion+</h2>
-          <div className="flex items-baseline gap-1 mb-5">
-            <span className="font-serif text-[36px] text-foreground">₹99</span>
-            <span className="font-sans text-[14px] text-[#8C7B6A]">/month</span>
-          </div>
-          <ul className="space-y-3 mb-6">
-            {["Unlimited companion sessions", "Unlimited journaling", "Priority matching"].map((item) => (
-              <li key={item} className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
-                <span className="font-sans text-[14px] text-foreground">{item}</span>
-              </li>
-            ))}
-          </ul>
-          <button className="w-full bg-foreground text-background font-sans text-[14px] font-medium py-3.5 rounded-[12px]">
-            Upgrade to Companion+
-          </button>
-        </div>
-
-        {/* Professional */}
-        <div
-          className="bg-card rounded-[24px] p-6 border border-border/60"
-          style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
-        >
-          <h2 className="font-sans text-[15px] font-semibold text-foreground mb-1">Professional</h2>
-          <div className="flex items-baseline gap-1 mb-5">
-            <span className="font-serif text-[36px] text-foreground">₹899</span>
-            <span className="font-sans text-[14px] text-[#8C7B6A]">/session</span>
-          </div>
-          <ul className="space-y-3 mb-6">
-            {["Licensed therapists", "Video or text sessions", "Personalized care plan"].map((item) => (
-              <li key={item} className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
-                <span className="font-sans text-[14px] text-[#8C7B6A]">{item}</span>
-              </li>
-            ))}
-          </ul>
-          <button
-            onClick={() => setLocation("/professional")}
-            className="w-full border border-foreground/20 text-foreground font-sans text-[14px] font-medium py-3.5 rounded-[12px]"
-          >
-            Book a session
-          </button>
-        </div>
-
-        {/* Gov scheme */}
-        <div
-          className="bg-card rounded-[20px] p-5 border border-border/60"
-          style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
-        >
-          <h3 className="font-sans text-[14px] font-semibold text-foreground mb-2">Government Schemes</h3>
-          <p className="font-sans text-[13px] text-[#8C7B6A] leading-[1.65] mb-4">
-            If you need professional support but cannot afford it, you may be eligible for free sessions through our government partnerships.
+          <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-1">
+            Today
           </p>
-          <button className="font-sans text-[13px] font-medium text-primary min-h-[44px]">
-            Apply for access →
-          </button>
+          <h2 className="font-serif text-[24px] text-foreground mb-4">The whole app, ₹0</h2>
+          <div className="space-y-3">
+            {free.map((f) => (
+              <div key={f} className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-3 h-3 text-primary" strokeWidth={2.5} />
+                </div>
+                <span className="font-sans text-[14px] text-foreground leading-[1.5]">{f}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          className="bg-card rounded-[24px] p-6 border border-border/60"
+          style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
+        >
+          <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-1">
+            Later, if it helps
+          </p>
+          <h2 className="font-serif text-[24px] text-foreground mb-4">What paid tiers could add</h2>
+          <div className="space-y-3 mb-5">
+            {later.map((f) => (
+              <div key={f} className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-foreground/[0.05] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-3 h-3 text-foreground/40" strokeWidth={2.5} />
+                </div>
+                <span className="font-sans text-[14px] text-foreground/70 leading-[1.5]">{f}</span>
+              </div>
+            ))}
+          </div>
+          <p className="font-sans text-[13px] text-[#8C7B6A] leading-relaxed">
+            We're still learning what students actually need before we charge anyone anything.
+            Crisis support will always be free.
+          </p>
         </div>
       </div>
     </AnimatedPage>

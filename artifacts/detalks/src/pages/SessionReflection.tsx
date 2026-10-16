@@ -2,22 +2,27 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { ArrowLeft } from "lucide-react";
-import { useAppContext } from "@/context/AppContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { MOODS } from "@/lib/content";
 
-export default function SessionReflection() {
+export default function SessionReflection({ id }: { id: string }) {
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
   const [note, setNote] = useState("");
-  const { currentMood, setCurrentMood } = useAppContext();
+  const [mood, setMood] = useState<number | null>(null);
 
-  const themes = ["Academic pressure", "Sleep", "Self-compassion"];
-
-  const moods = [
-    { label: "Rough", id: 1, emoji: "😣" },
-    { label: "Low", id: 2, emoji: "😔" },
-    { label: "Okay", id: 3, emoji: "😐" },
-    { label: "Good", id: 4, emoji: "🙂" },
-    { label: "Great", id: 5, emoji: "😄" },
-  ];
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      api.endSession(id, {
+        ...(mood ? { postMood: mood } : {}),
+        ...(note.trim() ? { reflection: note.trim() } : {}),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      setLocation("/progress");
+    },
+  });
 
   return (
     <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto pb-8">
@@ -37,21 +42,6 @@ export default function SessionReflection() {
       </header>
 
       <div className="px-6 space-y-8 flex-1">
-        {/* Key themes */}
-        <section>
-          <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-4">
-            Key themes
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {themes.map((t) => (
-              <span key={t} className="bg-foreground/[0.05] border border-border/60 text-foreground/70 font-sans text-[13px] px-4 py-2 rounded-full">
-                {t}
-              </span>
-            ))}
-          </div>
-        </section>
-
-        {/* Memory prompt */}
         <section>
           <p className="font-sans text-[14px] font-medium text-foreground mb-3">
             What's one thing you want to remember?
@@ -65,24 +55,21 @@ export default function SessionReflection() {
           />
         </section>
 
-        {/* Post-session mood */}
         <section>
           <p className="font-sans text-[14px] font-medium text-foreground mb-4">How are you feeling now?</p>
           <div className="flex justify-between">
-            {moods.map((m) => (
+            {MOODS.map((m) => (
               <div key={m.id} className="flex flex-col items-center">
                 <button
-                  onClick={() => setCurrentMood(m.id)}
+                  onClick={() => setMood(mood === m.id ? null : m.id)}
                   className={`w-[52px] h-[52px] rounded-full flex items-center justify-center mb-2 transition-all duration-300 text-[24px] leading-none active:scale-95 ${
-                    currentMood === m.id
-                      ? "bg-foreground/[0.06] ring-1 ring-foreground/30 scale-105"
-                      : "bg-foreground/[0.025]"
+                    mood === m.id ? "bg-foreground/[0.06] ring-1 ring-foreground/30 scale-105" : "bg-foreground/[0.025]"
                   }`}
                   aria-label={m.label}
                 >
                   <span aria-hidden="true">{m.emoji}</span>
                 </button>
-                <span className={`font-sans text-[11px] ${currentMood === m.id ? "text-foreground" : "text-[#8C7B6A]"}`}>
+                <span className={`font-sans text-[11px] ${mood === m.id ? "text-foreground" : "text-[#8C7B6A]"}`}>
                   {m.label}
                 </span>
               </div>
@@ -93,8 +80,9 @@ export default function SessionReflection() {
 
       <div className="px-6 pt-8 flex flex-col gap-3">
         <button
-          onClick={() => setLocation("/progress")}
-          className="w-full bg-foreground text-background font-sans text-[14px] font-medium py-4 rounded-[14px] min-h-[52px]"
+          onClick={() => saveMutation.mutate()}
+          disabled={saveMutation.isPending}
+          className="w-full bg-foreground text-background disabled:opacity-40 font-sans text-[14px] font-medium py-4 rounded-[14px] min-h-[52px]"
         >
           Save to my journey
         </button>

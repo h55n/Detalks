@@ -1,17 +1,21 @@
-import { useAppContext } from "@/context/AppContext";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { MainLayout } from "@/components/MainLayout";
-import { Flame } from "lucide-react";
+import { Flame, Sprout } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 export default function Progress() {
-  const { moodHistory } = useAppContext();
+  const { data } = useQuery({ queryKey: ["progress"], queryFn: api.progress });
 
   const stats = [
-    { value: "3", label: "Companion sessions" },
-    { value: "4", label: "Journal entries" },
-    { value: "7", label: "Days checked in" },
-    { value: "2", label: "Practices done" },
+    { value: String(data?.sessionsCount ?? 0), label: "Companion sessions" },
+    { value: String(data?.journalCount ?? 0), label: "Journal entries" },
+    { value: String(data?.daysCheckedIn ?? 0), label: "Days checked in" },
+    { value: String(data?.moodsLast30Days ?? 0), label: "Check-ins this month" },
   ];
+
+  const streak = data?.streak ?? 0;
+  const moodHistory = data?.moodHistory ?? [];
 
   return (
     <MainLayout>
@@ -26,7 +30,6 @@ export default function Progress() {
         </header>
 
         <div className="px-6 space-y-8 pb-8">
-          {/* Streak */}
           <div
             className="bg-card rounded-[24px] p-6 border border-border/60"
             style={{ boxShadow: "rgba(100,70,30,0.06) 0px 4px 24px" }}
@@ -37,8 +40,8 @@ export default function Progress() {
                   Current streak
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-[44px] text-foreground leading-none">7</span>
-                  <span className="font-sans text-[14px] text-[#8C7B6A] mb-1">days</span>
+                  <span className="font-serif text-[44px] text-foreground leading-none">{streak}</span>
+                  <span className="font-sans text-[14px] text-[#8C7B6A] mb-1">{streak === 1 ? "day" : "days"}</span>
                 </div>
               </div>
               <div className="w-12 h-12 rounded-full bg-[#F5C518]/10 flex items-center justify-center">
@@ -46,52 +49,72 @@ export default function Progress() {
               </div>
             </div>
 
-            {/* Mood bar chart */}
-            <div className="flex justify-between items-end h-[56px]">
-              {moodHistory.map((val, i) => (
-                <div key={i} className="flex flex-col items-center justify-end h-full w-[10%]">
-                  <div
-                    className="w-full rounded-t-[3px]"
-                    style={{
-                      height: `${(val / 5) * 100}%`,
-                      background: i === 6 ? "var(--color-primary)" : "var(--color-primary)",
-                      opacity: i === 6 ? 1 : 0.25 + (i / moodHistory.length) * 0.4,
-                    }}
-                  />
+            {moodHistory.some((m) => m !== null) && (
+              <>
+                <div className="flex justify-between items-end h-[56px]">
+                  {moodHistory.map((val, i) => (
+                    <div key={i} className="flex flex-col items-center justify-end h-full w-[10%]">
+                      <div
+                        className="w-full rounded-t-[3px]"
+                        style={{
+                          height: val ? `${(val / 5) * 100}%` : "4%",
+                          background: "var(--color-primary)",
+                          opacity: val ? (i === 6 ? 1 : 0.25 + (i / moodHistory.length) * 0.4) : 0.08,
+                        }}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-2 font-sans text-[10px] text-[#8C7B6A] uppercase">
-              <span>Mon</span>
-              <span>Tue</span>
-              <span>Wed</span>
-              <span>Thu</span>
-              <span>Fri</span>
-              <span>Sat</span>
-              <span>Sun</span>
-            </div>
+                <div className="flex justify-between mt-2 font-sans text-[10px] text-[#8C7B6A] uppercase">
+                  {[...Array(7)].map((_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - (6 - i));
+                    return <span key={i}>{d.toLocaleDateString("en-US", { weekday: "narrow" })}</span>;
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Milestone */}
-          <div
-            className="bg-card rounded-[24px] p-6 border border-border/60"
-            style={{
-              boxShadow: "rgba(245, 197, 24, 0.12) 0px 0px 0px 1.5px, rgba(100,70,30,0.05) 0px 4px 20px",
-            }}
-          >
-            <p className="font-sans text-[10px] font-medium text-[#F5C518] tracking-[0.22em] uppercase mb-3">
-              Milestone
-            </p>
-            <h3 className="font-serif text-[22px] text-foreground mb-2">First Week Complete</h3>
-            <p className="font-sans text-[14px] text-[#8C7B6A] leading-relaxed">
-              You showed up for yourself for 7 days straight. That's a beautiful start.
-            </p>
-          </div>
+          {streak >= 7 ? (
+            <div
+              className="bg-card rounded-[24px] p-6 border border-border/60"
+              style={{
+                boxShadow: "rgba(245, 197, 24, 0.12) 0px 0px 0px 1.5px, rgba(100,70,30,0.05) 0px 4px 20px",
+              }}
+            >
+              <p className="font-sans text-[10px] font-medium text-[#F5C518] tracking-[0.22em] uppercase mb-3">
+                Milestone
+              </p>
+              <h3 className="font-serif text-[22px] text-foreground mb-2">First Week Complete</h3>
+              <p className="font-sans text-[14px] text-[#8C7B6A] leading-relaxed">
+                You showed up for yourself for 7 days straight. That's a beautiful start.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="bg-card rounded-[24px] p-6 border border-border/60"
+              style={{ boxShadow: "rgba(100,70,30,0.05) 0px 4px 20px" }}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Sprout className="w-5 h-5 text-primary" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="font-serif text-[20px] text-foreground mb-1">A gentle start</h3>
+                  <p className="font-sans text-[14px] text-[#8C7B6A] leading-relaxed">
+                    {streak === 0
+                      ? "One check-in today is all a streak needs to begin."
+                      : `${7 - streak} more ${7 - streak === 1 ? "day" : "days"} of checking in and your first week milestone is yours.`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
-          {/* Stats grid */}
           <div>
             <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-5">
-              This week
+              All time
             </p>
             <div className="grid grid-cols-2 gap-3">
               {stats.map((s) => (

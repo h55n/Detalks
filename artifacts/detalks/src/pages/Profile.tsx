@@ -2,12 +2,13 @@ import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { MainLayout } from "@/components/MainLayout";
 import { useAppContext } from "@/context/AppContext";
+import { CRISIS_LINES } from "@/lib/content";
 import { ChevronRight, Shield, Bell, Lock, HeartHandshake, LogOut, History } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Profile() {
   const [, setLocation] = useLocation();
-  const { user } = useAppContext();
+  const { user, logout } = useAppContext();
 
   return (
     <MainLayout>
@@ -19,14 +20,14 @@ export default function Profile() {
           </p>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-foreground/[0.06] border border-border/60 flex items-center justify-center font-sans text-[24px] font-medium text-foreground/70 flex-shrink-0">
-              {user.name.charAt(0)}
+              {user?.name?.charAt(0) ?? "·"}
             </div>
             <div>
               <h1 className="font-serif text-[26px] text-foreground font-normal leading-[1.15]">
-                {user.name}
+                {user?.name ?? "Friend"}
               </h1>
               <p className="font-sans text-[13px] text-[#8C7B6A] mt-0.5">
-                Alias: {user.alias}
+                Alias: {user?.alias ?? "—"}
               </p>
             </div>
           </div>
@@ -41,7 +42,7 @@ export default function Profile() {
             <div className="flex justify-between items-start mb-2">
               <div>
                 <div className="font-sans text-[15px] font-semibold text-foreground mb-0.5">Free Plan</div>
-                <div className="font-sans text-[13px] text-primary">Student Verified ✓</div>
+                {user?.isStudent && <div className="font-sans text-[13px] text-primary">Student</div>}
               </div>
               <button
                 onClick={() => setLocation("/subscription")}
@@ -51,7 +52,7 @@ export default function Profile() {
               </button>
             </div>
             <p className="font-sans text-[13px] text-[#8C7B6A] mt-3 leading-relaxed">
-              Community, 3 journal entries, and 1 companion session per week.
+              Everything is free while DeTalks is in pilot.
             </p>
           </div>
 
@@ -105,14 +106,13 @@ export default function Profile() {
                   <p className="font-sans text-[14px] text-[#8C7B6A] mt-1">Free, confidential, 24/7.</p>
                 </SheetHeader>
                 <div className="space-y-3 pb-8">
-                  <a href="tel:9152987821" className="block bg-background rounded-[16px] p-5 border border-border/60">
-                    <div className="font-sans text-[13px] font-medium text-primary mb-1">iCall Mental Health Helpline</div>
-                    <div className="font-serif text-[22px] text-foreground">9152987821</div>
-                  </a>
-                  <a href="tel:18602662345" className="block bg-background rounded-[16px] p-5 border border-border/60">
-                    <div className="font-sans text-[13px] font-medium text-primary mb-1">Vandrevala Foundation</div>
-                    <div className="font-serif text-[22px] text-foreground">1860-2662-345</div>
-                  </a>
+                  {CRISIS_LINES.map((line) => (
+                    <a key={line.phone} href={`tel:${line.phone}`} className="block bg-background rounded-[16px] p-5 border border-border/60">
+                      <div className="font-sans text-[13px] font-medium text-primary mb-1">{line.name}</div>
+                      <div className="font-serif text-[22px] text-foreground">{line.display}</div>
+                      <div className="font-sans text-[12px] text-[#8C7B6A] mt-0.5">{line.hours}</div>
+                    </a>
+                  ))}
                 </div>
               </SheetContent>
             </Sheet>
@@ -121,7 +121,10 @@ export default function Profile() {
           {/* Sign out */}
           <div className="flex justify-center pt-2 pb-4">
             <button
-              onClick={() => setLocation("/splash")}
+              onClick={async () => {
+                await logout();
+                setLocation("/splash");
+              }}
               className="flex items-center text-[#8C7B6A] font-sans text-[14px] min-h-[44px] px-4 hover:text-foreground/60 transition-colors"
             >
               <LogOut className="w-4 h-4 mr-2" strokeWidth={1.5} />

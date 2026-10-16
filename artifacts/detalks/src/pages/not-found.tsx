@@ -1,21 +1,25 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { useLocation } from "wouter";
+import { AnimatedPage } from "@/components/AnimatedPage";
 
 export default function NotFound() {
+  const [, setLocation] = useLocation();
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="pt-6">
-          <div className="flex mb-4 gap-2">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">404 Page Not Found</h1>
-          </div>
-
-          <p className="mt-4 text-sm text-gray-600">
-            Did you forget to add the page to the router?
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <AnimatedPage className="bg-background flex flex-col items-center justify-center p-8 h-full text-center">
+      <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-3">
+        Lost for a moment
+      </p>
+      <h1 className="font-serif text-[30px] text-foreground leading-[1.2] mb-3">
+        This page isn't here.
+      </h1>
+      <p className="font-sans text-[15px] text-[#8C7B6A] leading-relaxed mb-8">
+        The link may be old or mistyped. Let's get you back somewhere familiar.
+      </p>
+      <button
+        onClick={() => setLocation("/home")}
+        className="bg-foreground text-background font-sans text-[14px] font-medium px-8 py-3.5 rounded-[14px] min-h-[44px]"
+      >
+        Back home
+      </button>
+    </AnimatedPage>
   );
 }

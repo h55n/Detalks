@@ -1,33 +1,95 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Mic, ArrowUp, X } from "lucide-react";
+import { ArrowLeft, ArrowUp, X, Phone } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api, ApiError } from "@/lib/api";
+import { CRISIS_LINES } from "@/lib/content";
 
-export default function ActiveSession() {
+const SESSION_LIMIT_SECONDS = 45 * 60;
+const MESSAGE_LIMIT = 200;
+
+export default function ActiveSession({ id }: { id: string }) {
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
   const [showExit, setShowExit] = useState(false);
-  const [showKavach, setShowKavach] = useState(false); // Can be triggered for demo
-  const [showTimeWarning, setShowTimeWarning] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [showTimeWarning, setShowTimeWarning] = useState(false);
+  const [now, setNow] = useState(Date.now());
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const chat = [
-    { sender: "Companion", text: "I'm glad you're here. What's been on your mind lately?" },
-    { sender: "User", text: "Just a lot of pressure from exams and I haven't been sleeping well" },
-    { sender: "Companion", text: "That sounds exhausting — carrying both the pressure and the sleep deprivation together. How long has this been going on?" },
-    { sender: "User", text: "Maybe 3 weeks now. I keep waking up at 3am thinking about everything" },
-    { sender: "Companion", text: "3am thoughts are their own kind of heavy. When you wake up, what's usually the first thing your mind goes to?" },
-  ];
+  const { data, error } = useQuery({
+    queryKey: ["session", id],
+    queryFn: () => api.sessionMessages(id),
+  });
+
+  const sendMutation = useMutation({
+    mutationFn: (content: string) => api.sendMessage(id, content),
+    onSuccess: () => {
+      setInputValue("");
+      queryClient.invalidateQueries({ queryKey: ["session", id] });
+    },
+    onError: (err) => {
+      if (err instanceof ApiError && err.status === 409) {
+        queryClient.invalidateQueries({ queryKey: ["session", id] });
+      }
+    },
+  });
+
+  const messages = data?.messages ?? [];
+  const session = data?.session;
+  const startedAt = session ? new Date(session.createdAt).getTime() : Date.now();
+  const ended = !!session?.endedAt;
+
+  const elapsed = Math.floor((now - startedAt) / 1000);
+  const remaining = Math.max(0, SESSION_LIMIT_SECONDS - elapsed);
+  const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
+  const ss = String(remaining % 60).padStart(2, "0");
+  const userMessageCount = messages.filter((m) => m.role === "user").length;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowTimeWarning(true);
-    }, 8000); // Demo delay for 5-min warning
-
-    return () => clearTimeout(timer);
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
   }, []);
 
-  const triggerClose = () => {
+  useEffect(() => {
+    if (remaining <= 5 * 60 && remaining > 0) setShowTimeWarning(true);
+    if (remaining === 0 && session && !ended) {
+      api.endSession(id, {}).catch(() => undefined).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["session", id] });
+        setShowExit(true);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remaining]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [messages.length, sendMutation.isPending]);
+
+  if (error instanceof ApiError && error.status === 404) {
+    return (
+      <AnimatedPage className="flex flex-col h-full bg-background items-center justify-center p-8 text-center">
+        <h2 className="font-serif text-[24px] text-foreground mb-3">This session isn't here.</h2>
+        <button
+          onClick={() => setLocation("/talk")}
+          className="bg-foreground text-background font-sans text-[14px] font-medium px-8 py-3.5 rounded-[14px]"
+        >
+          Back to Talk
+        </button>
+      </AnimatedPage>
+    );
+  }
+
+  const send = () => {
+    const content = inputValue.trim();
+    if (!content || sendMutation.isPending || ended) return;
+    sendMutation.mutate(content);
+  };
+
+  const closeSession = async () => {
+    await api.endSession(id, {}).catch(() => undefined);
     setShowExit(true);
   };
 
@@ -35,23 +97,27 @@ export default function ActiveSession() {
     <AnimatedPage className="flex flex-col h-full bg-background relative overflow-hidden">
       {/* Header */}
       <div className="h-[56px] flex items-center px-5 justify-between relative z-10 border-b border-border/50">
-        <button onClick={triggerClose} className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
+        <button onClick={closeSession} className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
           <ArrowLeft className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
         </button>
-        <div className="font-sans text-[13px] font-medium text-[#8C7B6A]">Session in progress</div>
-        <div className="font-sans text-[13px] text-[#8C7B6A] font-mono">32:14</div>
+        <div className="font-sans text-[13px] font-medium text-[#8C7B6A]">
+          {ended ? "Session ended" : "With Disha"}
+        </div>
+        <div className="font-sans text-[13px] text-[#8C7B6A] font-mono">{mm}:{ss}</div>
         <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-foreground/[0.04]">
-          <div className="h-full bg-primary/60 w-[70%]" />
+          <div
+            className="h-full bg-primary/60 transition-all duration-1000"
+            style={{ width: `${(remaining / SESSION_LIMIT_SECONDS) * 100}%` }}
+          />
         </div>
       </div>
 
       <div className="text-right px-4 pt-2 font-sans text-[12px] text-muted-foreground">
-        198 / 200 messages
+        {userMessageCount} / {MESSAGE_LIMIT} messages
       </div>
 
-      {/* Time Warning Toast */}
       <AnimatePresence>
-        {showTimeWarning && (
+        {showTimeWarning && !ended && (
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -60,7 +126,7 @@ export default function ActiveSession() {
           >
             <div className="bg-card border border-[#E0D8CC] rounded-full p-3 px-4 shadow-sm flex items-center justify-between">
               <span className="font-sans text-[13px] text-secondary-foreground">
-                You've been talking for a while. Take a breath — this session will close in 5 minutes.
+                You've been talking for a while. This session will close in 5 minutes.
               </span>
               <button onClick={() => setShowTimeWarning(false)} className="ml-2 text-muted-foreground p-1">
                 <X className="w-4 h-4" />
@@ -70,78 +136,89 @@ export default function ActiveSession() {
         )}
       </AnimatePresence>
 
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4 pt-2 space-y-4">
-        {chat.map((msg, i) => (
-          <div key={i} className={`flex flex-col ${msg.sender === "User" ? "items-end" : "items-start"}`}>
-            {msg.sender === "Companion" && i === 0 && (
-              <span className="font-sans text-[11px] text-[#8C7B6A] mb-1 ml-1">Companion</span>
-            )}
-            <div 
-              className={`max-w-[75%] p-4 font-sans text-[16px] leading-[1.60] ${
-                msg.sender === "User" 
-                  ? "bg-primary text-primary-foreground rounded-[18px_18px_4px_18px]" 
-                  : "bg-card border border-border text-foreground rounded-[18px_18px_18px_4px]"
-              }`}
-            >
-              {msg.text}
+      {/* Chat */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-4 pt-2 space-y-4">
+        {messages.map((msg, i) => (
+          <div key={msg.id}>
+            <div className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
+              {msg.role === "companion" && i === 0 && (
+                <span className="font-sans text-[11px] text-[#8C7B6A] mb-1 ml-1">Disha</span>
+              )}
+              <div
+                className={`max-w-[75%] p-4 font-sans text-[16px] leading-[1.60] ${
+                  msg.role === "user"
+                    ? "bg-primary text-primary-foreground rounded-[18px_18px_4px_18px]"
+                    : "bg-card border border-border text-foreground rounded-[18px_18px_18px_4px]"
+                }`}
+              >
+                {msg.content}
+              </div>
             </div>
+            {msg.role === "companion" && msg.flagged && (
+              <div className="mt-2 max-w-[85%] bg-card border border-[#E8A020]/40 rounded-[14px] p-4">
+                <p className="font-sans text-[12px] font-medium text-[#8C7B6A] mb-2 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5" strokeWidth={1.5} /> Free, confidential lines
+                </p>
+                {CRISIS_LINES.slice(0, 4).map((line) => (
+                  <a key={line.phone} href={`tel:${line.phone}`} className="block font-sans text-[13px] text-primary py-1">
+                    {line.name} — {line.display}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         ))}
-        
-        <div className="flex items-center space-x-2 text-[#8C7B6A] pt-2">
-          <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-current" />
-          <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, delay: 0.2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-current" />
-          <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, delay: 0.4, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-current" />
-          <span className="font-sans text-[12px] italic ml-1">Listening...</span>
-        </div>
-      </div>
 
-      {/* Input Area */}
-      <div className="bg-card/90 backdrop-blur-md border-t border-border/50 p-4 pb-8 z-10 flex items-end gap-3">
-        <button className="p-2 text-foreground/30 mb-0.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
-          <Mic className="w-5 h-5" strokeWidth={1.5} />
-        </button>
-        <div className="flex-1 bg-background/80 border border-border/60 rounded-[14px] px-4 py-2.5">
-          <textarea
-            placeholder="Share what's on your mind…"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            className="w-full bg-transparent border-none outline-none font-sans text-[15px] text-foreground placeholder:text-[#8C7B6A] resize-none max-h-[100px]"
-            rows={1}
-          />
-        </div>
-        <button className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform">
-          <ArrowUp className="w-4 h-4 text-background" strokeWidth={2} />
-        </button>
-      </div>
-
-      {/* Kavach Alert Panel (Hidden by default, shown for demo) */}
-      <AnimatePresence>
-        {showKavach && (
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            className="absolute bottom-0 left-0 right-0 bg-card border-t-[3px] border-[#E8A020] rounded-t-[20px] p-6 z-30 shadow-[0px_-10px_40px_rgba(100,70,30,0.18)]"
-          >
-            <h3 className="font-sans text-[18px] font-semibold text-foreground mb-2">A gentle reminder</h3>
-            <p className="font-sans text-[15px] text-secondary-foreground mb-6">
-              The conversation seems to be shifting. Check in with how your seeker is doing.
-            </p>
-            <div className="flex flex-col space-y-3">
-              <button className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px] min-h-[44px]">
-                Get supervisor support
-              </button>
-              <button onClick={() => setShowKavach(false)} className="w-full bg-transparent text-secondary-foreground font-sans text-[14px] font-medium py-3 rounded-[12px] min-h-[44px]">
-                I've got this
-              </button>
-            </div>
-          </motion.div>
+        {sendMutation.isPending && (
+          <div className="flex items-center space-x-2 text-[#8C7B6A] pt-2">
+            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-current" />
+            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, delay: 0.2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-current" />
+            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, delay: 0.4, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-current" />
+            <span className="font-sans text-[12px] italic ml-1">Listening…</span>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
 
-      {/* Session Close Overlay */}
+      {/* Input */}
+      {!ended && (
+        <div className="bg-card/90 backdrop-blur-md border-t border-border/50 p-4 pb-8 z-10 flex items-end gap-3">
+          <div className="flex-1 bg-background/80 border border-border/60 rounded-[14px] px-4 py-2.5">
+            <textarea
+              placeholder="Share what's on your mind…"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              className="w-full bg-transparent border-none outline-none font-sans text-[15px] text-foreground placeholder:text-[#8C7B6A] resize-none max-h-[100px]"
+              rows={1}
+            />
+          </div>
+          <button
+            onClick={send}
+            disabled={!inputValue.trim() || sendMutation.isPending}
+            className="w-10 h-10 rounded-full bg-foreground disabled:opacity-30 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
+          >
+            <ArrowUp className="w-4 h-4 text-background" strokeWidth={2} />
+          </button>
+        </div>
+      )}
+
+      {ended && !showExit && (
+        <div className="p-4 pb-8 z-10">
+          <button
+            onClick={() => setShowExit(true)}
+            className="w-full bg-foreground text-background font-sans text-[14px] font-medium py-4 rounded-[14px] min-h-[52px]"
+          >
+            Close this session
+          </button>
+        </div>
+      )}
+
+      {/* Close overlay */}
       <AnimatePresence>
         {showExit && (
           <motion.div
@@ -160,11 +237,11 @@ export default function ActiveSession() {
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 3 }}
-              onClick={() => setLocation("/session/reflection")}
+              transition={{ delay: 1.2 }}
+              onClick={() => setLocation(`/session/reflection/${id}`)}
               className="w-full max-w-[300px] bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px] min-h-[44px]"
             >
-              Return Home
+              Continue
             </motion.button>
           </motion.div>
         )}

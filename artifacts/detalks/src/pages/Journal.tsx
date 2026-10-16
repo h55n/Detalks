@@ -1,25 +1,26 @@
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { MainLayout } from "@/components/MainLayout";
-import { useAppContext } from "@/context/AppContext";
 import { PenLine, ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { entryDate, todaysPrompt } from "@/lib/content";
 
 export default function Journal() {
   const [, setLocation] = useLocation();
-  const { journalEntries } = useAppContext();
+  const { data } = useQuery({ queryKey: ["journal"], queryFn: api.listJournal });
+  const entries = data?.entries ?? [];
 
-  const getMoodDot = (mood: string) => {
-    switch (mood) {
-      case "good": return "bg-primary";
-      case "rough": return "bg-[#E8A020]";
-      default: return "bg-foreground/20";
-    }
+  const getMoodDot = (mood: number | null) => {
+    if (mood === null) return "bg-foreground/20";
+    if (mood >= 4) return "bg-primary";
+    if (mood <= 2) return "bg-[#E8A020]";
+    return "bg-foreground/20";
   };
 
   return (
     <MainLayout>
       <AnimatedPage className="flex flex-col h-full bg-background overflow-y-auto">
-        {/* Typography-first header */}
         <header className="px-6 pt-10 pb-4 flex items-start justify-between">
           <div>
             <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-2">
@@ -38,7 +39,6 @@ export default function Journal() {
         </header>
 
         <div className="px-6 space-y-8 pb-8">
-          {/* Today's prompt */}
           <div
             className="rounded-[24px] p-6"
             style={{
@@ -50,7 +50,7 @@ export default function Journal() {
               Today's prompt
             </p>
             <h2 className="font-serif text-[22px] text-foreground leading-[1.30] mb-4">
-              What's one thing you'd tell yourself from last week?
+              {todaysPrompt()}
             </h2>
             <button
               onClick={() => setLocation("/journal/write")}
@@ -61,34 +61,42 @@ export default function Journal() {
             </button>
           </div>
 
-          {/* Entries */}
           <div>
             <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-5">
               Past entries
             </p>
-            <div className="space-y-3">
-              {journalEntries.map((entry) => (
-                <button
-                  key={entry.id}
-                  onClick={() => setLocation("/journal/write")}
-                  className="w-full text-left bg-card rounded-[20px] p-5 border border-border/60 active:scale-[0.99] transition-transform"
-                  style={{ boxShadow: "rgba(100,70,30,0.05) 0px 4px 16px" }}
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getMoodDot(entry.mood)}`} />
-                      <span className="font-sans text-[13px] text-[#8C7B6A]">
-                        {entry.day}, {entry.date}
-                      </span>
-                    </div>
-                    <span className="font-sans text-[12px] text-[#8C7B6A]">{entry.time}</span>
-                  </div>
-                  <p className="font-sans text-[15px] text-foreground leading-[1.65] line-clamp-2">
-                    {entry.preview}
-                  </p>
-                </button>
-              ))}
-            </div>
+            {entries.length === 0 ? (
+              <p className="font-sans text-[14px] text-[#8C7B6A] italic">
+                No entries yet. What you write here stays private to you.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {entries.map((entry) => {
+                  const d = entryDate(entry.createdAt);
+                  return (
+                    <button
+                      key={entry.id}
+                      onClick={() => setLocation(`/journal/edit/${entry.id}`)}
+                      className="w-full text-left bg-card rounded-[20px] p-5 border border-border/60 active:scale-[0.99] transition-transform"
+                      style={{ boxShadow: "rgba(100,70,30,0.05) 0px 4px 16px" }}
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${getMoodDot(entry.mood)}`} />
+                          <span className="font-sans text-[13px] text-[#8C7B6A]">
+                            {d.day}, {d.date}
+                          </span>
+                        </div>
+                        <span className="font-sans text-[12px] text-[#8C7B6A]">{d.time}</span>
+                      </div>
+                      <p className="font-sans text-[15px] text-foreground leading-[1.65] line-clamp-2">
+                        {entry.content}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </AnimatedPage>

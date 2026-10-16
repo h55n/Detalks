@@ -1,52 +1,100 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
-import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { api, ApiError } from "@/lib/api";
+import { useAppContext } from "@/context/AppContext";
 
 export default function Auth() {
   const [, setLocation] = useLocation();
+  const { refreshUser } = useAppContext();
+  const [mode, setMode] = useState<"signup" | "login">("signup");
   const [showPassword, setShowPassword] = useState(false);
   const [isStudent, setIsStudent] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    setError(null);
+    setBusy(true);
+    try {
+      if (mode === "signup") {
+        await api.signup({ name: name.trim(), email: email.trim(), password, isStudent });
+      } else {
+        await api.login({ email: email.trim(), password });
+      }
+      await refreshUser();
+      const onboarded = localStorage.getItem("detalks-onboarded");
+      setLocation(mode === "signup" || !onboarded ? "/pulse-check" : "/home");
+      if (mode === "signup") localStorage.setItem("detalks-onboarded", "true");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Couldn't reach the server. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const canSubmit =
+    email.trim().length > 3 &&
+    password.length >= (mode === "signup" ? 8 : 1) &&
+    (mode === "login" || name.trim().length > 0) &&
+    !busy;
 
   return (
-    <AnimatedPage className="bg-background flex flex-col h-full">
+    <AnimatedPage className="bg-background flex flex-col h-full overflow-y-auto">
       <div className="p-6 pb-2">
         <button onClick={() => setLocation("/splash")} className="p-2 -ml-2 mb-6">
           <ArrowLeft className="w-6 h-6 text-foreground" />
         </button>
-        
-        <h1 className="font-serif text-[32px] text-foreground mb-2">Let's set up your space</h1>
-        <p className="font-sans text-[15px] text-secondary-foreground">No pressure. Takes 30 seconds.</p>
+
+        <h1 className="font-serif text-[32px] text-foreground mb-2">
+          {mode === "signup" ? "Let's set up your space" : "Welcome back"}
+        </h1>
+        <p className="font-sans text-[15px] text-secondary-foreground">
+          {mode === "signup" ? "No pressure. Takes 30 seconds." : "Your space is just as you left it."}
+        </p>
       </div>
 
       <div className="flex-1 px-6 pt-6 pb-8 flex flex-col space-y-6">
         <div className="space-y-4">
-          <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4">
-            <label className="block text-[12px] font-sans text-secondary-foreground pt-1">What should we call you?</label>
-            <input 
-              type="text" 
-              placeholder="Your name or a nickname" 
-              className="w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground pb-2 pt-1 placeholder:text-muted-foreground"
-            />
-          </div>
+          {mode === "signup" && (
+            <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4">
+              <label className="block text-[12px] font-sans text-secondary-foreground pt-1">What should we call you?</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name or a nickname"
+                className="w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground pb-2 pt-1 placeholder:text-muted-foreground"
+              />
+            </div>
+          )}
 
           <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4">
             <label className="block text-[12px] font-sans text-secondary-foreground pt-1">Your email</label>
-            <input 
-              type="email" 
-              placeholder="we keep this private" 
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="we keep this private"
               className="w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground pb-2 pt-1 placeholder:text-muted-foreground"
             />
           </div>
 
           <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4 flex items-center">
             <div className="flex-1">
-              <label className="block text-[12px] font-sans text-secondary-foreground pt-1">A safe password</label>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                placeholder="••••••••" 
+              <label className="block text-[12px] font-sans text-secondary-foreground pt-1">
+                {mode === "signup" ? "A safe password (8+ characters)" : "Your password"}
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
                 className="w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground pb-2 pt-1 placeholder:text-muted-foreground"
               />
             </div>
@@ -56,56 +104,45 @@ export default function Auth() {
           </div>
         </div>
 
-        <div className="py-2">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-sans text-[15px] text-foreground">Are you a psychology student?</span>
-            <Switch 
-              checked={isStudent} 
-              onCheckedChange={setIsStudent}
-              className="data-[state=checked]:bg-primary"
-            />
+        {mode === "signup" && (
+          <div className="py-2">
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-sans text-[14px] text-foreground">I'm a student</span>
+              <Switch checked={isStudent} onCheckedChange={setIsStudent} />
+            </div>
+            <p className="font-sans text-[12px] text-[#8C7B6A] leading-relaxed">
+              Your public face here is an anonymous alias we create for you. Circles never show your name or email.
+            </p>
           </div>
+        )}
 
-          <AnimatePresence>
-            {isStudent && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-4 overflow-hidden"
-              >
-                <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4">
-                  <label className="block text-[12px] font-sans text-secondary-foreground pt-1">Your college email</label>
-                  <input 
-                    type="email" 
-                    placeholder="student@university.edu" 
-                    className="w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground pb-2 pt-1 placeholder:text-muted-foreground"
-                  />
-                  <div className="pb-2 text-[13px] font-sans text-primary">Unlock student pricing (₹99/month)</div>
-                </div>
-
-                <div className="bg-[#F0E8C8] rounded-[16px] p-4 border border-[#D4C9B8]">
-                  <p className="font-sans text-[14px] text-foreground">
-                    Student benefits unlocked: ₹99/month · 30% off professional sessions
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="mt-auto pt-6 flex flex-col items-center">
-          <button
-            onClick={() => setLocation("/pulse-check")}
-            className="w-full bg-primary text-primary-foreground font-sans text-[14px] font-medium py-4 rounded-[12px] min-h-[44px]"
-          >
-            Start My Journey
-          </button>
-          <p className="mt-6 font-sans text-[11px] text-[#8C7B6A] text-center px-4">
-            By continuing, you agree to our terms. Your data is encrypted and never sold.
+        {error && (
+          <p className="font-sans text-[13px] text-[#B4541E] bg-[#B4541E]/10 border border-[#B4541E]/20 rounded-[12px] px-4 py-3">
+            {error}
           </p>
-        </div>
+        )}
+
+        <button
+          onClick={submit}
+          disabled={!canSubmit}
+          className="w-full bg-foreground text-background disabled:opacity-30 font-sans text-[14px] font-medium py-4 rounded-[14px] min-h-[52px] transition-opacity"
+        >
+          {busy ? "One moment…" : mode === "signup" ? "Create my space" : "Sign in"}
+        </button>
+
+        <button
+          onClick={() => {
+            setMode(mode === "signup" ? "login" : "signup");
+            setError(null);
+          }}
+          className="font-sans text-[13px] text-[#8C7B6A] min-h-[44px]"
+        >
+          {mode === "signup" ? "I already have an account" : "New here? Create an account"}
+        </button>
+
+        <p className="font-sans text-[11px] text-[#8C7B6A]/80 text-center leading-relaxed">
+          DeTalks is a wellness companion, not a medical or crisis service. In crisis, call Tele-MANAS 14416 (free, 24/7).
+        </p>
       </div>
     </AnimatedPage>
   );

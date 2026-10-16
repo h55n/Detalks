@@ -1,21 +1,60 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
-import { ArrowLeft, Check } from "lucide-react";
-import { useAppContext } from "@/context/AppContext";
+import { ArrowLeft, Check, Trash2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { MOODS, entryDate, todaysPrompt } from "@/lib/content";
 
-export default function JournalWrite() {
+export default function JournalWrite({ id }: { id?: string }) {
   const [, setLocation] = useLocation();
-  const { currentMood, setCurrentMood } = useAppContext();
+  const queryClient = useQueryClient();
   const [content, setContent] = useState("");
+  const [mood, setMood] = useState<number | null>(null);
+  const [prompt, setPrompt] = useState(todaysPrompt());
+  const [error, setError] = useState<string | null>(null);
 
-  const moods = [
-    { id: 1, emoji: "😣", label: "Rough" },
-    { id: 2, emoji: "😔", label: "Low" },
-    { id: 3, emoji: "😐", label: "Okay" },
-    { id: 4, emoji: "🙂", label: "Good" },
-    { id: 5, emoji: "😄", label: "Great" },
-  ];
+  const { data: existing } = useQuery({
+    queryKey: ["journal"],
+    queryFn: api.listJournal,
+    enabled: !!id,
+  });
+
+  useEffect(() => {
+    if (id && existing) {
+      const entry = existing.entries.find((e) => e.id === id);
+      if (entry) {
+        setContent(entry.content);
+        setMood(entry.mood);
+        if (entry.prompt) setPrompt(entry.prompt);
+      }
+    }
+  }, [id, existing]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        content: content.trim(),
+        ...(mood ? { mood } : {}),
+        ...(prompt ? { prompt } : {}),
+      };
+      if (id) return api.updateJournalEntry(id, payload);
+      return api.createJournalEntry(payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      setLocation("/journal");
+    },
+    onError: () => setError("Couldn't save. Check your connection and try again."),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => api.deleteJournalEntry(id!),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      setLocation("/journal");
+    },
+  });
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -23,9 +62,17 @@ export default function JournalWrite() {
     month: "long",
   });
 
+  const dateLabel = id && existing
+    ? (() => {
+        const entry = existing.entries.find((e) => e.id === id);
+        if (!entry) return today;
+        const d = entryDate(entry.createdAt);
+        return `${d.day}, ${d.date}`;
+      })()
+    : today;
+
   return (
     <AnimatedPage className="flex flex-col h-full bg-background">
-      {/* Minimal top bar */}
       <div className="flex items-center justify-between px-5 py-4">
         <button
           onClick={() => setLocation("/journal")}
@@ -34,15 +81,14 @@ export default function JournalWrite() {
           <ArrowLeft className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
         </button>
 
-        {/* Mood row */}
         <div className="flex gap-2">
-          {moods.map((m) => (
+          {MOODS.map((m) => (
             <button
               key={m.id}
-              onClick={() => setCurrentMood(m.id)}
+              onClick={() => setMood(mood === m.id ? null : m.id)}
               aria-label={m.label}
               className={`w-9 h-9 rounded-full flex items-center justify-center text-[18px] leading-none transition-all duration-200 active:scale-95 ${
-                currentMood === m.id
+                mood === m.id
                   ? "bg-foreground/[0.07] ring-1 ring-foreground/30 scale-110"
                   : "bg-foreground/[0.025]"
               }`}
@@ -52,35 +98,47 @@ export default function JournalWrite() {
           ))}
         </div>
 
-        <button
-          onClick={() => setLocation("/journal")}
-          className="p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-end"
-        >
-          <Check className="w-5 h-5 text-primary" strokeWidth={2} />
-        </button>
+        <div className="flex items-center">
+          {id && (
+            <button
+              onClick={() => deleteMutation.mutate()}
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center text-foreground/40"
+              aria-label="Delete entry"
+            >
+              <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+            </button>
+          )}
+          <button
+            onClick={() => saveMutation.mutate()}
+            disabled={!content.trim() || saveMutation.isPending}
+            className="p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-end disabled:opacity-30"
+            aria-label="Save entry"
+          >
+            <Check className="w-5 h-5 text-primary" strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 px-6 pt-2 pb-8 flex flex-col">
-        <p className="font-sans text-[12px] text-[#8C7B6A] mb-6">{today}</p>
+        <p className="font-sans text-[12px] text-[#8C7B6A] mb-6">{dateLabel}</p>
 
-        {/* Prompt */}
         <div
           className="rounded-[18px] p-5 mb-6"
           style={{ background: "linear-gradient(160deg, #F2E9CE 0%, #ECE0BD 100%)" }}
         >
           <p className="font-serif text-[18px] text-foreground leading-[1.40] italic">
-            "What's one small thing that didn't go wrong today?"
+            "{prompt}"
           </p>
         </div>
 
-        {/* Writing area */}
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Start writing…"
           className="flex-1 w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground leading-[1.85] placeholder:text-[#8C7B6A]/60 resize-none"
-          autoFocus
+          autoFocus={!id}
         />
+        {error && <p className="font-sans text-[13px] text-[#B4541E] mt-2">{error}</p>}
       </div>
     </AnimatedPage>
   );

@@ -3,36 +3,49 @@ import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { MainLayout } from "@/components/MainLayout";
 import { ArrowLeft } from "lucide-react";
-import { useAppContext } from "@/context/AppContext";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { MOODS, timeAgo } from "@/lib/content";
 
 export default function MoodTracker() {
   const [, setLocation] = useLocation();
-  const { currentMood, setCurrentMood } = useAppContext();
+  const queryClient = useQueryClient();
+  const [currentMood, setCurrentMood] = useState<number | null>(null);
   const [note, setNote] = useState("");
   const [saved, setSaved] = useState(false);
 
-  const moods = [
-    { label: "Rough", id: 1, emoji: "😣" },
-    { label: "Low", id: 2, emoji: "😔" },
-    { label: "Okay", id: 3, emoji: "😐" },
-    { label: "Good", id: 4, emoji: "🙂" },
-    { label: "Great", id: 5, emoji: "😄" },
-  ];
+  const { data } = useQuery({
+    queryKey: ["moods", 30],
+    queryFn: () => api.listMoods(30),
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: () => api.logMood(currentMood!, note.trim() || undefined),
+    onSuccess: () => {
+      setSaved(true);
+      setNote("");
+      setCurrentMood(null);
+      queryClient.invalidateQueries();
+      setTimeout(() => setSaved(false), 3000);
+    },
+  });
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (currentMood) saveMutation.mutate();
   };
 
-  const chartData = [3, 3, 4, 2, 3, 4, 4, 3, 3, 2, 4, 4, 5, 4, 3, 3, 2, 3, 4, 4, 4, 3, 2, 3, 4, 5, 4, 4, 3, 4];
+  // One point per day, most recent check-in of the day wins, oldest → newest.
+  const byDay = new Map<string, number>();
+  for (const e of data?.entries ?? []) {
+    const key = new Date(e.createdAt).toISOString().slice(0, 10);
+    if (!byDay.has(key)) byDay.set(key, e.mood);
+  }
+  const chartData = [...byDay.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, mood]) => mood)
+    .slice(-30);
 
-  const recentEntries = [
-    { date: "Today", mood: "🙂", note: "Felt steady today. Got some sun." },
-    { date: "Yesterday", mood: "😐", note: "Just an ordinary day." },
-    { date: "12 April", mood: "😔", note: "Woke up tired, couldn't shake it." },
-    { date: "11 April", mood: "🙂", note: "Good chat with a friend." },
-    { date: "10 April", mood: "😣", note: "Too much pressure." },
-  ];
+  const recentEntries = (data?.entries ?? []).slice(0, 5);
 
   return (
     <MainLayout>
@@ -54,7 +67,6 @@ export default function MoodTracker() {
         </header>
 
         <div className="px-6 space-y-8 pb-8">
-          {/* Today's check-in */}
           <div
             className="bg-card rounded-[24px] p-6 border border-border/60"
             style={{ boxShadow: "rgba(100,70,30,0.06) 0px 4px 24px" }}
@@ -63,7 +75,7 @@ export default function MoodTracker() {
               How are you feeling right now?
             </p>
             <div className="flex justify-between mb-6">
-              {moods.map((m) => (
+              {MOODS.map((m) => (
                 <div key={m.id} className="flex flex-col items-center">
                   <button
                     onClick={() => setCurrentMood(m.id)}
@@ -98,67 +110,77 @@ export default function MoodTracker() {
               )}
               <button
                 onClick={handleSave}
-                className="bg-foreground text-background font-sans text-[13px] font-medium px-6 py-2.5 rounded-full min-h-[44px]"
+                disabled={!currentMood || saveMutation.isPending}
+                className="bg-foreground text-background disabled:opacity-30 font-sans text-[13px] font-medium px-6 py-2.5 rounded-full min-h-[44px]"
               >
                 Save check-in
               </button>
             </div>
           </div>
 
-          {/* Chart */}
-          <div>
-            <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-4">
-              Last 30 days
-            </p>
-            <div
-              className="bg-card rounded-[20px] p-5 border border-border/60"
-              style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
-            >
-              <div className="h-[100px] w-full relative">
-                <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                  <defs>
-                    <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.15" />
-                      <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <polygon
-                    fill="url(#moodGrad)"
-                    points={`0,100 ${chartData.map((v, i) => `${(i / (chartData.length - 1)) * 100},${100 - ((v - 1) / 4) * 80}`).join(" ")} 100,100`}
-                  />
-                  <polyline
-                    fill="none"
-                    stroke="var(--color-primary)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    points={chartData.map((v, i) => `${(i / (chartData.length - 1)) * 100},${100 - ((v - 1) / 4) * 80}`).join(" ")}
-                  />
-                </svg>
+          {chartData.length > 1 && (
+            <div>
+              <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-4">
+                Last 30 days
+              </p>
+              <div
+                className="bg-card rounded-[20px] p-5 border border-border/60"
+                style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
+              >
+                <div className="h-[100px] w-full relative">
+                  <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                    <defs>
+                      <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.15" />
+                        <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <polygon
+                      fill="url(#moodGrad)"
+                      points={`0,100 ${chartData.map((v, i) => `${(i / (chartData.length - 1)) * 100},${100 - ((v - 1) / 4) * 80}`).join(" ")} 100,100`}
+                    />
+                    <polyline
+                      fill="none"
+                      stroke="var(--color-primary)"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      points={chartData.map((v, i) => `${(i / (chartData.length - 1)) * 100},${100 - ((v - 1) / 4) * 80}`).join(" ")}
+                    />
+                  </svg>
+                </div>
               </div>
-              <p className="font-sans text-[13px] text-[#8C7B6A] mt-4">Your mood has been generally stable this month.</p>
             </div>
-          </div>
+          )}
 
-          {/* Recent entries */}
           <div>
             <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-4">
               Recent entries
             </p>
-            <div className="space-y-2">
-              {recentEntries.map((entry, i) => (
-                <div
-                  key={i}
-                  className="flex items-start py-4 border-b border-border/50 last:border-0"
-                >
-                  <span className="text-[22px] leading-none mr-3 flex-shrink-0">{entry.mood}</span>
-                  <div>
-                    <div className="font-sans text-[12px] text-[#8C7B6A] mb-0.5">{entry.date}</div>
-                    <div className="font-sans text-[14px] text-foreground italic">"{entry.note}"</div>
+            {recentEntries.length === 0 ? (
+              <p className="font-sans text-[14px] text-[#8C7B6A] italic">
+                Nothing logged yet. Your first check-in is one tap above.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {recentEntries.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="flex items-start py-4 border-b border-border/50 last:border-0"
+                  >
+                    <span className="text-[22px] leading-none mr-3 flex-shrink-0">
+                      {MOODS.find((m) => m.id === entry.mood)?.emoji ?? "😐"}
+                    </span>
+                    <div>
+                      <div className="font-sans text-[12px] text-[#8C7B6A] mb-0.5">{timeAgo(entry.createdAt)}</div>
+                      {entry.note && (
+                        <div className="font-sans text-[14px] text-foreground italic">"{entry.note}"</div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </AnimatedPage>

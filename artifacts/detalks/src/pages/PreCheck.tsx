@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function PreCheck() {
   const [, setLocation] = useLocation();
@@ -15,11 +16,12 @@ export default function PreCheck() {
     "I just need to be heard",
   ];
 
-  const handleSelect = () => {
+  const handleSelect = (chip: string) => {
     setTransitioning(true);
-    setTimeout(() => {
-      setLocation("/session/active");
-    }, 2800);
+    api
+      .startSession(chip)
+      .then(({ session }) => setLocation(`/session/active/${session.id}`))
+      .catch(() => setLocation("/talk"));
   };
 
   if (transitioning) {
@@ -85,7 +87,7 @@ export default function PreCheck() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08 + i * 0.08 }}
-              onClick={handleSelect}
+              onClick={() => handleSelect(chip)}
               className="bg-card border border-border/60 rounded-[16px] p-4 text-left font-sans text-[15px] text-foreground hover:border-primary/40 active:scale-[0.99] transition-all min-h-[56px]"
               style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 12px" }}
             >

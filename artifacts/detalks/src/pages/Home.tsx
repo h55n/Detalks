@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { useAppContext } from "@/context/AppContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { CRISIS_LINES, todaysPrompt } from "@/lib/content";
 import {
   ArrowRight,
   Activity,
@@ -23,7 +27,26 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { user, currentMood, setCurrentMood, streakNudge, dismissNudge } = useAppContext();
+  const { user } = useAppContext();
+  const queryClient = useQueryClient();
+  const [currentMood, setCurrentMood] = useState<number | null>(null);
+  const [nudgeDismissed, setNudgeDismissed] = useState(false);
+
+  const { data: progress } = useQuery({ queryKey: ["progress"], queryFn: api.progress });
+  const { data: circles } = useQuery({ queryKey: ["circles"], queryFn: api.listCircles });
+  const moodMutation = useMutation({
+    mutationFn: (mood: number) => api.logMood(mood),
+    onSuccess: () => queryClient.invalidateQueries(),
+  });
+
+  const checkIn = (mood: number) => {
+    setCurrentMood(mood);
+    moodMutation.mutate(mood);
+  };
+
+  const streak = progress?.streak ?? 0;
+  const streakNudge = streak >= 2 && !nudgeDismissed;
+  const academic = circles?.circles.find((c) => c.id === "academic");
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -58,7 +81,7 @@ export default function Home() {
             <h1 className="font-serif text-[28px] leading-[1.15] text-foreground font-normal">
               {getGreeting()},
               <br />
-              <span className="text-foreground/85">{user.name}.</span>
+              <span className="text-foreground/85">{user?.name}.</span>
             </h1>
           </div>
           <button
@@ -66,7 +89,7 @@ export default function Home() {
             className="w-9 h-9 rounded-full bg-foreground/[0.04] border border-border/60 flex items-center justify-center text-foreground/70 font-sans text-[13px] font-medium mt-1 transition-colors hover:bg-foreground/[0.07]"
             aria-label="Profile"
           >
-            {user.name.charAt(0)}
+            {user?.name?.charAt(0) ?? "·"}
           </button>
         </header>
 
@@ -85,7 +108,7 @@ export default function Home() {
                   <Flame className="w-4 h-4 text-[#E8A020] flex-shrink-0" strokeWidth={1.75} />
                   <div>
                     <p className="font-sans text-[13px] font-medium text-foreground leading-tight">
-                      7-day streak — keep it going today
+                      {streak}-day streak — keep it going today
                     </p>
                     <p className="font-sans text-[11px] text-[#8C7B6A] mt-0.5">
                       A quick check-in takes under a minute.
@@ -93,7 +116,7 @@ export default function Home() {
                   </div>
                 </div>
                 <button
-                  onClick={dismissNudge}
+                  onClick={() => setNudgeDismissed(true)}
                   className="p-1.5 text-foreground/30 hover:text-foreground/60 transition-colors flex-shrink-0"
                   aria-label="Dismiss"
                 >
@@ -118,7 +141,7 @@ export default function Home() {
               Today's prompt
             </p>
             <h2 className="font-serif text-[26px] text-foreground leading-[1.30] mb-3">
-              What's one small thing that didn't go wrong today?
+              {todaysPrompt()}
             </h2>
             <p className="font-sans text-[14px] text-[#5A5040] mb-6 leading-relaxed">
               Take five minutes. Write anything.
@@ -141,7 +164,7 @@ export default function Home() {
               {moods.map((m) => (
                 <div key={m.id} className="flex flex-col items-center">
                   <button
-                    onClick={() => setCurrentMood(m.id)}
+                    onClick={() => checkIn(m.id)}
                     className={`w-[52px] h-[52px] rounded-full flex items-center justify-center mb-2 transition-all duration-300 text-[24px] leading-none active:scale-95 ${
                       currentMood === m.id
                         ? "bg-foreground/[0.06] ring-1 ring-foreground/30 scale-105"
@@ -189,13 +212,13 @@ export default function Home() {
               <ToolRow
                 icon={<Activity className="w-[18px] h-[18px]" strokeWidth={1.5} />}
                 title="Mood Tracker"
-                meta="7 days tracked"
+                meta={progress ? `${progress.daysCheckedIn} days tracked` : "Daily check-in"}
                 onClick={() => setLocation("/tools/mood-tracker")}
               />
               <ToolRow
                 icon={<BookOpen className="w-[18px] h-[18px]" strokeWidth={1.5} />}
                 title="Guided Journal"
-                meta="3 entries this week"
+                meta={progress ? `${progress.journalCount} entries` : "Your writing"}
                 onClick={() => setLocation("/journal")}
               />
               <ToolRow
@@ -226,10 +249,7 @@ export default function Home() {
                 Academic Pressure
               </h4>
               <div className="flex items-center text-[#8C7B6A] font-sans text-[12px]">
-                <span>142 voices</span>
-                <span className="mx-2 opacity-50">·</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5" />
-                <span>Active now</span>
+                <span>{academic ? `${academic.voices} voices` : "Anonymous voices"}</span>
               </div>
             </button>
           </section>
@@ -258,28 +278,21 @@ export default function Home() {
                   </p>
                 </SheetHeader>
                 <div className="space-y-3 pb-8">
-                  <a
-                    href="tel:9152987821"
-                    className="block bg-background rounded-[16px] p-5 border border-border/60 hover:border-primary/40 transition-colors"
-                  >
-                    <div className="font-sans text-[13px] font-medium text-primary mb-1">
-                      iCall Mental Health Helpline
-                    </div>
-                    <div className="font-serif text-[22px] text-foreground">
-                      9152987821
-                    </div>
-                  </a>
-                  <a
-                    href="tel:18602662345"
-                    className="block bg-background rounded-[16px] p-5 border border-border/60 hover:border-primary/40 transition-colors"
-                  >
-                    <div className="font-sans text-[13px] font-medium text-primary mb-1">
-                      Vandrevala Foundation
-                    </div>
-                    <div className="font-serif text-[22px] text-foreground">
-                      1860-2662-345
-                    </div>
-                  </a>
+                  {CRISIS_LINES.map((line) => (
+                    <a
+                      key={line.phone}
+                      href={`tel:${line.phone}`}
+                      className="block bg-background rounded-[16px] p-5 border border-border/60 hover:border-primary/40 transition-colors"
+                    >
+                      <div className="font-sans text-[13px] font-medium text-primary mb-1">
+                        {line.name}
+                      </div>
+                      <div className="font-serif text-[22px] text-foreground">
+                        {line.display}
+                      </div>
+                      <div className="font-sans text-[12px] text-[#8C7B6A] mt-0.5">{line.hours}</div>
+                    </a>
+                  ))}
                 </div>
               </SheetContent>
             </Sheet>

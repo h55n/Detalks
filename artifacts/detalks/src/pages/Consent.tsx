@@ -16,9 +16,9 @@ export default function Consent() {
   };
 
   const points = [
-    "Sessions are private to you and your companion",
+    "Sessions are private to you — only you can read them",
+    "Disha is an AI companion, not a therapist or doctor",
     "Kavach watches for safety only — never advertising",
-    "You can leave at any time",
   ];
 
   return (
