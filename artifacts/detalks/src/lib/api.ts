@@ -99,6 +99,12 @@ export const api = {
     call<{ user: ApiUser }>("POST", "/api/auth/login", input),
   logout: () => call<{ ok: true }>("POST", "/api/auth/logout"),
   me: () => call<{ user: ApiUser }>("GET", "/api/auth/me"),
+  deleteAccount: (password: string) => call<{ ok: true }>("DELETE", "/api/account", { password }),
+  exportAccount: async (): Promise<Blob> => {
+    const res = await fetch("/api/account/export", { credentials: "include" });
+    if (!res.ok) throw new ApiError(res.status, "Could not export your data");
+    return res.blob();
+  },
 
   listMoods: (days = 30) => call<{ entries: MoodEntry[] }>("GET", `/api/moods?days=${days}`),
   logMood: (mood: number, note?: string) =>

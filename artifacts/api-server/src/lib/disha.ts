@@ -31,11 +31,21 @@ const MODELS = [
 const HF_ROUTER_URL = "https://router.huggingface.co/v1/chat/completions";
 const REQUEST_TIMEOUT_MS = 25_000;
 
-async function hfReply(history: ChatTurn[], token: string): Promise<string> {
+export interface LlmConfig {
+  apiKey: string;
+  baseUrl?: string; // OpenAI-compatible chat completions URL
+  models?: string[];
+}
+
+const MAX_HISTORY_TURNS = 20;
+
+async function hfReply(history: ChatTurn[], cfg: LlmConfig): Promise<string> {
+  const token = cfg.apiKey;
+  const url = cfg.baseUrl ?? HF_ROUTER_URL;
   let lastError: unknown = null;
-  for (const model of MODELS) {
+  for (const model of cfg.models ?? MODELS) {
     try {
-      const res = await fetch(HF_ROUTER_URL, {
+      const res = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -43,7 +53,7 @@ async function hfReply(history: ChatTurn[], token: string): Promise<string> {
         },
         body: JSON.stringify({
           model,
-          messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history],
+          messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history.slice(-MAX_HISTORY_TURNS)],
           max_tokens: 220,
           temperature: 0.7,
         }),
@@ -80,24 +90,122 @@ const FALLBACK_QUESTIONS = [
   "What usually helps, even a tiny bit, when it feels like this?",
 ];
 
+// Without a model, Disha still listens: it picks up the theme of what was
+// said and asks one gentle question about it, instead of repeating itself.
+const THEMES: { match: RegExp; reflect: string; asks: string[] }[] = [
+  {
+    match: /\b(exam|exams|marks|result|results|backlog|study|studying|jee|neet|upsc|cgpa|grades?|test|viva)\b/i,
+    reflect: "Exam and marks pressure can feel like it decides everything, even when it doesn't.",
+    asks: [
+      "What part of it is weighing on you most right now?",
+      "When you picture the next small step, even ten minutes of it, what is it?",
+    ],
+  },
+  {
+    match: /\b(sleep|sleepless|insomnia|tired|exhausted|awake|nightmare)\b/i,
+    reflect: "Being worn out makes everything feel heavier.",
+    asks: [
+      "What has your sleep been like the past few nights?",
+      "Is there something that keeps your mind busy once the lights go off?",
+    ],
+  },
+  {
+    match: /\b(lonely|alone|no friends?|isolated|left out|nobody)\b/i,
+    reflect: "Feeling alone is painful, and it is more common among students than people say out loud.",
+    asks: [
+      "Is there one person, even from far back, who made you feel at ease?",
+      "When did you last feel a little connected to someone?",
+    ],
+  },
+  {
+    match: /\b(anxious|anxiety|panic|nervous|worried|worry|scared|afraid|overthink\w*)\b/i,
+    reflect: "That sounds like a worried mind working overtime.",
+    asks: [
+      "Where do you feel it in your body right now?",
+      "If you slow your breath for a minute, does the worry shift at all? The Breathe tab can walk you through it.",
+    ],
+  },
+  {
+    match: /\b(parents?|family|mom|dad|mother|father|home|brother|sister|relatives?)\b/i,
+    reflect: "Family can be both our support and our pressure, sometimes in the same hour.",
+    asks: [
+      "What do you wish they understood about how you're doing?",
+      "Is there one thing you could tell them, in your own words, that would ease it a little?",
+    ],
+  },
+  {
+    match: /\b(sad|cry|crying|empty|numb|low|down|hopeless|depressed|miserable)\b/i,
+    reflect: "I'm sorry it feels this low. You don't have to dress it up here.",
+    asks: [
+      "Has it been like this for a few days, or did something happen today?",
+      "What is one small, ordinary thing that has felt okay lately, even slightly?",
+    ],
+  },
+  {
+    match: /\b(angry|anger|frustrated|irritated|furious|annoyed|fed up)\b/i,
+    reflect: "That frustration makes sense. Something matters to you there.",
+    asks: [
+      "What do you think is underneath the anger, hurt or tiredness?",
+      "What would help you let a little of it out safely?",
+    ],
+  },
+  {
+    match: /\b(friend|friends|relationship|breakup|broke up|crush|partner|girlfriend|boyfriend)\b/i,
+    reflect: "Relationships can take up so much of our heart.",
+    asks: [
+      "What has been the hardest part of it for you?",
+      "What would you say to a friend who was going through the same thing?",
+    ],
+  },
+  {
+    match: /\b(thanks|thank you|better|feeling good|good now|helped)\b/i,
+    reflect: "I'm glad to hear that.",
+    asks: [
+      "What helped most just now? It is worth remembering for another day.",
+      "Is there anything else you want to put down before you go?",
+    ],
+  },
+];
+
 export function fallbackResponder(history: ChatTurn[]): Promise<string> {
-  const userTurns = history.filter((t) => t.role === "user").length;
-  const lastUser = [...history].reverse().find((t) => t.role === "user");
-  const opener = FALLBACK_OPENERS[userTurns % FALLBACK_OPENERS.length];
-  const question = FALLBACK_QUESTIONS[userTurns % FALLBACK_QUESTIONS.length];
-  const echo = lastUser
-    ? `You said, "${lastUser.content.slice(0, 120)}${lastUser.content.length > 120 ? "…" : ""}" — I hear that. `
-    : "";
-  return Promise.resolve(`${opener} ${echo}${question}`);
+  const userTurns = history.filter((t) => t.role === "user");
+  const lastUser = userTurns[userTurns.length - 1];
+  const n = userTurns.length;
+  const text = lastUser?.content ?? "";
+  const theme = THEMES.find((t) => t.match.test(text));
+  if (theme) {
+    const ask = theme.asks[n % theme.asks.length];
+    return Promise.resolve(`${theme.reflect} ${ask}`);
+  }
+  const opener = FALLBACK_OPENERS[n % FALLBACK_OPENERS.length];
+  const question = FALLBACK_QUESTIONS[n % FALLBACK_QUESTIONS.length];
+  return Promise.resolve(`${opener} ${question}`);
 }
 
-export function createDishaResponder(token?: string): DishaResponder {
-  if (!token) return fallbackResponder;
+export function createDishaResponder(token?: string | LlmConfig): DishaResponder {
+  const cfg: LlmConfig | null =
+    typeof token === "string" ? (token ? { apiKey: token } : null) : token?.apiKey ? token : null;
+  if (!cfg) return fallbackResponder;
   return async (history) => {
     try {
-      return await hfReply(history, token);
+      return await hfReply(history, cfg);
     } catch {
       return fallbackResponder(history);
     }
   };
+}
+
+/** Reads provider settings from the environment. Any OpenAI-compatible
+ * endpoint works through LLM_API_KEY / LLM_BASE_URL / LLM_MODEL; HF_TOKEN
+ * keeps the original Hugging Face router default. */
+export function dishaConfigFromEnv(env: NodeJS.ProcessEnv): LlmConfig | undefined {
+  if (env.LLM_API_KEY) {
+    return {
+      apiKey: env.LLM_API_KEY,
+      baseUrl: env.LLM_BASE_URL,
+      models: env.LLM_MODEL ? env.LLM_MODEL.split(",").map((m) => m.trim()) : undefined,
+    };
+  }
+  if (env.HF_TOKEN) return { apiKey: env.HF_TOKEN };
+  return undefined;
 }

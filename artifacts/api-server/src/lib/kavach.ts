@@ -19,6 +19,23 @@ const CRISIS_PATTERNS: RegExp[] = [
   /\b(can't|cant|cannot)\s+(go on|take it|do this)\s+(anymore|any longer)\b/i,
   /\bwish\s+(i\s+)?(was|were)\s+(dead|never born|gone)\b/i,
   /\beveryone\s+would\s+be\s+better\s+off\s+without\s+me\b/i,
+  /\b(take|taking|end|ending)\s+my\s+(own\s+)?(life|self)\b/i,
+  /\b(hang|hanging|drown|drowning|poison|poisoning|shoot|shooting|stab|stabbing)\s+(myself)\b/i,
+  /\b(jump|jumping)\s+(off|from)\s+(a|the|my)?\s*(bridge|building|roof|terrace|balcony|window|train)\b/i,
+  /\b(overdose|overdosing|od)\s+(on|myself)\b/i,
+  /\b(want|wanna|wish|going)\s+(to\s+)?(be\s+)?(dead|die|gone forever)\b/i,
+  /\bdon't\s+want\s+to\s+be\s+alive\b/i,
+  /\b(thinking|thought)s?\s+(of|about)\s+(dying|ending it|ending everything|killing myself)\b/i,
+  /\b(not|no longer)\s+worth\s+living\b/i,
+  // Hinglish (romanised Hindi), common among Indian students
+  /\b(mar|marr)\s*(jana|jaana|jaun|jau|jaoon)\b/i,
+  /\b(marna|mar\s+jaana?)\s+(chahta|chahti|chahte|hai|hu|hoon)\b/i,
+  /\b(jeena|jina|jeene|jine)\s+(nahi|nhi|nahin)\s+(chahta|chahti|chahte|ka mann|ka man)\b/i,
+  /\b(jeene|jine)\s+ka\s+(mann?|man|mood)\s+(nahi|nhi|nahin)\b/i,
+  /\bkhud\s*kushi\b/i,
+  /\bkhud\s+ko\s+(khatam|maar|hurt|nuksan)\b/i,
+  /\b(apni|apna)\s+(jaan|life)\s+(de|dena|khatam|le)\b/i,
+  /\bsab\s+khatam\s+kar\b/i,
 ];
 
 export interface KavachResult {
@@ -26,7 +43,10 @@ export interface KavachResult {
 }
 
 export function kavachScan(text: string): KavachResult {
-  const normalized = text.replace(/\s+/g, " ").trim();
+  const normalized = text
+    .replace(/[\u2018\u2019\u02bc]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
   return { flagged: CRISIS_PATTERNS.some((p) => p.test(normalized)) };
 }
 

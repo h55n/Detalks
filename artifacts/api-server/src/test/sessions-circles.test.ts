@@ -19,7 +19,19 @@ test("kavach flags crisis language but not ordinary talk", () => {
   assert.equal(kavachScan("everyone would be better off without me").flagged, true);
   assert.equal(kavachScan("I don't want to live anymore").flagged, true);
 
+  assert.equal(kavachScan("I don\u2019t want to live anymore").flagged, true);
+  assert.equal(kavachScan("thinking about ending my own life").flagged, true);
+  assert.equal(kavachScan("I want to jump off the terrace").flagged, true);
+  assert.equal(kavachScan("mujhe mar jana hai").flagged, true);
+  assert.equal(kavachScan("ab jeena nahi chahta").flagged, true);
+  assert.equal(kavachScan("I feel like khud ko khatam kar lun").flagged, true);
+
   assert.equal(kavachScan("that exam killed me").flagged, false);
+  assert.equal(kavachScan("my phone is dead").flagged, false);
+  assert.equal(kavachScan("I want to jump into the pool").flagged, false);
+  assert.equal(kavachScan("the movie was a killer, I loved it").flagged, false);
+  assert.equal(kavachScan("I'm dead tired after practice").flagged, false);
+  assert.equal(kavachScan("mujhe marks ki tension hai").flagged, false);
   assert.equal(kavachScan("I feel sad about my marks").flagged, false);
   assert.equal(kavachScan("dying of laughter at that joke").flagged, false);
   assert.equal(kavachScan("I killed it at the presentation today").flagged, false);
@@ -115,4 +127,11 @@ test("circles list, post anonymously, and like", async () => {
 
   const bogus = await a.get("/api/circles/not-a-circle/posts");
   assert.equal(bogus.status, 404);
+});
+
+test("fallback Disha answers by theme and never echoes the user's words", async () => {
+  const { fallbackResponder } = await import("../lib/disha");
+  const reply = await fallbackResponder([{ role: "user", content: "My exam results are coming and I can't sleep" }]);
+  assert.match(reply, /exam|marks|pressure/i);
+  assert.equal(reply.includes("exam results are coming"), false);
 });

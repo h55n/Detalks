@@ -9,7 +9,8 @@ import { createJournalRouter } from "./routes/journal";
 import { createProgressRouter } from "./routes/progress";
 import { createSessionsRouter } from "./routes/sessions";
 import { createCirclesRouter } from "./routes/circles";
-import { createDishaResponder, type DishaResponder } from "./lib/disha";
+import { createAccountRouter } from "./routes/account";
+import { createDishaResponder, dishaConfigFromEnv, type DishaResponder } from "./lib/disha";
 import type { Database } from "@workspace/db";
 import { logger } from "./lib/logger";
 
@@ -23,8 +24,11 @@ export interface AppDeps {
 const buckets = new Map<string, { count: number; resetAt: number }>();
 function rateLimit(limit: number, windowMs: number) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const key = req.ip ?? "unknown";
+    const key = `${req.ip ?? "unknown"}:${req.path}`;
     const now = Date.now();
+    if (buckets.size > 5000) {
+      for (const [k, b] of buckets) if (b.resetAt < now) buckets.delete(k);
+    }
     const bucket = buckets.get(key);
     if (!bucket || bucket.resetAt < now) {
       buckets.set(key, { count: 1, resetAt: now + windowMs });
@@ -42,6 +46,16 @@ function rateLimit(limit: number, windowMs: number) {
 
 export function createApp({ db, disha }: AppDeps): Express {
   const app = express();
+  app.disable("x-powered-by");
+  // Behind Vercel/Render the client IP arrives in X-Forwarded-For. Without
+  // this every visitor shares the proxy address and one rate-limit bucket.
+  app.set("trust proxy", 1);
+  app.use((_req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader("Cache-Control", "no-store");
+    next();
+  });
 
   app.use(
     pinoHttp({
@@ -70,13 +84,14 @@ export function createApp({ db, disha }: AppDeps): Express {
   const authRateLimit = rateLimit(30, 15 * 60 * 1000);
 
   app.use("/api", healthRouter);
-  app.use("/api/auth", authRateLimit);
+  app.use(["/api/auth/login", "/api/auth/signup"], authRateLimit);
   app.use("/api", createAuthRouter(db));
   app.use("/api", createMoodsRouter(db));
   app.use("/api", createJournalRouter(db));
   app.use("/api", createProgressRouter(db));
-  app.use("/api", createSessionsRouter(db, disha ?? createDishaResponder(process.env.HF_TOKEN)));
+  app.use("/api", createSessionsRouter(db, disha ?? createDishaResponder(dishaConfigFromEnv(process.env))));
   app.use("/api", createCirclesRouter(db));
+  app.use("/api", createAccountRouter(db));
 
   // JSON 404 for unknown API routes
   app.use("/api", (_req, res) => {

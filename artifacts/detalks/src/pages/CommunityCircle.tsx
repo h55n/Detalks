@@ -120,6 +120,17 @@ export default function CommunityCircle({ id }: { id: string }) {
             <ArrowUp className="w-4 h-4 text-background" strokeWidth={2} />
           </button>
         </div>
+        {postMutation.isError && (
+          <div
+            role="alert"
+            className="mt-3 rounded-[14px] border border-primary/30 bg-primary/5 px-4 py-3 font-sans text-[13px] leading-relaxed text-foreground"
+          >
+            {postMutation.error instanceof Error ? postMutation.error.message : "Could not post. Try again."}
+            <a href="tel:14416" className="block mt-2 font-medium text-primary underline">
+              Call Tele-MANAS 14416 (free, 24/7)
+            </a>
+          </div>
+        )}
         <p className="font-sans text-[11px] text-[#8C7B6A] mt-2 px-1">
           Posted anonymously as {user?.alias}. Be kind; no advice that replaces a professional.
         </p>

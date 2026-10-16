@@ -77,8 +77,8 @@ export class Client {
   put(path: string, body?: unknown) {
     return this.req("PUT", path, body);
   }
-  delete(path: string) {
-    return this.req("DELETE", path);
+  delete(path: string, body?: unknown) {
+    return this.req("DELETE", path, body);
   }
 }
 

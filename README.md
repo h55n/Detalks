@@ -13,7 +13,8 @@ The tone is calm and non-clinical: warm cream background, forest green, serif he
 - Mood tracker, journal and a progress view built from real activity
 - Breathing and grounding exercises, plus a practices library
 - Talk: text sessions with Disha, an AI companion. Kavach, a safety guardian, screens every message and answers crisis language with verified Indian helplines instead of the model
-- Anonymous community circles
+- Anonymous community circles, also screened by Kavach
+- Your data: download everything as JSON, or delete the account for good
 - Professional help page with verified helplines
 - Installable as a PWA
 
@@ -52,7 +53,8 @@ pnpm --filter detalks run dev
 ## Environment
 
 - `DATABASE_URL` — PostgreSQL connection string (required)
-- `HF_TOKEN` — Hugging Face inference token for Disha's replies (optional; without it Disha answers with a simple reflective listener)
+- `HF_TOKEN` — Hugging Face inference token for Disha's replies (optional)
+- `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` — any OpenAI-compatible provider instead of Hugging Face (optional). Without a key Disha answers with a theme-aware reflective listener
 - `PORT` — listen port (required)
 - `CORS_ORIGIN` — only needed if the frontend is served from another origin
 

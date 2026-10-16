@@ -8,6 +8,7 @@ import {
 } from "@workspace/db";
 import { currentUser, requireAuth } from "../lib/auth";
 import { CIRCLES, isCircleId } from "../lib/circles";
+import { CRISIS_RESOURCES, kavachScan } from "../lib/kavach";
 
 const postSchema = z.object({
   content: z.string().trim().min(1).max(1000),
@@ -91,6 +92,17 @@ export function createCirclesRouter(db: Database): IRouter {
     const parsed = postSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: "Write something before posting" });
+      return;
+    }
+    // Kavach also guards the shared spaces: a post in crisis language is not
+    // published to the circle, and the writer is pointed to real help instead.
+    if (kavachScan(parsed.data.content).flagged) {
+      res.status(422).json({
+        error:
+          "This sounds heavy, and it deserves more care than a shared circle can give. Your post was not shared. Please call Tele-MANAS 14416 (free, 24/7) or 112 if you are in danger. Disha is also here to talk, privately.",
+        flagged: true,
+        resources: CRISIS_RESOURCES,
+      });
       return;
     }
     const user = currentUser(res);

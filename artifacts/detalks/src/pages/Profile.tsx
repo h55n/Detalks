@@ -1,9 +1,11 @@
+import { forwardRef, useState, type ButtonHTMLAttributes } from "react";
 import { useLocation } from "wouter";
+import { api } from "@/lib/api";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { MainLayout } from "@/components/MainLayout";
 import { useAppContext } from "@/context/AppContext";
 import { CRISIS_LINES } from "@/lib/content";
-import { ChevronRight, Shield, Bell, Lock, HeartHandshake, LogOut, History } from "lucide-react";
+import { ChevronRight, Shield, Lock, HeartHandshake, LogOut, History } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Profile() {
@@ -65,14 +67,45 @@ export default function Profile() {
               className="bg-card rounded-[20px] border border-border/60 overflow-hidden"
               style={{ boxShadow: "rgba(100,70,30,0.04) 0px 4px 16px" }}
             >
-              <SettingRow icon={<Shield className="w-[18px] h-[18px]" strokeWidth={1.5} />} label="Account" />
+              <Sheet>
+                <SheetTrigger asChild>
+                  <SettingRow icon={<Shield className="w-[18px] h-[18px]" strokeWidth={1.5} />} label="Your data" />
+                </SheetTrigger>
+                <SheetContent side="bottom" className="rounded-t-[28px] bg-card border-t border-border/60">
+                  <SheetHeader className="text-left pb-4">
+                    <SheetTitle className="font-serif text-[24px] text-foreground font-normal leading-tight">
+                      Your data is yours
+                    </SheetTitle>
+                    <p className="font-sans text-[14px] text-[#8C7B6A] mt-1">
+                      Download everything DeTalks holds about you, or delete your account for good.
+                    </p>
+                  </SheetHeader>
+                  <DataControls />
+                </SheetContent>
+              </Sheet>
               <SettingRow
                 icon={<History className="w-[18px] h-[18px]" strokeWidth={1.5} />}
                 label="Session History"
                 onClick={() => setLocation("/history")}
               />
-              <SettingRow icon={<Lock className="w-[18px] h-[18px]" strokeWidth={1.5} />} label="Privacy & Safety" />
-              <SettingRow icon={<Bell className="w-[18px] h-[18px]" strokeWidth={1.5} />} label="Notifications" isLast />
+              <Sheet>
+                <SheetTrigger asChild>
+                  <SettingRow icon={<Lock className="w-[18px] h-[18px]" strokeWidth={1.5} />} label="Privacy & Safety" isLast />
+                </SheetTrigger>
+                <SheetContent side="bottom" className="rounded-t-[28px] bg-card border-t border-border/60">
+                  <SheetHeader className="text-left pb-4">
+                    <SheetTitle className="font-serif text-[24px] text-foreground font-normal leading-tight">
+                      Privacy and safety
+                    </SheetTitle>
+                  </SheetHeader>
+                  <ul className="font-sans text-[14px] text-foreground/80 leading-relaxed space-y-3 pb-8 list-disc pl-5">
+                    <li>Other people only see your alias, never your name or email.</li>
+                    <li>Journal entries and Disha chats are private to you.</li>
+                    <li>Kavach screens messages and circle posts for crisis language and points you to real helplines.</li>
+                    <li>DeTalks is a wellness companion, not medical care. In an emergency call 112, or Tele-MANAS 14416 (free, 24/7).</li>
+                  </ul>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
 
@@ -137,20 +170,20 @@ export default function Profile() {
   );
 }
 
-function SettingRow({
-  icon,
-  label,
-  onClick,
-  isLast,
-}: {
+interface SettingRowProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon: React.ReactNode;
   label: string;
-  onClick?: () => void;
   isLast?: boolean;
-}) {
+}
+
+const SettingRow = forwardRef<HTMLButtonElement, SettingRowProps>(function SettingRow(
+  { icon, label, isLast, className: _c, ...rest },
+  ref,
+) {
   return (
     <button
-      onClick={onClick}
+      ref={ref}
+      {...rest}
       className={`w-full flex items-center justify-between px-5 py-4 min-h-[52px] hover:bg-foreground/[0.02] transition-colors ${!isLast ? "border-b border-border/50" : ""}`}
     >
       <div className="flex items-center gap-3 text-[#8C7B6A]">
@@ -159,5 +192,84 @@ function SettingRow({
       </div>
       <ChevronRight className="w-4 h-4 text-foreground/25" strokeWidth={1.5} />
     </button>
+  );
+});
+
+function DataControls() {
+  const [password, setPassword] = useState("");
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const download = async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const blob = await api.exportAccount();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "detalks-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Could not export");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      await api.deleteAccount(password);
+      window.location.assign("/");
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Could not delete");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3 pb-8">
+      <button
+        onClick={download}
+        disabled={busy}
+        className="w-full bg-background rounded-[16px] p-4 border border-border/60 font-sans text-[15px] font-medium text-foreground min-h-[48px] disabled:opacity-50"
+      >
+        Download my data (JSON)
+      </button>
+      {!confirming ? (
+        <button
+          onClick={() => setConfirming(true)}
+          className="w-full rounded-[16px] p-4 border border-destructive/40 font-sans text-[15px] font-medium text-destructive min-h-[48px]"
+        >
+          Delete my account
+        </button>
+      ) : (
+        <div className="rounded-[16px] border border-destructive/40 p-4 space-y-3">
+          <p className="font-sans text-[13px] text-foreground/80">
+            This permanently removes your account, journal, moods, sessions and circle posts. Enter your password to confirm.
+          </p>
+          <input
+            type="password"
+            autoComplete="current-password"
+            aria-label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-background border border-border/60 rounded-[12px] px-4 py-3 font-sans text-[15px] outline-none"
+          />
+          <button
+            onClick={remove}
+            disabled={busy || !password}
+            className="w-full rounded-[12px] bg-destructive text-destructive-foreground py-3 font-sans text-[15px] font-medium min-h-[44px] disabled:opacity-40"
+          >
+            Delete permanently
+          </button>
+        </div>
+      )}
+      {message && <p role="alert" className="font-sans text-[13px] text-destructive">{message}</p>}
+    </div>
   );
 }
