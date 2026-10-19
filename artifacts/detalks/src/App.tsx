@@ -5,37 +5,37 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider, useAppContext } from "@/context/AppContext";
 import { PhoneFrame } from "@/components/PhoneFrame";
 import { AnimatePresence } from "framer-motion";
-import type { ComponentType } from "react";
+import { lazy, Suspense, type ComponentType } from "react";
 
 // Pages
-import Splash from "@/pages/Splash";
-import Onboarding1 from "@/pages/Onboarding1";
-import Onboarding2 from "@/pages/Onboarding2";
-import Onboarding3 from "@/pages/Onboarding3";
-import VerifyEmail from "@/pages/VerifyEmail";
-import Auth from "@/pages/Auth";
-import PulseCheck from "@/pages/PulseCheck";
-import Home from "@/pages/Home";
-import Talk from "@/pages/Talk";
-import ActiveSession from "@/pages/ActiveSession";
-import CommunityCircle from "@/pages/CommunityCircle";
-import Journal from "@/pages/Journal";
-import JournalWrite from "@/pages/JournalWrite";
-import Breathe from "@/pages/Breathe";
-import Practices from "@/pages/Practices";
-import Grounding from "@/pages/Grounding";
-import Reflection from "@/pages/Reflection";
-import Resources from "@/pages/Resources";
-import PreCheck from "@/pages/PreCheck";
-import Progress from "@/pages/Progress";
-import Profile from "@/pages/Profile";
-import Subscription from "@/pages/Subscription";
-import MoodTracker from "@/pages/MoodTracker";
-import SessionReflection from "@/pages/SessionReflection";
-import Professional from "@/pages/Professional";
-import SessionHistory from "@/pages/SessionHistory";
-import Consent from "@/pages/Consent";
-import NotFound from "@/pages/not-found";
+const Splash = lazy(() => import("@/pages/Splash"));
+const Onboarding1 = lazy(() => import("@/pages/Onboarding1"));
+const Onboarding2 = lazy(() => import("@/pages/Onboarding2"));
+const Onboarding3 = lazy(() => import("@/pages/Onboarding3"));
+const VerifyEmail = lazy(() => import("@/pages/VerifyEmail"));
+const Auth = lazy(() => import("@/pages/Auth"));
+const PulseCheck = lazy(() => import("@/pages/PulseCheck"));
+const Home = lazy(() => import("@/pages/Home"));
+const Talk = lazy(() => import("@/pages/Talk"));
+const ActiveSession = lazy(() => import("@/pages/ActiveSession"));
+const CommunityCircle = lazy(() => import("@/pages/CommunityCircle"));
+const Journal = lazy(() => import("@/pages/Journal"));
+const JournalWrite = lazy(() => import("@/pages/JournalWrite"));
+const Breathe = lazy(() => import("@/pages/Breathe"));
+const Practices = lazy(() => import("@/pages/Practices"));
+const Grounding = lazy(() => import("@/pages/Grounding"));
+const Reflection = lazy(() => import("@/pages/Reflection"));
+const Resources = lazy(() => import("@/pages/Resources"));
+const PreCheck = lazy(() => import("@/pages/PreCheck"));
+const Progress = lazy(() => import("@/pages/Progress"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const Subscription = lazy(() => import("@/pages/Subscription"));
+const MoodTracker = lazy(() => import("@/pages/MoodTracker"));
+const SessionReflection = lazy(() => import("@/pages/SessionReflection"));
+const Professional = lazy(() => import("@/pages/Professional"));
+const SessionHistory = lazy(() => import("@/pages/SessionHistory"));
+const Consent = lazy(() => import("@/pages/Consent"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 const queryClient = new QueryClient();
 
@@ -116,7 +116,7 @@ function App() {
         <AppProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <PhoneFrame>
-              <Router />
+              <Suspense fallback={<FullPageLoader />}><Router /></Suspense>
             </PhoneFrame>
           </WouterRouter>
         </AppProvider>

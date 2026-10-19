@@ -8,7 +8,7 @@ The tone is calm and non-clinical: warm cream background, forest green, serif he
 
 ## What is in the app
 
-- Email sign-up with an anonymous alias for community spaces
+- Email sign-up with an anonymous alias; shared-circle writes require email verification
 - Onboarding, consent and a daily pulse check
 - Mood tracker, journal and a progress view built from real activity
 - Breathing and grounding exercises, plus a practices library
@@ -53,6 +53,8 @@ pnpm --filter detalks run dev
 ## Environment
 
 - `DATABASE_URL` — PostgreSQL connection string (required)
+- `GROQ_API_KEY`, `GROQ_MODEL` - Groq Disha and additive Kavach screening (server-side secrets only)
+- `APP_ORIGIN`, `RESEND_API_KEY`, `VERIFICATION_FROM` - email verification, requiring a verified sending domain
 - `HF_TOKEN` — Hugging Face inference token for Disha's replies (optional)
 - `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` — any OpenAI-compatible provider instead of Hugging Face (optional). Without a key Disha answers with a theme-aware reflective listener
 - `PORT` — listen port (required)
@@ -60,7 +62,11 @@ pnpm --filter detalks run dev
 
 ## Deployment
 
-`render.yaml` deploys the whole app as one free Render web service: it builds the frontend, bundles the API, and serves both from a single origin. Provision a free Postgres, set `DATABASE_URL` (and `HF_TOKEN`), done.
+The current live app uses Vercel, with `vercel.json` building the web app and serverless Express API. Set server-side environment variables in the Vercel project; GitHub main is linked to production.
+
+Alternative: `render.yaml` deploys the whole app as one free Render web service: it builds the frontend, bundles the API, and serves both from a single origin. Provision a free Postgres, set `DATABASE_URL` (and `HF_TOKEN`), done.
+
+See [RELEASE-CHECKLIST.md](./RELEASE-CHECKLIST.md) for current launch gates. This is a working pilot, not a clinically validated production service.
 
 ## Contribution split
 
