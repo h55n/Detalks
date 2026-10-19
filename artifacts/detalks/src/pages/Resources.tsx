@@ -1,3 +1,4 @@
+import { RESOURCE_NOTES } from "@/lib/resources";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
@@ -8,18 +9,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 export default function Resources() {
   const [, setLocation] = useLocation();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const [selectedArticle, setSelectedArticle] = useState<any>(null);
+  const [selectedArticle, setSelectedArticle] = useState<(typeof RESOURCE_NOTES)[number] | null>(null);
 
   const topics = ["All", "Academic Pressure", "Loneliness", "Family Dynamics", "Workplace Burnout", "Grief", "Identity", "Relationships"];
 
-  const articles = [
-    { id: 1, category: "Academic Pressure", title: "When the Exam Defines Your Worth", preview: "Untangling your identity from your marks. A gentle guide to finding grounding when the pressure of expectations feels too heavy to carry.", time: "4 min" },
-    { id: 2, category: "Family Dynamics", title: "Setting Boundaries with Parents", preview: "How to say 'no' respectfully in a culture that doesn't always understand the word. Practical steps for preserving peace at home.", time: "6 min" },
-    { id: 3, category: "Loneliness", title: "Being Alone vs. Feeling Lonely", preview: "Understanding the difference in a hyper-connected world. Why moving to a new city for college or work often triggers deep isolation.", time: "5 min" },
-    { id: 4, category: "Workplace Burnout", title: "The Hustle Culture Trap", preview: "Recognizing the signs of early burnout before it becomes debilitating. Rest is not a reward for hard work, it's a requirement.", time: "7 min" },
-    { id: 5, category: "Grief", title: "Mourning What Could Have Been", preview: "Grief isn't just for losing people. It's for lost opportunities, changed plans, and the versions of our lives that didn't happen.", time: "4 min" },
-    { id: 6, category: "Identity", title: "Navigating Two Worlds", preview: "Balancing traditional expectations with personal aspirations. Finding a voice that feels authentic to both who you are and where you come from.", time: "5 min" },
-  ];
+  const articles = RESOURCE_NOTES;
 
   const filtered = selectedTopic && selectedTopic !== "All"
     ? articles.filter((a) => a.category === selectedTopic)
@@ -41,7 +35,7 @@ export default function Resources() {
           <h1 className="font-serif text-[30px] text-foreground font-normal leading-[1.15]">
             Resource Library
           </h1>
-          <p className="font-sans text-[14px] text-[#8C7B6A] mt-2">Calm reads. Real voices. Indian context.</p>
+          <p className="font-sans text-[14px] text-[#8C7B6A] mt-2">Short editorial reflections, not clinical advice.</p>
         </header>
 
         {/* Topic filter pills */}
@@ -81,7 +75,7 @@ export default function Resources() {
               <div className="flex items-center justify-between">
                 <span className="flex items-center text-[#8C7B6A] font-sans text-[12px]">
                   <Clock className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} />
-                  {article.time} read
+                  Short reflection
                 </span>
                 <span className="flex items-center text-foreground/60 font-sans text-[13px] font-medium">
                   Read
@@ -106,28 +100,14 @@ export default function Resources() {
               </SheetTitle>
               <div className="flex items-center text-[#8C7B6A] font-sans text-[12px] mt-2">
                 <Clock className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} />
-                {selectedArticle?.time} read
+                DeTalks editorial reflection
               </div>
             </SheetHeader>
             <div className="space-y-5 font-sans text-[16px] text-foreground leading-[1.75] pb-10">
               <p className="text-[17px] text-[#8C7B6A] leading-[1.65]">{selectedArticle?.preview}</p>
-              <p>
-                In a society that deeply values collective achievement and familial pride, the weight of academic or professional expectations can sometimes feel suffocating. We are often taught that our worth is inextricably linked to our output — the grades we get, the institutions we attend, the jobs we secure.
-              </p>
-              <p>
-                But this narrative misses a fundamental truth: you are a complete, worthy human being regardless of those metrics. Learning to separate your identity from your achievements is not a rejection of hard work; it is a necessary boundary for your wellbeing.
-              </p>
-              <p>
-                It starts with acknowledging the pressure without internalizing it. When a parent expresses disappointment, or when peers seem to be moving faster, it is easy to absorb their anxiety as your own failure. Notice when this happens. Pause. Remind yourself that their reactions are born from their own conditioning, not from your inadequacy.
-              </p>
-              <div className="bg-foreground/[0.04] rounded-[16px] p-5 my-2 border-l-[3px] border-l-primary/40">
-                <p className="italic text-[#8C7B6A]">
-                  "You are allowed to be a masterpiece and a work in progress at the same time."
-                </p>
-              </div>
-              <p>
-                Take small steps today. Identify one thing you enjoy doing that has no productive value. A walk, a sketch, listening to a particular song. Reclaim a piece of your time that belongs only to you.
-              </p>
+              {selectedArticle?.paragraphs.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
+              <div className="bg-background rounded-[16px] p-5 border border-border"><p className="font-medium">A private prompt</p><p>{selectedArticle?.prompt}</p></div>
+              <p className="text-[14px]">This reflection is not a diagnosis or treatment. In immediate danger, call 112. For mental health support in India, call Tele-MANAS 14416.</p>
             </div>
           </SheetContent>
         </Sheet>
