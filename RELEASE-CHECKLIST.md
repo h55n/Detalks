@@ -28,8 +28,13 @@ This remains a wellness pilot, not a clinically validated service. Do not launch
 4. Managed database backup/restore drill, TLS CA verification, retention policy and an incident response owner. The current managed database connection retains the existing encrypted-but-unverified TLS configuration; this is a launch gate, not a security guarantee.
 5. Groq free-tier quota is shared with other use of the account. The app must stay on the free plan unless its owner explicitly approves otherwise. Test outage behavior when limits are reached.
 
+## Database capacity checks
+
+Vercel Fluid Compute uses `attachDatabasePool` so idle clients close before an instance suspends. Each connection also sets a 60-second server-side `idle_session_timeout`; this never kills an active query or transaction. Keep the per-instance pool small. The current shared free Aiven service has a 20-connection cap. A final smoke test exposed and recovered exhausted idle DeTalks connections, so sustained/concurrent load and a dedicated pooler remain launch gates. Do not restart the shared service or terminate other applications' connections as a shortcut.
+
 ## Current sources checked 2026-10-19
 
+- Vercel pool lifecycle: https://vercel.com/kb/guide/connection-pooling-with-functions
 - Groq models: https://console.groq.com/docs/models
 - Groq data handling: https://console.groq.com/docs/your-data
 - Resend test-domain restriction: https://resend.com/docs/knowledge-base/403-error-resend-dev-domain

@@ -43,7 +43,7 @@ export default function ActiveSession({ id }: { id: string }) {
   const startedAt = session ? new Date(session.createdAt).getTime() : Date.now();
   const ended = !!session?.endedAt;
 
-  const elapsed = Math.max(0, Math.floor((now - startedAt) / 1000));
+  const elapsed = Math.max(0, Math.floor(((session?.endedAt ? new Date(session.endedAt).getTime() : now) - startedAt) / 1000));
   const remaining = Math.max(0, SESSION_LIMIT_SECONDS - elapsed);
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
@@ -98,6 +98,7 @@ export default function ActiveSession({ id }: { id: string }) {
   };
 
   const closeSession = async () => {
+    if (ended) { setLocation("/history"); return; }
     try { await api.endSession(id, {}); setShowExit(true); }
     catch { setCloseError("Could not close the session. Check your connection and try again."); }
   };
@@ -112,7 +113,7 @@ export default function ActiveSession({ id }: { id: string }) {
         <div className="font-sans text-[13px] font-medium text-[#8C7B6A]">
           {ended ? "Session ended" : "With Disha"}
         </div>
-        <div className="font-sans text-[13px] text-[#8C7B6A] font-mono">{mm}:{ss}</div>
+        <div className="font-sans text-[13px] text-[#8C7B6A] font-mono">{ended ? `${Math.ceil(elapsed / 60)} min` : `${mm}:${ss}`}</div>
         <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-foreground/[0.04]">
           <div
             className="h-full bg-primary/60 transition-all duration-1000"
