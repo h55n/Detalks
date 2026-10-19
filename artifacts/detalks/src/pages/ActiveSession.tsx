@@ -20,7 +20,7 @@ export default function ActiveSession({ id }: { id: string }) {
   const [now, setNow] = useState(Date.now());
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { data, error } = useQuery({
+  const { data, error, isLoading, refetch } = useQuery({
     queryKey: ["session", id],
     queryFn: () => api.sessionMessages(id),
   });
@@ -68,6 +68,14 @@ export default function ActiveSession({ id }: { id: string }) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages.length, sendMutation.isPending]);
+
+  if (isLoading || (error && !(error instanceof ApiError && error.status === 404))) {
+    return <AnimatedPage className="h-full p-6 flex flex-col justify-center items-center gap-4">
+      <p role={error ? "alert" : "status"}>{error ? "Could not load this conversation." : "Loading conversation..."}</p>
+      {error && <button onClick={() => refetch()} className="min-h-[44px] underline">Try again</button>}
+      <button onClick={() => setLocation("/talk")} className="min-h-[44px]">Back to Talk</button>
+    </AnimatedPage>;
+  }
 
   if (error instanceof ApiError && error.status === 404) {
     return (

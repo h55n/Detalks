@@ -8,7 +8,7 @@ import { timeAgo } from "@/lib/content";
 
 export default function SessionHistory() {
   const [, setLocation] = useLocation();
-  const { data } = useQuery({ queryKey: ["sessions"], queryFn: api.listSessions });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ["sessions"], queryFn: api.listSessions });
   const sessions = data?.sessions ?? [];
 
   return (
@@ -30,7 +30,7 @@ export default function SessionHistory() {
         </header>
 
         <div className="px-6 space-y-3 pb-8">
-          {sessions.length === 0 ? (
+          {isLoading ? <p role="status">Loading your sessions...</p> : isError ? <div role="alert"><p>Could not load your sessions.</p><button onClick={() => refetch()} className="min-h-[44px] underline">Try again</button></div> : sessions.length === 0 ? (
             <div className="bg-card rounded-[24px] border border-border/60 p-6 text-center">
               <h2 className="font-serif text-[20px] text-foreground mb-2">Nothing here yet</h2>
               <p className="font-sans text-[14px] text-secondary-foreground mb-5">
@@ -64,6 +64,7 @@ export default function SessionHistory() {
                 <div className="font-sans text-[12px] text-[#8C7B6A]">
                   {s.durationMin} min · {s.messageCount} messages
                 </div>
+                <button onClick={() => setLocation(`/session/active/${s.id}`)} className="min-h-[44px] mt-3 text-primary underline text-[14px]">Read conversation</button>
                 {s.reflection && (
                   <p className="font-sans text-[13px] text-foreground/80 italic mt-3 pt-3 border-t border-border/50">
                     "{s.reflection}"

@@ -14,7 +14,7 @@ export default function CommunityCircle({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const [inputValue, setInputValue] = useState("");
 
-  const { data } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["circle", id],
     queryFn: () => api.circlePosts(id),
   });
@@ -70,7 +70,9 @@ export default function CommunityCircle({ id }: { id: string }) {
       </header>
 
       <div className="flex-1 overflow-y-auto px-6 pb-32 space-y-4">
-        {posts.length === 0 && (
+        {isLoading && <p role="status">Loading circle...</p>}
+        {isError && <div role="alert"><p>Could not load this circle.</p><button onClick={() => refetch()} className="min-h-[44px] underline">Try again</button></div>}
+        {!isLoading && !isError && posts.length === 0 && (
           <p className="font-sans text-[14px] text-[#8C7B6A] italic pt-4">
             Nobody has spoken here yet. The first voice is often the bravest.
           </p>
