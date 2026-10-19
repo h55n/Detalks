@@ -36,6 +36,10 @@ export function createDb(connectionString: string): DbHandle {
     // quiet connections. Keep the pool small, probe with TCP keepalive and
     // recycle idle clients quickly so a dead socket is not reused.
     max: Number(process.env["DB_POOL_MAX"] ?? 2),
+    // Server-side backstop also works while a serverless VM is suspended.
+    // Only idle sessions are closed, never an active query or transaction.
+    options: "-c idle_session_timeout=60000",
+    application_name: "detalks",
     idleTimeoutMillis: 2_000,
     connectionTimeoutMillis: 10_000,
     keepAlive: true,
