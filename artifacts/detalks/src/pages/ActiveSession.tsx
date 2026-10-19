@@ -43,7 +43,7 @@ export default function ActiveSession({ id }: { id: string }) {
   const startedAt = session ? new Date(session.createdAt).getTime() : Date.now();
   const ended = !!session?.endedAt;
 
-  const elapsed = Math.floor((now - startedAt) / 1000);
+  const elapsed = Math.max(0, Math.floor((now - startedAt) / 1000));
   const remaining = Math.max(0, SESSION_LIMIT_SECONDS - elapsed);
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
