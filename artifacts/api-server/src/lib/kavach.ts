@@ -52,7 +52,6 @@ export function kavachScan(text: string): KavachResult {
 
 export const CRISIS_RESOURCES = [
   { name: "Tele-MANAS (Govt of India)", phone: "14416", hours: "Free, 24/7" },
-  { name: "KIRAN Helpline", phone: "1800-599-0019", hours: "Free, 24/7" },
   { name: "iCall (TISS)", phone: "9152987821", hours: "Mon-Sat, 8am-9pm" },
   { name: "Vandrevala Foundation", phone: "+91 9999 666 555", hours: "Free, 24/7" },
   { name: "AASRA", phone: "+91 98204 66726", hours: "24/7" },
@@ -63,8 +62,8 @@ export function kavachReply(): string {
   return (
     "I hear how heavy this is, and I'm really glad you said it out loud. " +
     "What you're describing sounds bigger than this space can hold safely, and you deserve real, immediate support. " +
-    "Please reach out to one of these free, confidential lines right now: " +
-    "Tele-MANAS 14416 (24/7), KIRAN 1800-599-0019 (24/7), iCall 9152987821, Vandrevala Foundation +91 9999 666 555. " +
+    "Please call Tele-MANAS 14416 (free, 24/7) or Vandrevala Foundation +91 9999 666 555 (24/7). " +
+    "iCall 9152987821 is available Monday to Saturday, 8am to 9pm. " +
     "If you are in immediate danger, call 112. " +
     "You matter, and this feeling can be survived with the right support beside you."
   );

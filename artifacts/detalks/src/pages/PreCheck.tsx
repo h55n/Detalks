@@ -18,6 +18,7 @@ export default function PreCheck() {
   ];
 
   const handleSelect = (chip: string) => {
+    if (!sessionStorage.getItem("detalks-consent-v2")) { setLocation("/consent"); return; }
     setTransitioning(true);
     api
       .startSession(chip)

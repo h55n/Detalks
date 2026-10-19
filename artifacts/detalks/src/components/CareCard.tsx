@@ -63,7 +63,7 @@ export function CareCard({ message, showDisha = false, className = "" }: CareCar
           {showDisha ? (
             <button
               type="button"
-              onClick={() => setLocation("/session/precheck")}
+              onClick={() => setLocation("/consent")}
               className="flex min-h-[48px] items-center justify-center gap-2 rounded-[14px] border border-border bg-background/70 px-3 font-sans text-[14px] font-medium text-foreground transition-colors hover:bg-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               <MessageCircleHeart className="h-4 w-4 text-primary" strokeWidth={1.8} aria-hidden="true" />

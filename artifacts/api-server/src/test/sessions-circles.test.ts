@@ -92,7 +92,8 @@ test("kavach answers crisis messages with helplines, not the model", async () =>
   assert.equal(sent.json.flagged, true);
   const reply = (sent.json.companionMessage as { content: string }).content;
   assert.match(reply, /14416/);
-  assert.match(reply, /1800-599-0019/);
+  assert.match(reply, /112/);
+  assert.equal(reply.includes("1800-599-0019"), false);
 });
 
 test("circles list, post anonymously, and like", async () => {

@@ -38,7 +38,6 @@ export function todaysPrompt(): string {
 
 export const CRISIS_LINES = [
   { name: "Tele-MANAS (Govt of India)", phone: "14416", display: "14416", hours: "Free · 24/7" },
-  { name: "KIRAN Helpline", phone: "18005990019", display: "1800-599-0019", hours: "Free · 24/7" },
   { name: "iCall (TISS)", phone: "9152987821", display: "91529 87821", hours: "Mon–Sat · 8am–9pm" },
   { name: "Vandrevala Foundation", phone: "+919999666555", display: "+91 99996 66555", hours: "Free · 24/7" },
   { name: "AASRA", phone: "+919820466726", display: "+91 98204 66726", hours: "24/7" },
