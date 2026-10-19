@@ -41,7 +41,7 @@ test("a session flows start, message, reply, history, end", async () => {
   const client = new Client(server.baseUrl);
   await signup(client, "session@example.com");
 
-  const started = await client.post("/api/sessions", { arrivalState: "Feeling steady" });
+  const started = await client.post("/api/sessions", { arrivalState: "Feeling steady", consentVersion: "groq-v1" });
   assert.equal(started.status, 201);
   const session = started.json.session as { id: string };
   const opening = started.json.messages as { role: string }[];
@@ -82,7 +82,7 @@ test("a session flows start, message, reply, history, end", async () => {
 test("kavach answers crisis messages with helplines, not the model", async () => {
   const client = new Client(server.baseUrl);
   await signup(client, "crisis@example.com");
-  const started = await client.post("/api/sessions", { arrivalState: "Carrying something heavy" });
+  const started = await client.post("/api/sessions", { arrivalState: "Carrying something heavy", consentVersion: "groq-v1" });
   const session = started.json.session as { id: string };
 
   const sent = await client.post(`/api/sessions/${session.id}/messages`, {

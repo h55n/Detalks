@@ -124,7 +124,7 @@ export const api = {
 
   listSessions: () => call<{ sessions: SessionSummary[] }>("GET", "/api/sessions"),
   startSession: (arrivalState: string) =>
-    call<{ session: { id: string }; messages: SessionMessage[] }>("POST", "/api/sessions", { arrivalState }),
+    call<{ session: { id: string }; messages: SessionMessage[] }>("POST", "/api/sessions", { arrivalState, consentVersion: "groq-v1" }),
   sessionMessages: (id: string) =>
     call<{ session: { id: string; endedAt: string | null; createdAt: string }; messages: SessionMessage[] }>(
       "GET",

@@ -9,6 +9,7 @@ export const talkSessionsTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
     arrivalState: text("arrival_state"),
+    consentVersion: text("consent_version"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     endedAt: timestamp("ended_at", { withTimezone: true }),
     postMood: integer("post_mood"),

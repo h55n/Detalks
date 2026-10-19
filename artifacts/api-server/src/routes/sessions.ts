@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   moodEntriesTable,
@@ -17,6 +17,7 @@ const MESSAGE_LIMIT = 200;
 
 const startSchema = z.object({
   arrivalState: z.string().trim().min(1).max(120),
+  consentVersion: z.literal("groq-v1"),
 });
 
 const messageSchema = z.object({
@@ -62,13 +63,15 @@ export function createSessionsRouter(
       .where(eq(talkSessionsTable.userId, userId))
       .orderBy(desc(talkSessionsTable.createdAt))
       .limit(50);
-    const counts = await db
+    const sessionIds = sessions.map(s => s.id);
+    const counts = sessionIds.length ? await db
       .select({
         sessionId: sessionMessagesTable.sessionId,
         count: sql<number>`count(*)::int`,
       })
       .from(sessionMessagesTable)
-      .groupBy(sessionMessagesTable.sessionId);
+      .where(inArray(sessionMessagesTable.sessionId, sessionIds))
+      .groupBy(sessionMessagesTable.sessionId) : [];
     const countBySession = new Map(counts.map((c) => [c.sessionId, c.count]));
     res.json({
       sessions: sessions.map((s) => {
@@ -94,13 +97,13 @@ export function createSessionsRouter(
   router.post("/sessions", async (req, res) => {
     const parsed = startSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: "Pick how you're arriving today" });
+      res.status(400).json({ error: "Review chat consent, then pick how you are arriving today" });
       return;
     }
     const userId = currentUser(res).id;
     const [session] = await db
       .insert(talkSessionsTable)
-      .values({ userId, arrivalState: parsed.data.arrivalState })
+      .values({ userId, arrivalState: parsed.data.arrivalState, consentVersion: parsed.data.consentVersion })
       .returning();
     const [opening] = await db
       .insert(sessionMessagesTable)
@@ -147,6 +150,10 @@ export function createSessionsRouter(
     const session = await loadOwnedSession(req, res);
     if (!session) {
       res.status(404).json({ error: "Session not found" });
+      return;
+    }
+    if (session.consentVersion !== "groq-v1") {
+      res.status(409).json({ error: "This older session needs updated AI consent. Start a new session from Talk." });
       return;
     }
     if (session.endedAt) {

@@ -20,7 +20,7 @@ export async function migrate(executor: SqlExecutor): Promise<string[]> {
   for (const m of migrations) {
     if (applied.has(m.name)) continue;
     await executor.query(m.sql);
-    await executor.query("INSERT INTO _migrations (name) VALUES ($1)", [m.name]);
+    await executor.query("INSERT INTO _migrations (name) VALUES ($1) ON CONFLICT (name) DO NOTHING", [m.name]);
     ran.push(m.name);
   }
   return ran;

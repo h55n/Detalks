@@ -95,4 +95,8 @@ CREATE TABLE IF NOT EXISTS email_verifications (
 CREATE INDEX IF NOT EXISTS email_verifications_user_idx ON email_verifications(user_id);
 `,
   },
+  {
+    name: "0003_session_consent",
+    sql: `ALTER TABLE talk_sessions ADD COLUMN IF NOT EXISTS consent_version text;`,
+  },
 ];

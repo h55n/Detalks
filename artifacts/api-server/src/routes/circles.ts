@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   circlePostLikesTable,
@@ -59,13 +59,15 @@ export function createCirclesRouter(db: Database, scan: SafetyScanner = async (t
       .where(eq(circlePostsTable.circleId, circleId))
       .orderBy(desc(circlePostsTable.createdAt))
       .limit(100);
-    const likes = await db
+    const postIds = posts.map(p => p.id);
+    const likes = postIds.length ? await db
       .select({
         postId: circlePostLikesTable.postId,
         count: sql<number>`count(*)::int`,
       })
       .from(circlePostLikesTable)
-      .groupBy(circlePostLikesTable.postId);
+      .where(inArray(circlePostLikesTable.postId, postIds))
+      .groupBy(circlePostLikesTable.postId) : [];
     const myLikes = await db
       .select({ postId: circlePostLikesTable.postId })
       .from(circlePostLikesTable)

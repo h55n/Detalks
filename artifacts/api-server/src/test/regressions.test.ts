@@ -17,7 +17,7 @@ test("new accounts have no demo moods, journal entries or sessions", async () =>
 test("the latest turn reaches Disha even beyond the old 40-message limit", async () => {
   const client = new Client(server.baseUrl);
   await signup(client, "long@example.com");
-  const started = await client.post("/api/sessions", { arrivalState: "Feeling steady" });
+  const started = await client.post("/api/sessions", { arrivalState: "Feeling steady", consentVersion: "groq-v1" });
   const id = (started.json.session as { id: string }).id;
   for (let i = 0; i < 22; i++) {
     assert.equal((await client.post(`/api/sessions/${id}/messages`, { content: `Test reflection ${i}` })).status, 201);
@@ -28,7 +28,7 @@ test("the latest turn reaches Disha even beyond the old 40-message limit", async
 test("ending twice does not duplicate moods or erase reflections", async () => {
   const client = new Client(server.baseUrl);
   await signup(client, "end@example.com");
-  const started = await client.post("/api/sessions", { arrivalState: "Feeling steady" });
+  const started = await client.post("/api/sessions", { arrivalState: "Feeling steady", consentVersion: "groq-v1" });
   const id = (started.json.session as { id: string }).id;
   await client.post(`/api/sessions/${id}/end`, { postMood: 4, reflection: "Small steps" });
   await client.post(`/api/sessions/${id}/end`, { postMood: 4, reflection: "Small steps" });
@@ -45,4 +45,10 @@ test("invalid ids and day filters return client errors, not database errors", as
   assert.equal((await client.delete("/api/journal/invalid")).status, 404);
   assert.equal((await client.get("/api/moods?days=-1")).status, 400);
   assert.equal((await client.get("/api/moods?days=Infinity")).status, 400);
+});
+
+test("new sessions require the current provider consent version", async () => {
+  const client = new Client(server.baseUrl);
+  await signup(client, "consent@example.com");
+  assert.equal((await client.post("/api/sessions", { arrivalState: "Feeling steady" })).status, 400);
 });

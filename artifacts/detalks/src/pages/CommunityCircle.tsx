@@ -138,7 +138,7 @@ export default function CommunityCircle({ id }: { id: string }) {
           />
         )}
         <p className="font-sans text-[11px] text-[#8C7B6A] mt-2 px-1">
-          Posted anonymously as {user?.alias}. Be kind; no advice that replaces a professional.
+          Posted under your alias {user?.alias}, not your name. Posts are visible to other members and sent to Groq for automated safety screening. Avoid identifying details. This is not a human-moderated crisis service.
         </p>
       </div>
     </AnimatedPage>
