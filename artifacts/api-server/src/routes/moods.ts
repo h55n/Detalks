@@ -14,7 +14,12 @@ export function createMoodsRouter(db: Database): IRouter {
   router.use(requireAuth(db));
 
   router.get("/moods", async (req, res) => {
-    const days = Math.min(Number(req.query.days) || 30, 365);
+    const rawDays = Number(req.query.days ?? 30);
+    if (!Number.isInteger(rawDays) || rawDays < 1 || rawDays > 365) {
+      res.status(400).json({ error: "Days must be a whole number from 1 to 365" });
+      return;
+    }
+    const days = rawDays;
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const entries = await db
       .select()

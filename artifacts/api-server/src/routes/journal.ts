@@ -43,6 +43,7 @@ export function createJournalRouter(db: Database): IRouter {
   });
 
   router.put("/journal/:id", async (req, res) => {
+    if (!z.string().uuid().safeParse(req.params.id).success) { res.status(404).json({ error: "Entry not found" }); return; }
     const parsed = entrySchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: "Write something before saving" });
@@ -71,6 +72,7 @@ export function createJournalRouter(db: Database): IRouter {
   });
 
   router.delete("/journal/:id", async (req, res) => {
+    if (!z.string().uuid().safeParse(req.params.id).success) { res.status(404).json({ error: "Entry not found" }); return; }
     const rows = await db
       .delete(journalEntriesTable)
       .where(

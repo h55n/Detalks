@@ -38,8 +38,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    await api.logout().catch(() => undefined);
+    await api.logout();
     sessionStorage.removeItem("detalks-consent");
+    sessionStorage.removeItem("detalks-consent-v2");
     queryClient.clear();
     await refetch();
   };

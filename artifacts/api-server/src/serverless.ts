@@ -41,7 +41,7 @@ export default async function handler(
     logger.error({ err }, "Database not ready");
     res.statusCode = 503;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ error: "Service is waking up. Try again in a moment.", code: (err as { code?: string })?.code ?? (err as Error)?.message?.slice(0, 80) }));
+    res.end(JSON.stringify({ error: "Service is waking up. Try again in a moment." }));
     return;
   }
   return new Promise((resolve, reject) => {
