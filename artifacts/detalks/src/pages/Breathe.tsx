@@ -81,6 +81,7 @@ export default function Breathe() {
         <X className="w-6 h-6 text-secondary-foreground opacity-50" />
       </button>
 
+      <p className="absolute bottom-8 px-6 text-center text-[14px] text-foreground/80">Keep breathing comfortable. Skip holds or stop if you feel dizzy or uncomfortable.</p>
       <div className="absolute top-24 left-0 right-0 text-center text-[#8C7B6A] font-sans text-[13px] font-medium tracking-[0.5px] uppercase">
         {getLabel()}
       </div>

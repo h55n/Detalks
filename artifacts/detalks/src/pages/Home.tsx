@@ -38,9 +38,11 @@ export default function Home() {
   const moodMutation = useMutation({
     mutationFn: (mood: number) => api.logMood(mood),
     onSuccess: () => queryClient.invalidateQueries(),
+    onError: () => setCurrentMood(null),
   });
 
   const checkIn = (mood: number) => {
+    if (moodMutation.isPending) return;
     setCurrentMood(mood);
     moodMutation.mutate(mood);
   };
@@ -165,6 +167,7 @@ export default function Home() {
               {moods.map((m) => (
                 <div key={m.id} className="flex flex-col items-center">
                   <button
+                    disabled={moodMutation.isPending}
                     onClick={() => checkIn(m.id)}
                     className={`w-[52px] h-[52px] rounded-full flex items-center justify-center mb-2 transition-all duration-300 text-[24px] leading-none active:scale-95 ${
                       currentMood === m.id
@@ -183,10 +186,13 @@ export default function Home() {
             </div>
           </section>
 
+          {moodMutation.isError && <p role="alert" className="text-[14px] text-destructive">Could not save your check-in. Please try again.</p>}
+          {moodMutation.isSuccess && <p role="status" className="text-[14px] text-primary">Check-in saved.</p>}
           {/* Disha — minimal row */}
-          <section
-            onClick={() => setLocation("/pulse-check")}
-            className="flex items-center justify-between cursor-pointer group py-3"
+          <button
+            aria-label="Talk with Disha"
+            onClick={() => setLocation("/talk")}
+            className="w-full text-left flex items-center justify-between cursor-pointer group py-3 min-h-[44px]"
           >
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full bg-foreground/[0.04] border border-border/60 flex items-center justify-center mr-3">
@@ -202,7 +208,7 @@ export default function Home() {
               </div>
             </div>
             <ArrowRight className="w-4 h-4 text-foreground/40 transition-all group-hover:text-foreground/70 group-hover:translate-x-0.5" strokeWidth={1.75} />
-          </section>
+          </button>
 
           {/* Tools — quieter rows, not bordered tiles */}
           <section>

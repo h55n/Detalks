@@ -12,9 +12,9 @@ export default function Practices() {
       icon: Wind,
       subtitle: "Slow the body, quiet the mind.",
       items: [
-        { id: "belly", name: "Belly Breathing", duration: "2 min", desc: "Deep, slow breaths — 4-4 cycle", path: "/practice/breathe?t=belly" },
-        { id: "box", name: "Box Breathing", duration: "3 min", desc: "Equal parts focus — 4-4-4-4", path: "/practice/breathe?t=box" },
-        { id: "478", name: "4-7-8 Technique", duration: "4 min", desc: "For deep relaxation", path: "/practice/breathe?t=478" },
+        { id: "belly", name: "Belly Breathing", duration: "~1 min", desc: "Four rounds: inhale 4, pause 2, exhale 6", path: "/practice/breathe?t=belly" },
+        { id: "box", name: "Box Breathing", duration: "~1 min", desc: "Four rounds: 4-4-4-4", path: "/practice/breathe?t=box" },
+        { id: "478", name: "4-7-8 Technique", duration: "~1 min", desc: "Four rounds: inhale 4, hold 7, exhale 8", path: "/practice/breathe?t=478" },
       ],
     },
     {
