@@ -107,6 +107,13 @@ export function createApp({ db, disha, sendVerification, safety }: AppDeps): Exp
   // Central error handler: no stack traces leak to clients.
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     logger.error({ err }, "Unhandled error");
+    // Drizzle may wrap the driver's capacity/unavailable error in `cause`.
+    const dbError = err as { code?: string; cause?: { code?: string } };
+    if ([dbError?.code, dbError?.cause?.code].some(code => code === "53300" || code === "57P03")) {
+      res.setHeader("Retry-After", "10");
+      res.status(503).json({ error: "The service is busy. Please try again shortly." });
+      return;
+    }
     const status = (err as { status?: number })?.status;
     if (status === 400 || status === 413) {
       res.status(status).json({ error: status === 413 ? "That message is too large" : "Invalid request body" });

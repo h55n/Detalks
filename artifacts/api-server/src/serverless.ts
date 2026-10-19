@@ -2,6 +2,7 @@
 // app that index.ts serves in the long-running deployment. Migrations run
 // once per function instance before the first request is handled.
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { attachDatabasePool } from "@vercel/functions";
 import { createDb } from "@workspace/db";
 import { createApp } from "./app";
 import { logger } from "./lib/logger";
@@ -11,7 +12,9 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL environment variable is required but was not provided.");
 }
 
-const { db, migrate } = createDb(databaseUrl);
+const { db, migrate, pool } = createDb(databaseUrl);
+// Keep the instance alive until idle clients close, including after suspension.
+attachDatabasePool(pool);
 const app = createApp({ db });
 let ready: Promise<void> | null = null;
 function ensureReady(): Promise<void> {
