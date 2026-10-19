@@ -6,6 +6,7 @@ export const usersTable = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull(),
   alias: text("alias").notNull().unique(),
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
   isStudent: boolean("is_student").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -26,3 +27,10 @@ export const authSessionsTable = pgTable(
 
 export type User = typeof usersTable.$inferSelect;
 export type AuthSession = typeof authSessionsTable.$inferSelect;
+
+export const emailVerificationsTable = pgTable("email_verifications", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: uuid("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

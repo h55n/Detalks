@@ -92,6 +92,15 @@ export function publicUser(user: User) {
     name: user.name,
     alias: user.alias,
     isStudent: user.isStudent,
+    emailVerified: !!user.emailVerifiedAt,
     createdAt: user.createdAt,
   };
+}
+
+export function requireVerifiedEmail(_req: Request, res: Response, next: NextFunction) {
+  if (!currentUser(res).emailVerifiedAt) {
+    res.status(403).json({ error: "Verify your email before posting or reacting in shared circles. Private tools are still available." });
+    return;
+  }
+  next();
 }

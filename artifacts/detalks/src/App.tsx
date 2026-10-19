@@ -12,6 +12,7 @@ import Splash from "@/pages/Splash";
 import Onboarding1 from "@/pages/Onboarding1";
 import Onboarding2 from "@/pages/Onboarding2";
 import Onboarding3 from "@/pages/Onboarding3";
+import VerifyEmail from "@/pages/VerifyEmail";
 import Auth from "@/pages/Auth";
 import PulseCheck from "@/pages/PulseCheck";
 import Home from "@/pages/Home";
@@ -66,6 +67,7 @@ function Router() {
         {/* Crisis and self-help info stays reachable without an account */}
         <Route path="/resources" component={Resources} />
 
+        <Route path="/verify-email">{() => <Private component={VerifyEmail} />}</Route>
         <Route path="/pulse-check">{() => <Private component={PulseCheck} />}</Route>
         <Route path="/home">{() => <Private component={Home} />}</Route>
         <Route path="/talk">{() => <Private component={Talk} />}</Route>

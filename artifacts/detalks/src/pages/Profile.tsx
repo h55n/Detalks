@@ -11,6 +11,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 export default function Profile() {
   const [, setLocation] = useLocation();
   const { user, logout } = useAppContext();
+  const [accountMessage, setAccountMessage] = useState("");
+  const [verificationBusy, setVerificationBusy] = useState(false);
 
   return (
     <MainLayout>
@@ -36,6 +38,17 @@ export default function Profile() {
         </header>
 
         <div className="px-6 space-y-8 pb-8">
+          {!user?.emailVerified && <section className="rounded-[20px] border border-border bg-card p-5 space-y-3">
+            <h2 className="font-serif text-[22px]">Verify your email</h2>
+            <p className="text-[14px] leading-relaxed">Your private tools work now. Verify your email to post or react in shared circles.</p>
+            <button disabled={verificationBusy} className="min-h-[44px] text-primary underline disabled:opacity-40" onClick={async () => {
+              setVerificationBusy(true);
+              try { await api.requestVerification(); setAccountMessage("Check your email for a link. It expires in 30 minutes."); }
+              catch (error) { setAccountMessage(error instanceof Error ? error.message : "Could not send email."); }
+              finally { setVerificationBusy(false); }
+            }}>{verificationBusy ? "Sending..." : "Send verification link"}</button>
+          </section>}
+          {accountMessage && <p role="status" className="text-[14px]">{accountMessage}</p>}
           {/* Subscription */}
           <div
             className="bg-card rounded-[20px] p-5 border border-border/60"
@@ -100,7 +113,7 @@ export default function Profile() {
                   </SheetHeader>
                   <ul className="font-sans text-[14px] text-foreground/80 leading-relaxed space-y-3 pb-8 list-disc pl-5">
                     <li>Other people only see your alias, never your name or email.</li>
-                    <li>Journal entries and Disha chats are private to you.</li>
+                    <li>Journal entries are not shared with other members. Disha chat text is sent to our AI provider, Groq, to generate replies. Avoid names, contact details and other identifying information.</li>
                     <li>Kavach screens messages and circle posts for crisis language and points you to real helplines.</li>
                     <li>DeTalks is a wellness companion, not medical care. In an emergency call 112, or Tele-MANAS 14416 (free, 24/7).</li>
                   </ul>
@@ -136,7 +149,7 @@ export default function Profile() {
                     <br />
                     These lines are open.
                   </SheetTitle>
-                  <p className="font-sans text-[14px] text-[#8C7B6A] mt-1">Free, confidential, 24/7.</p>
+                  <p className="font-sans text-[14px] text-[#8C7B6A] mt-1">Contact details and hours are listed below.</p>
                 </SheetHeader>
                 <div className="space-y-3 pb-8">
                   {CRISIS_LINES.map((line) => (
@@ -155,8 +168,8 @@ export default function Profile() {
           <div className="flex justify-center pt-2 pb-4">
             <button
               onClick={async () => {
-                await logout();
-                setLocation("/splash");
+                try { await logout(); setLocation("/splash"); }
+                catch { setAccountMessage("Could not sign out. Check your connection and try again."); }
               }}
               className="flex items-center text-[#8C7B6A] font-sans text-[14px] min-h-[44px] px-4 hover:text-foreground/60 transition-colors"
             >

@@ -18,7 +18,7 @@ export default function Talk() {
   const recent = (sessionsData?.sessions ?? []).slice(0, 3);
 
   const startSession = () => {
-    if (sessionStorage.getItem("detalks-consent")) {
+    if (sessionStorage.getItem("detalks-consent-v2")) {
       setLocation("/session/precheck");
     } else {
       setLocation("/consent");

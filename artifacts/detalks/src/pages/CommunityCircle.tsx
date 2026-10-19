@@ -89,8 +89,10 @@ export default function CommunityCircle({ id }: { id: string }) {
               "{post.content}"
             </p>
             <button
+              disabled={!user?.emailVerified || likeMutation.isPending}
+              aria-label={post.likedByMe ? "Remove reaction" : "React to post"}
               onClick={() => likeMutation.mutate(post.id)}
-              className="flex items-center gap-2 transition-all"
+              className="flex items-center gap-2 transition-all min-h-[44px] disabled:opacity-40"
             >
               <Heart
                 className={`w-[18px] h-[18px] transition-all ${post.likedByMe ? "fill-primary text-primary" : "text-[#8C7B6A]"}`}
@@ -105,8 +107,11 @@ export default function CommunityCircle({ id }: { id: string }) {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 bg-card/90 backdrop-blur-md border-t border-border/60 p-4 pb-8">
+        {!user?.emailVerified && <button className="text-[14px] text-primary underline min-h-[44px]" onClick={() => setLocation("/profile")}>Verify your email to join this circle</button>}
         <div className="flex items-end gap-3">
           <textarea
+            aria-label="Your circle post"
+            maxLength={1000}
             placeholder="Share a thought with the circle…"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -115,7 +120,7 @@ export default function CommunityCircle({ id }: { id: string }) {
           />
           <button
             onClick={share}
-            disabled={!inputValue.trim() || postMutation.isPending}
+            disabled={!user?.emailVerified || !inputValue.trim() || postMutation.isPending}
             aria-label="Share to the circle" className="w-11 h-11 rounded-full bg-foreground disabled:opacity-30 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
           >
             <ArrowUp className="w-4 h-4 text-background" strokeWidth={2} />

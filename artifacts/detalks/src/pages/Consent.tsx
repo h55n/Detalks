@@ -10,15 +10,15 @@ export default function Consent() {
 
   const handleContinue = () => {
     if (consented) {
-      sessionStorage.setItem("detalks-consent", "true");
+      sessionStorage.setItem("detalks-consent-v2", "true");
       setLocation("/session/precheck");
     }
   };
 
   const points = [
-    "Sessions are private to you — only you can read them",
+    "Other members cannot read your sessions. Chat text is stored in DeTalks and sent to Groq to generate replies.",
     "Disha is an AI companion, not a therapist or doctor",
-    "Kavach watches for safety only — never advertising",
+    "Kavach screens for signs of crisis. It can miss things and is not monitored by a human.",
   ];
 
   return (
@@ -40,7 +40,7 @@ export default function Consent() {
 
       <div className="px-6 flex-1 flex flex-col">
         <p className="font-sans text-[15px] text-[#8C7B6A] leading-[1.70] mb-8">
-          Every session is monitored in real time by Kavach — our quiet safety guardian. They never interrupt your conversation. They're only there if you need help.
+          Before talking, please understand how this space works. Avoid sharing your name, address, phone number or other identifying details. Groq may temporarily retain chat text for reliability or abuse checks, as described in its data policy.
         </p>
 
         <div className="space-y-4 mb-8">
@@ -72,9 +72,7 @@ export default function Consent() {
         </button>
 
         <div className="text-center mt-5 pb-8">
-          <button className="font-sans text-[13px] text-[#8C7B6A] hover:text-foreground/60 transition-colors min-h-[44px]">
-            Read our full privacy approach
-          </button>
+          <a href="https://console.groq.com/docs/your-data" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-[14px] text-primary underline min-h-[44px]">Read Groq's data policy</a>
         </div>
       </div>
     </AnimatedPage>

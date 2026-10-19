@@ -29,7 +29,7 @@ const MODELS = [
 ];
 
 const HF_ROUTER_URL = "https://router.huggingface.co/v1/chat/completions";
-const REQUEST_TIMEOUT_MS = 25_000;
+const REQUEST_TIMEOUT_MS = 10_000;
 
 export interface LlmConfig {
   apiKey: string;
@@ -54,7 +54,8 @@ async function hfReply(history: ChatTurn[], cfg: LlmConfig): Promise<string> {
         body: JSON.stringify({
           model,
           messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history.slice(-MAX_HISTORY_TURNS)],
-          max_tokens: 220,
+          max_completion_tokens: 512,
+          ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}),
           temperature: 0.7,
         }),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -190,7 +191,7 @@ export function createDishaResponder(token?: string | LlmConfig): DishaResponder
     try {
       return await hfReply(history, cfg);
     } catch {
-      return fallbackResponder(history);
+      return "Disha's AI is unavailable right now. This is a saved check-in prompt, not an AI reply: " + await fallbackResponder(history);
     }
   };
 }
@@ -199,6 +200,9 @@ export function createDishaResponder(token?: string | LlmConfig): DishaResponder
  * endpoint works through LLM_API_KEY / LLM_BASE_URL / LLM_MODEL; HF_TOKEN
  * keeps the original Hugging Face router default. */
 export function dishaConfigFromEnv(env: NodeJS.ProcessEnv): LlmConfig | undefined {
+  if (env.GROQ_API_KEY) {
+    return { apiKey: env.GROQ_API_KEY, baseUrl: "https://api.groq.com/openai/v1/chat/completions", models: [env.GROQ_MODEL || "openai/gpt-oss-20b"] };
+  }
   if (env.LLM_API_KEY) {
     return {
       apiKey: env.LLM_API_KEY,

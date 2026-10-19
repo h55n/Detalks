@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { currentUser, requireAuth } from "../lib/auth";
 import { kavachReply, kavachScan } from "../lib/kavach";
+import type { SafetyScanner } from "../lib/model-safety";
 import type { ChatTurn, DishaResponder } from "../lib/disha";
 
 const SESSION_LIMIT_MINUTES = 45;
@@ -47,6 +48,7 @@ function openingMessage(arrivalState: string): string {
 export function createSessionsRouter(
   db: Database,
   disha: DishaResponder,
+  scan: SafetyScanner = async (text) => kavachScan(text),
 ): IRouter {
   const router: IRouter = Router();
   router.use(requireAuth(db));
@@ -112,6 +114,7 @@ export function createSessionsRouter(
   });
 
   async function loadOwnedSession(req: Request, res: Response) {
+    if (!z.string().uuid().safeParse(req.params.id).success) return null;
     const rows = await db
       .select()
       .from(talkSessionsTable)
@@ -177,7 +180,7 @@ export function createSessionsRouter(
     }
 
     const content = parsed.data.content;
-    const { flagged } = kavachScan(content);
+    const { flagged } = await scan(content);
     const [userMessage] = await db
       .insert(sessionMessagesTable)
       .values({ sessionId: session.id, role: "user", content, flagged })
@@ -193,13 +196,15 @@ export function createSessionsRouter(
         .select()
         .from(sessionMessagesTable)
         .where(eq(sessionMessagesTable.sessionId, session.id))
-        .orderBy(asc(sessionMessagesTable.createdAt))
-        .limit(40);
-      const history: ChatTurn[] = historyRows.map((m) => ({
+        .orderBy(desc(sessionMessagesTable.createdAt))
+        .limit(20);
+      const history: ChatTurn[] = historyRows.reverse().map((m) => ({
         role: m.role === "user" ? "user" : "assistant",
         content: m.content,
       }));
       replyText = await disha(history);
+      // Never show generated crisis instructions as an ordinary companion reply.
+      if (kavachScan(replyText).flagged) { replyText = kavachReply(); replyFlagged = true; }
     }
 
     const [companionMessage] = await db
@@ -230,14 +235,14 @@ export function createSessionsRouter(
       .update(talkSessionsTable)
       .set({
         endedAt: session.endedAt ?? new Date(),
-        postMood: parsed.data.postMood ?? null,
-        reflection: parsed.data.reflection ?? null,
+        postMood: parsed.data.postMood ?? session.postMood,
+        reflection: parsed.data.reflection ?? session.reflection,
       })
       .where(eq(talkSessionsTable.id, session.id))
       .returning();
 
     // A post-session mood also counts as a check-in.
-    if (parsed.data.postMood) {
+    if (parsed.data.postMood && session.postMood === null) {
       await db.insert(moodEntriesTable).values({
         userId: currentUser(res).id,
         mood: parsed.data.postMood,

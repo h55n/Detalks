@@ -4,12 +4,15 @@ import type { AddressInfo } from "node:net";
 import type { Express } from "express";
 import { migrate, type SqlExecutor } from "@workspace/db";
 import * as schema from "@workspace/db/schema";
+import { eq } from "drizzle-orm";
+import { usersTable } from "@workspace/db";
 import { createApp } from "../app";
 import type { DishaResponder } from "../lib/disha";
 
 export interface TestServer {
   baseUrl: string;
   close: () => Promise<void>;
+  verifyEmail: (email: string) => Promise<void>;
 }
 
 export async function startTestServer(disha?: DishaResponder): Promise<TestServer> {
@@ -34,6 +37,7 @@ export async function startTestServer(disha?: DishaResponder): Promise<TestServe
   const { port } = server.address() as AddressInfo;
   return {
     baseUrl: `http://127.0.0.1:${port}`,
+    verifyEmail: async (email) => { await db.update(usersTable).set({ emailVerifiedAt: new Date() }).where(eq(usersTable.email, email)); },
     close: () =>
       new Promise((resolve, reject) =>
         server.close((err) => (err ? reject(err) : resolve())),

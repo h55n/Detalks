@@ -101,6 +101,8 @@ test("circles list, post anonymously, and like", async () => {
   const userA = await signup(a, "circle-a@example.com");
   await signup(b, "circle-b@example.com");
 
+  await server.verifyEmail("circle-a@example.com");
+  await server.verifyEmail("circle-b@example.com");
   const circles = await a.get("/api/circles");
   assert.equal(circles.status, 200);
   assert.equal((circles.json.circles as unknown[]).length, 6);

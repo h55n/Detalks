@@ -6,6 +6,7 @@ export interface ApiUser {
   name: string;
   alias: string;
   isStudent: boolean;
+  emailVerified: boolean;
   createdAt: string;
 }
 
@@ -97,6 +98,8 @@ export const api = {
     call<{ user: ApiUser }>("POST", "/api/auth/signup", input),
   login: (input: { email: string; password: string }) =>
     call<{ user: ApiUser }>("POST", "/api/auth/login", input),
+  requestVerification: () => call<{ ok: true }>("POST", "/api/auth/verification/request"),
+  confirmVerification: (token: string) => call<{ ok: true }>("POST", "/api/auth/verification/confirm", { token }),
   logout: () => call<{ ok: true }>("POST", "/api/auth/logout"),
   me: () => call<{ user: ApiUser }>("GET", "/api/auth/me"),
   deleteAccount: (password: string) => call<{ ok: true }>("DELETE", "/api/account", { password }),

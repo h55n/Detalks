@@ -11,12 +11,16 @@ import { createSessionsRouter } from "./routes/sessions";
 import { createCirclesRouter } from "./routes/circles";
 import { createAccountRouter } from "./routes/account";
 import { createDishaResponder, dishaConfigFromEnv, type DishaResponder } from "./lib/disha";
+import { verificationSenderFromEnv, type VerificationSender } from "./lib/verification";
+import { createSafetyScanner, type SafetyScanner } from "./lib/model-safety";
 import type { Database } from "@workspace/db";
 import { logger } from "./lib/logger";
 
 export interface AppDeps {
   db: Database;
   disha?: DishaResponder;
+  sendVerification?: VerificationSender;
+  safety?: SafetyScanner;
 }
 
 // Small fixed-window rate limiter for the auth endpoints. In-memory is fine
@@ -44,7 +48,7 @@ function rateLimit(limit: number, windowMs: number) {
   };
 }
 
-export function createApp({ db, disha }: AppDeps): Express {
+export function createApp({ db, disha, sendVerification, safety }: AppDeps): Express {
   const app = express();
   app.disable("x-powered-by");
   // Behind Vercel/Render the client IP arrives in X-Forwarded-For. Without
@@ -84,13 +88,15 @@ export function createApp({ db, disha }: AppDeps): Express {
   const authRateLimit = rateLimit(30, 15 * 60 * 1000);
 
   app.use("/api", healthRouter);
-  app.use(["/api/auth/login", "/api/auth/signup"], authRateLimit);
-  app.use("/api", createAuthRouter(db));
+  app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/verification/request", "/api/auth/verification/confirm"], authRateLimit);
+  app.use("/api", createAuthRouter(db, sendVerification ?? verificationSenderFromEnv(process.env)));
   app.use("/api", createMoodsRouter(db));
   app.use("/api", createJournalRouter(db));
   app.use("/api", createProgressRouter(db));
-  app.use("/api", createSessionsRouter(db, disha ?? createDishaResponder(dishaConfigFromEnv(process.env))));
-  app.use("/api", createCirclesRouter(db));
+  const modelConfig = dishaConfigFromEnv(process.env);
+  const scan = safety ?? createSafetyScanner(modelConfig);
+  app.use("/api", createSessionsRouter(db, disha ?? createDishaResponder(modelConfig), scan));
+  app.use("/api", createCirclesRouter(db, scan));
   app.use("/api", createAccountRouter(db));
 
   // JSON 404 for unknown API routes
@@ -101,8 +107,12 @@ export function createApp({ db, disha }: AppDeps): Express {
   // Central error handler: no stack traces leak to clients.
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     logger.error({ err }, "Unhandled error");
-    const code = (err as { code?: string } | null)?.code;
-    res.status(500).json({ error: "Something went wrong on our side", ...(code ? { code } : {}) });
+    const status = (err as { status?: number })?.status;
+    if (status === 400 || status === 413) {
+      res.status(status).json({ error: status === 413 ? "That message is too large" : "Invalid request body" });
+      return;
+    }
+    res.status(500).json({ error: "Something went wrong on our side" });
   });
 
   return app;

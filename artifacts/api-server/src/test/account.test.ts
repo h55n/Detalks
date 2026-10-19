@@ -47,6 +47,7 @@ test("export and delete need a signed-in user", async () => {
 test("a circle post in crisis language is not published", async () => {
   const client = new Client(server.baseUrl);
   await signup(client, "circle@example.com");
+  await server.verifyEmail("circle@example.com");
   const circles = await client.get("/api/circles");
   const id = (circles.json.circles as { id: string }[])[0].id;
   const blocked = await client.post(`/api/circles/${id}/posts`, { content: "I want to kill myself" });

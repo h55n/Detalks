@@ -6,15 +6,16 @@ import {
   circlePostsTable,
   type Database,
 } from "@workspace/db";
-import { currentUser, requireAuth } from "../lib/auth";
+import { currentUser, requireAuth, requireVerifiedEmail } from "../lib/auth";
 import { CIRCLES, isCircleId } from "../lib/circles";
+import type { SafetyScanner } from "../lib/model-safety";
 import { CRISIS_RESOURCES, kavachScan } from "../lib/kavach";
 
 const postSchema = z.object({
   content: z.string().trim().min(1).max(1000),
 });
 
-export function createCirclesRouter(db: Database): IRouter {
+export function createCirclesRouter(db: Database, scan: SafetyScanner = async (text) => kavachScan(text)): IRouter {
   const router: IRouter = Router();
   router.use(requireAuth(db));
 
@@ -83,7 +84,7 @@ export function createCirclesRouter(db: Database): IRouter {
     });
   });
 
-  router.post("/circles/:circleId/posts", async (req, res) => {
+  router.post("/circles/:circleId/posts", requireVerifiedEmail, async (req, res) => {
     const circleId = req.params.circleId as string;
     if (!isCircleId(circleId)) {
       res.status(404).json({ error: "Circle not found" });
@@ -96,7 +97,7 @@ export function createCirclesRouter(db: Database): IRouter {
     }
     // Kavach also guards the shared spaces: a post in crisis language is not
     // published to the circle, and the writer is pointed to real help instead.
-    if (kavachScan(parsed.data.content).flagged) {
+    if ((await scan(parsed.data.content)).flagged) {
       res.status(422).json({
         error:
           "This sounds heavy, and it deserves more care than a shared circle can give. Your post was not shared. Please call Tele-MANAS 14416 (free, 24/7) or 112 if you are in danger. Disha is also here to talk, privately.",
@@ -127,9 +128,12 @@ export function createCirclesRouter(db: Database): IRouter {
     });
   });
 
-  router.post("/circles/posts/:postId/like", async (req, res) => {
+  router.post("/circles/posts/:postId/like", requireVerifiedEmail, async (req, res) => {
     const postId = req.params.postId as string;
     const userId = currentUser(res).id;
+    if (!z.string().uuid().safeParse(postId).success) { res.status(404).json({ error: "Post not found" }); return; }
+    const post = await db.select({ id: circlePostsTable.id }).from(circlePostsTable).where(eq(circlePostsTable.id, postId)).limit(1);
+    if (!post.length) { res.status(404).json({ error: "Post not found" }); return; }
     const existing = await db
       .select()
       .from(circlePostLikesTable)

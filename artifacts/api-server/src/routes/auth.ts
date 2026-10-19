@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { usersTable, type Database } from "@workspace/db";
 import { hashPassword, verifyPassword } from "../lib/password";
+import { consumeVerification, requestVerification, type VerificationSender } from "../lib/verification";
 import { generateAlias } from "../lib/alias";
 import {
   clearSessionCookie,
@@ -25,7 +26,7 @@ const loginSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
-export function createAuthRouter(db: Database): IRouter {
+export function createAuthRouter(db: Database, sendVerification?: VerificationSender): IRouter {
   const router: IRouter = Router();
 
   router.post("/auth/signup", async (req, res) => {
@@ -72,7 +73,13 @@ export function createAuthRouter(db: Database): IRouter {
           .returning();
         user = rows[0];
       } catch (err) {
-        if (attempt === 4) throw err;
+        const pgError = err as { code?: string; constraint?: string; cause?: { code?: string; constraint?: string } };
+        const detail = pgError.cause ?? pgError;
+        if (detail.code === "23505" && detail.constraint?.includes("email")) {
+          res.status(409).json({ error: "An account with this email already exists" });
+          return;
+        }
+        if (detail.code !== "23505" || !detail.constraint?.includes("alias") || attempt === 4) throw err;
       }
     }
 
@@ -101,6 +108,30 @@ export function createAuthRouter(db: Database): IRouter {
     const { token, expiresAt } = await createSession(db, user.id);
     setSessionCookie(res, token, expiresAt);
     res.json({ user: publicUser(user) });
+  });
+
+  router.post("/auth/verification/request", requireAuth(db), async (_req, res) => {
+    const user = currentUser(res);
+    if (user.emailVerifiedAt) { res.json({ ok: true }); return; }
+    if (!sendVerification || !process.env.APP_ORIGIN) {
+      res.status(503).json({ error: "Email verification is not available yet. Private tools work; shared posting stays locked." });
+      return;
+    }
+    try {
+      await requestVerification(db, user, sendVerification, process.env.APP_ORIGIN);
+      res.json({ ok: true });
+    } catch {
+      res.status(503).json({ error: "Could not send verification. Try again later." });
+    }
+  });
+
+  router.post("/auth/verification/confirm", requireAuth(db), async (req, res) => {
+    const parsed = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) }).safeParse(req.body);
+    if (!parsed.success || !(await consumeVerification(db, parsed.data.token, currentUser(res).id))) {
+      res.status(400).json({ error: "This verification link is invalid or expired. Request a new one." });
+      return;
+    }
+    res.json({ ok: true });
   });
 
   router.post("/auth/logout", requireAuth(db), async (_req, res) => {
