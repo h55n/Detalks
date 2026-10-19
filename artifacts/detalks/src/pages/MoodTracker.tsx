@@ -97,6 +97,8 @@ export default function MoodTracker() {
             </div>
 
             <textarea
+              aria-label="Mood note (optional)"
+              maxLength={500}
               placeholder="Add a note (optional)"
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -119,6 +121,7 @@ export default function MoodTracker() {
             </div>
           </div>
 
+          {saveMutation.isError && <p role="alert" className="text-[14px] text-destructive">Could not save your check-in. Your note is still here. Try again.</p>}
           {chartData.length > 1 && (
             <div>
               <p className="font-sans text-[11px] font-medium text-[#8C7B6A] uppercase tracking-[0.18em] mb-4">

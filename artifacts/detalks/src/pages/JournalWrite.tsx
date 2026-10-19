@@ -102,7 +102,7 @@ export default function JournalWrite({ id }: { id?: string }) {
         <div className="flex items-center">
           {id && (
             <button
-              onClick={() => deleteMutation.mutate()}
+              onClick={() => { if (window.confirm("Delete this journal entry permanently?")) deleteMutation.mutate(); }}
               className="p-2 min-w-[44px] min-h-[44px] flex items-center text-foreground/40"
               aria-label="Delete entry"
             >
@@ -133,12 +133,15 @@ export default function JournalWrite({ id }: { id?: string }) {
         </div>
 
         <textarea
+          aria-label="Journal entry"
+          maxLength={20000}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Start writing…"
           className="flex-1 w-full bg-transparent border-none outline-none font-sans text-[16px] text-foreground leading-[1.85] placeholder:text-[#8C7B6A]/60 resize-none"
           autoFocus={!id}
         />
+        {deleteMutation.isError && <p role="alert" className="text-[14px] text-destructive">Could not delete this entry. Try again.</p>}
         {error && <p className="font-sans text-[13px] text-[#B4541E] mt-2">{error}</p>}
       </div>
     </AnimatedPage>

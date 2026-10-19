@@ -48,6 +48,8 @@ export default function SessionReflection({ id }: { id: string }) {
             What's one thing you want to remember?
           </p>
           <input
+            aria-label="Session reflection"
+            maxLength={1000}
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -80,6 +82,7 @@ export default function SessionReflection({ id }: { id: string }) {
       </div>
 
       <div className="px-6 pt-8 flex flex-col gap-3">
+        {saveMutation.isError && <p role="alert" className="text-[14px] text-destructive">Could not save. Your reflection is still here. Try again.</p>}
         <button
           onClick={() => saveMutation.mutate()}
           disabled={saveMutation.isPending}

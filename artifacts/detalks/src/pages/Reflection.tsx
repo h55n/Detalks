@@ -2,12 +2,18 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { motion, AnimatePresence } from "framer-motion";
+import { api } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 import { X, Check } from "lucide-react";
 
 export default function Reflection() {
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(0);
   const [value, setValue] = useState("");
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const queryClient = useQueryClient();
 
   const prompts = [
     "What is one thing that felt heavy today?",
@@ -15,11 +21,20 @@ export default function Reflection() {
     "What do you need right now to feel just 5% better?"
   ];
 
-  const handleNext = () => {
-    setValue("");
-    if (step < prompts.length) {
-      setStep(s => s + 1);
+  const handleNext = async () => {
+    const next = [...answers, value.trim()];
+    if (step === prompts.length - 1) {
+      setBusy(true);
+      setError("");
+      try {
+        await api.createJournalEntry({ content: prompts.map((prompt, i) => `${prompt}\n${next[i] || "Skipped"}`).join("\n\n"), prompt: "Guided reflection" });
+        queryClient.invalidateQueries({ queryKey: ["journal"] });
+      } catch { setError("Couldn't save your reflection. Your words are still here. Try again."); setBusy(false); return; }
+      setBusy(false);
     }
+    setAnswers(next);
+    setValue("");
+    setStep(s => s + 1);
   };
 
   return (
@@ -50,14 +65,18 @@ export default function Reflection() {
               </h2>
               
               <textarea
+                aria-label={prompts[step]}
+                maxLength={3000}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="Type your thoughts here…"
                 className="w-full bg-card border border-border/60 rounded-[14px] p-4 font-sans text-[16px] text-foreground min-h-[120px] resize-none mb-8 placeholder:text-[#8C7B6A] outline-none transition-colors"
               />
               
+              {error && <p role="alert" className="text-[14px] text-destructive mb-4">{error}</p>}
               <div className="flex justify-end">
                 <button 
+                  disabled={busy || !value.trim()}
                   onClick={handleNext}
                   className="bg-primary text-primary-foreground font-sans text-[15px] font-medium py-3 px-8 rounded-full min-h-[44px] active:scale-95 transition-transform"
                 >
@@ -75,7 +94,7 @@ export default function Reflection() {
               <div className="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <Check className="w-10 h-10" />
               </div>
-              <h2 className="font-serif text-[28px] text-foreground mb-3">Saved to your moment.</h2>
+              <h2 className="font-serif text-[28px] text-foreground mb-3">Saved to your journal.</h2>
               <p className="font-sans text-[16px] text-secondary-foreground mb-10">
                 You took the time to reflect. That matters.
               </p>

@@ -59,12 +59,15 @@ export default function Auth() {
         </p>
       </div>
 
-      <div className="flex-1 px-6 pt-6 pb-8 flex flex-col space-y-6">
+      <form onSubmit={(e) => { e.preventDefault(); if (canSubmit) void submit(); }} className="flex-1 px-6 pt-6 pb-8 flex flex-col space-y-6">
         <div className="space-y-4">
           {mode === "signup" && (
             <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4">
-              <label className="block text-[12px] font-sans text-secondary-foreground pt-1">What should we call you?</label>
+              <label htmlFor="auth-name" className="block text-[12px] font-sans text-secondary-foreground pt-1">What should we call you?</label>
               <input
+                id="auth-name"
+                autoComplete="nickname"
+                maxLength={60}
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -75,8 +78,11 @@ export default function Auth() {
           )}
 
           <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4">
-            <label className="block text-[12px] font-sans text-secondary-foreground pt-1">Your email</label>
+            <label htmlFor="auth-email" className="block text-[12px] font-sans text-secondary-foreground pt-1">Your email</label>
             <input
+              id="auth-email"
+              autoComplete="email"
+              maxLength={200}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -87,10 +93,13 @@ export default function Auth() {
 
           <div className="bg-card border border-[#C9BFB0] rounded-[10px] p-1 px-4 flex items-center">
             <div className="flex-1">
-              <label className="block text-[12px] font-sans text-secondary-foreground pt-1">
+              <label htmlFor="auth-password" className="block text-[12px] font-sans text-secondary-foreground pt-1">
                 {mode === "signup" ? "A safe password (8+ characters)" : "Your password"}
               </label>
               <input
+                id="auth-password"
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                maxLength={200}
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -123,7 +132,7 @@ export default function Auth() {
         )}
 
         <button
-          onClick={submit}
+          type="submit"
           disabled={!canSubmit}
           className="w-full bg-foreground text-background disabled:opacity-30 font-sans text-[14px] font-medium py-4 rounded-[14px] min-h-[52px] transition-opacity"
         >
@@ -131,6 +140,7 @@ export default function Auth() {
         </button>
 
         <button
+          type="button"
           onClick={() => {
             setMode(mode === "signup" ? "login" : "signup");
             setError(null);
@@ -143,7 +153,7 @@ export default function Auth() {
         <p className="font-sans text-[11px] text-[#8C7B6A]/80 text-center leading-relaxed">
           DeTalks is a wellness companion, not a medical or crisis service. In crisis, call Tele-MANAS 14416 (free, 24/7).
         </p>
-      </div>
+      </form>
     </AnimatedPage>
   );
 }

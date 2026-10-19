@@ -65,10 +65,10 @@ export default function Onboarding2() {
             className="text-center"
           >
             <h2 className="font-serif text-[32px] text-foreground leading-[1.20] mb-4 px-2">
-              Three ways to find support — start wherever feels right.
+              Find a small next step.
             </h2>
             <p className="font-sans text-[16px] text-secondary-foreground font-normal leading-[1.65] mb-12">
-              From quiet self-guided tools, to a conversation with a trained companion, to a licensed professional — DeTalks meets you where you are.
+              Try self-guided tools, talk with Disha, our AI companion, or find contact details for professional support. Human companion sessions and therapist booking are not available in this pilot.
             </p>
           </motion.div>
 

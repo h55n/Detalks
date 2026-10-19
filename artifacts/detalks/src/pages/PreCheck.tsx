@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 
 export default function PreCheck() {
   const [, setLocation] = useLocation();
+  const [error, setError] = useState("");
   const [transitioning, setTransitioning] = useState(false);
 
   const chips = [
@@ -21,7 +22,7 @@ export default function PreCheck() {
     api
       .startSession(chip)
       .then(({ session }) => setLocation(`/session/active/${session.id}`))
-      .catch(() => setLocation("/talk"));
+      .catch(() => { setTransitioning(false); setError("Could not start a session. Please try again."); });
   };
 
   if (transitioning) {
@@ -80,6 +81,7 @@ export default function PreCheck() {
           Quick check-in before we begin — how are you arriving today?
         </motion.div>
 
+        {error && <p role="alert" className="text-[14px] text-destructive mb-4">{error}</p>}
         <div className="flex flex-col gap-3">
           {chips.map((chip, i) => (
             <motion.button

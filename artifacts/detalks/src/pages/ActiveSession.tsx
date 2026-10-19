@@ -8,7 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "@/lib/api";
 
 const SESSION_LIMIT_SECONDS = 45 * 60;
-const MESSAGE_LIMIT = 200;
+const MESSAGE_LIMIT = 100;
 
 export default function ActiveSession({ id }: { id: string }) {
   const [, setLocation] = useLocation();
@@ -16,6 +16,7 @@ export default function ActiveSession({ id }: { id: string }) {
   const [showExit, setShowExit] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [showTimeWarning, setShowTimeWarning] = useState(false);
+  const [closeError, setCloseError] = useState("");
   const [now, setNow] = useState(Date.now());
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -89,8 +90,8 @@ export default function ActiveSession({ id }: { id: string }) {
   };
 
   const closeSession = async () => {
-    await api.endSession(id, {}).catch(() => undefined);
-    setShowExit(true);
+    try { await api.endSession(id, {}); setShowExit(true); }
+    catch { setCloseError("Could not close the session. Check your connection and try again."); }
   };
 
   return (
@@ -170,11 +171,14 @@ export default function ActiveSession({ id }: { id: string }) {
         )}
       </div>
 
+      {(sendMutation.isError || closeError) && <p role="alert" className="px-4 py-2 text-[14px] text-destructive">{closeError || (sendMutation.error instanceof Error ? sendMutation.error.message : "Could not send. Try again.")}</p>}
       {/* Input */}
       {!ended && (
         <div className="bg-card/90 backdrop-blur-md border-t border-border/50 p-4 pb-8 z-10 flex items-end gap-3">
           <div className="flex-1 bg-background/80 border border-border/60 rounded-[14px] px-4 py-2.5">
             <textarea
+              aria-label="Message to Disha"
+              maxLength={2000}
               placeholder="Share what's on your mind…"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -189,9 +193,10 @@ export default function ActiveSession({ id }: { id: string }) {
             />
           </div>
           <button
+            aria-label="Send message"
             onClick={send}
             disabled={!inputValue.trim() || sendMutation.isPending}
-            className="w-10 h-10 rounded-full bg-foreground disabled:opacity-30 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
+            className="w-11 h-11 rounded-full bg-foreground disabled:opacity-30 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
           >
             <ArrowUp className="w-4 h-4 text-background" strokeWidth={2} />
           </button>
