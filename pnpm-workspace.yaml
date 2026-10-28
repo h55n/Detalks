@@ -62,9 +62,9 @@ catalog:
   tailwind-merge: ^3.3.1
   tailwindcss: ^4.1.14
   tsx: ^4.21.0
-  vite: ^7.3.2
+  vite: ^7.3.7
   wouter: ^3.3.5
-  zod: ^3.25.76
+  zod: ^4.6.6
 
 autoInstallPeers: false
 
@@ -158,3 +158,19 @@ overrides:
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
+  # Security advisories published 2026-10: patched floors for transitive dependencies
+  proxy-addr: "2.0.8"
+  body-parser: "^2.4.0"
+  path-to-regexp: "^8.4.0"
+  qs: "^6.16.1"
+  lodash: "^4.18.1"
+  nanoid: "^3.3.18"
+  postcss: "^8.5.23"
+  picomatch: "^4.0.4"
+  browserslist: "^4.28.7"
+  source-map-js: "^1.2.2"
+  yaml: "^2.8.3"
+  postcss-selector-parser: "^6.1.5"
+  baseline-browser-mapping: "^2.11.0"
+  "@babel/core": "^7.29.6"
+  zod: "^4.6.6"
