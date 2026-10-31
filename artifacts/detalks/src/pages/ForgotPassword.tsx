@@ -54,7 +54,7 @@ export default function ForgotPassword() {
       ) : available === false ? (
         <div className="flex-1 px-6 pt-6 pb-8 flex flex-col space-y-6">
           <p className="font-sans text-[15px] text-foreground leading-relaxed">
-            Password reset by email is not available yet - there is no email service connected to send your link. If you are locked out, contact us and we will help.
+            Password reset by email is not available yet - there is no email service connected to send your link. Signing in with your existing password still works.
           </p>
           <button onClick={() => setLocation("/auth")} className="w-full bg-foreground text-background font-sans text-[14px] font-medium py-4 rounded-[14px] min-h-[52px]">
             Back to sign in

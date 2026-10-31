@@ -144,7 +144,7 @@ export function createAuthRouter(db: Database, sendVerification?: VerificationSe
       return;
     }
     if (!sendPasswordReset || !process.env.APP_ORIGIN) {
-      res.status(503).json({ error: "Password reset by email is not available yet. If you are locked out, contact us and we will help." });
+      res.status(503).json({ error: "Password reset by email is not available yet. Signing in with your existing password still works." });
       return;
     }
     try {
