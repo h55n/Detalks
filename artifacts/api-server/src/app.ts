@@ -13,6 +13,7 @@ import { createAccountRouter } from "./routes/account";
 import { createDishaResponder, dishaConfigFromEnv, type DishaResponder } from "./lib/disha";
 import { verificationSenderFromEnv, type VerificationSender } from "./lib/verification";
 import { passwordResetSenderFromEnv, type PasswordResetSender } from "./lib/password-reset";
+import { createDbRateLimit } from "./lib/rate-limit";
 import { createSafetyScanner, type SafetyScanner } from "./lib/model-safety";
 import type { Database } from "@workspace/db";
 import { logger } from "./lib/logger";
@@ -22,35 +23,12 @@ export interface AppDeps {
   disha?: DishaResponder;
   sendVerification?: VerificationSender;
   sendPasswordReset?: PasswordResetSender;
+  // Tests shrink the window/limit; production uses the defaults.
+  authRateLimit?: { limit: number; windowMs: number };
   safety?: SafetyScanner;
 }
 
-// Small fixed-window rate limiter for the auth endpoints. In-memory is fine
-// for a single-process deployment; it exists to slow down brute force.
-const buckets = new Map<string, { count: number; resetAt: number }>();
-function rateLimit(limit: number, windowMs: number) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const key = `${req.ip ?? "unknown"}:${req.path}`;
-    const now = Date.now();
-    if (buckets.size > 5000) {
-      for (const [k, b] of buckets) if (b.resetAt < now) buckets.delete(k);
-    }
-    const bucket = buckets.get(key);
-    if (!bucket || bucket.resetAt < now) {
-      buckets.set(key, { count: 1, resetAt: now + windowMs });
-      next();
-      return;
-    }
-    bucket.count += 1;
-    if (bucket.count > limit) {
-      res.status(429).json({ error: "Too many attempts. Wait a few minutes and try again." });
-      return;
-    }
-    next();
-  };
-}
-
-export function createApp({ db, disha, sendVerification, sendPasswordReset, safety }: AppDeps): Express {
+export function createApp({ db, disha, sendVerification, sendPasswordReset, safety, authRateLimit }: AppDeps): Express {
   const app = express();
   app.disable("x-powered-by");
   // Behind Vercel/Render the client IP arrives in X-Forwarded-For. Without
@@ -87,10 +65,10 @@ export function createApp({ db, disha, sendVerification, sendPasswordReset, safe
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  const authRateLimit = rateLimit(30, 15 * 60 * 1000);
+  const authLimiter = createDbRateLimit(db, authRateLimit?.limit ?? 30, authRateLimit?.windowMs ?? 15 * 60 * 1000);
 
   app.use("/api", healthRouter);
-  app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/verification/request", "/api/auth/verification/confirm", "/api/auth/password/forgot", "/api/auth/password/reset"], authRateLimit);
+  app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/verification/request", "/api/auth/verification/confirm", "/api/auth/password/forgot", "/api/auth/password/reset"], authLimiter);
   app.use("/api", createAuthRouter(db, sendVerification ?? verificationSenderFromEnv(process.env), sendPasswordReset ?? passwordResetSenderFromEnv(process.env)));
   app.use("/api", createMoodsRouter(db));
   app.use("/api", createJournalRouter(db));

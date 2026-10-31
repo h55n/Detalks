@@ -20,6 +20,7 @@ export interface TestServer {
 
 export interface TestServerOptions {
   sendPasswordReset?: PasswordResetSender;
+  authRateLimit?: { limit: number; windowMs: number };
 }
 
 export async function startTestServer(disha?: DishaResponder, options: TestServerOptions = {}): Promise<TestServer> {
@@ -38,6 +39,7 @@ export async function startTestServer(disha?: DishaResponder, options: TestServe
     db,
     disha: disha ?? (async () => "I'm here and listening. Tell me more."),
     sendPasswordReset: options.sendPasswordReset,
+    authRateLimit: options.authRateLimit,
   });
   const server = await new Promise<ReturnType<Express["listen"]>>((resolve) => {
     const s = app.listen(0, () => resolve(s));

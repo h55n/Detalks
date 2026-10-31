@@ -111,4 +111,14 @@ CREATE TABLE IF NOT EXISTS password_resets (
 CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets(user_id);
 `,
   },
+  {
+    name: "0005_rate_limit_buckets",
+    sql: `
+CREATE TABLE IF NOT EXISTS rate_limit_buckets (
+  key text PRIMARY KEY,
+  count integer NOT NULL DEFAULT 0,
+  reset_at timestamptz NOT NULL
+);
+`,
+  },
 ];

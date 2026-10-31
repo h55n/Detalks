@@ -5,6 +5,7 @@ This remains a wellness pilot, not a clinically validated service. Do not launch
 ## Implemented
 
 - Cookie authentication and owner-scoped private data; no demo moods, journal entries or sessions on new accounts.
+- Durable auth rate limiting: fixed-window buckets stored in Postgres, so brute-force limits hold across serverless instances and cold starts. Limits are per client IP per endpoint and fail closed with a busy signal if the limiter cannot reach the database.
 - Groq Disha replies, with a labelled scripted prompt if the provider is unavailable.
 - Kavach rule-first safety screening plus additive model screening. Rules cannot be unflagged by the model. Provider failures fall back to rules, not a claim that a message is safe.
 - Consent explaining Groq processing, storage and the limits of automated safety screening.
@@ -25,7 +26,7 @@ This remains a wellness pilot, not a clinically validated service. Do not launch
 
 1. Set up a DeTalks-owned transactional sending domain and verify mail delivery. Email verification and password-reset code are ready, but outbound mail is not live until the sender is configured.
 2. Independent clinical/safety review and a larger multilingual crisis/benign test set. Automated screening can miss or overflag messages. Human companion matching, human moderation and therapist booking are not implemented.
-3. Durable, cross-instance abuse/rate controls before opening the pilot to broad traffic. The existing in-memory auth limiter is per process and is not a distributed production defense.
+3. Broader abuse controls before opening the pilot to broad traffic. Auth endpoints now have durable cross-instance rate limiting, but circle posting, Disha chat and signup volume have no per-account or per-IP quotas yet.
 4. Managed database backup/restore drill, TLS CA verification, retention policy and an incident response owner. The current managed database connection retains the existing encrypted-but-unverified TLS configuration; this is a launch gate, not a security guarantee.
 5. Groq free-tier quota is shared with other use of the account. The app must stay on the free plan unless its owner explicitly approves otherwise. Test outage behavior when limits are reached.
 
