@@ -20,6 +20,7 @@ This remains a wellness pilot, not a clinically validated service. Do not launch
 - `DATABASE_URL`: PostgreSQL.
 - `GROQ_API_KEY`: server-side only. `GROQ_MODEL` defaults to `openai/gpt-oss-20b`.
 - `APP_ORIGIN`: canonical app origin, used for verification links.
+- `DATABASE_CA_CERT`: optional PEM of the managed Postgres CA; enables TLS chain verification.
 - `RESEND_API_KEY` and `VERIFICATION_FROM`: optional, only after verifying a sending domain. Without these, verification requests return an honest unavailable message and shared posting remains locked. Do not use `onboarding@resend.dev` for production recipients.
 
 ## Remaining launch gates
@@ -27,7 +28,7 @@ This remains a wellness pilot, not a clinically validated service. Do not launch
 1. Set up a DeTalks-owned transactional sending domain and verify mail delivery. Email verification and password-reset code are ready, but outbound mail is not live until the sender is configured.
 2. Independent clinical/safety review and a larger multilingual crisis/benign test set. Automated screening can miss or overflag messages. Human companion matching, human moderation and therapist booking are not implemented.
 3. Broader abuse controls before opening the pilot to broad traffic. Auth endpoints now have durable cross-instance rate limiting, but circle posting, Disha chat and signup volume have no per-account or per-IP quotas yet.
-4. Managed database backup/restore drill, TLS CA verification, retention policy and an incident response owner. The current managed database connection retains the existing encrypted-but-unverified TLS configuration; this is a launch gate, not a security guarantee.
+4. Managed database backup/restore drill, retention policy and an incident response owner. TLS chain verification is now a configuration step, not code work: set DATABASE_CA_CERT to the provider CA (PEM) and the connection upgrades from encrypted-but-unverified to verify-full. Until that env is set, the connection retains the existing encrypted-but-unverified TLS configuration; this remains a launch gate, not a security guarantee.
 5. Groq free-tier quota is shared with other use of the account. The app must stay on the free plan unless its owner explicitly approves otherwise. Test outage behavior when limits are reached.
 
 ## Database capacity checks

@@ -18,10 +18,21 @@ export interface DbHandle {
   migrate: () => Promise<string[]>;
 }
 
-export function createDb(connectionString: string): DbHandle {
-  // Managed Postgres providers (Aiven, Render) terminate TLS with a private
-  // CA the host does not carry. sslmode=require already encrypts the wire;
-  // skip chain verification so the driver can connect without a bundled CA.
+export interface TlsConfig {
+  cleanedConnectionString: string;
+  ssl?: { rejectUnauthorized: boolean; ca?: string };
+}
+
+// Managed Postgres providers (Aiven, Render) terminate TLS with a private CA
+// the host does not carry. sslmode=require already encrypts the wire; until
+// the provider CA is supplied through DATABASE_CA_CERT we skip chain
+// verification so the driver can connect without a bundled CA. With
+// DATABASE_CA_CERT set (PEM, newlines preserved) the connection upgrades to
+// full chain verification - the release gate is providing the CA, not code.
+export function resolveTlsConfig(
+  connectionString: string,
+  env: NodeJS.ProcessEnv = process.env,
+): TlsConfig {
   const wantsSsl = /sslmode=(require|verify-ca|verify-full)/.test(connectionString);
   // pg-connection-string maps sslmode=require to verify-full and lets URL
   // params win over the config object, so strip it and pass TLS options
@@ -29,9 +40,19 @@ export function createDb(connectionString: string): DbHandle {
   const cleaned = connectionString
     .replace(/([?&])sslmode=[^&]*&?/, "$1")
     .replace(/[?&]$/, "");
+  if (!wantsSsl) return { cleanedConnectionString: cleaned };
+  const ca = env.DATABASE_CA_CERT;
+  if (ca && ca.includes("BEGIN CERTIFICATE")) {
+    return { cleanedConnectionString: cleaned, ssl: { rejectUnauthorized: true, ca } };
+  }
+  return { cleanedConnectionString: cleaned, ssl: { rejectUnauthorized: false } };
+}
+
+export function createDb(connectionString: string): DbHandle {
+  const { cleanedConnectionString: cleaned, ssl } = resolveTlsConfig(connectionString);
   const pool = new Pool({
     connectionString: cleaned,
-    ...(wantsSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+    ...(ssl ? { ssl } : {}),
     // Serverless instances idle for a while and the managed Postgres drops
     // quiet connections. Keep the pool small, probe with TCP keepalive and
     // recycle idle clients quickly so a dead socket is not reused.
