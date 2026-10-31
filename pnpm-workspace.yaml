@@ -174,3 +174,6 @@ overrides:
   baseline-browser-mapping: "^2.11.0"
   "@babel/core": "^7.29.6"
   zod: "^4.6.6"
+
+allowBuilds:
+  esbuild: true
