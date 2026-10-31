@@ -13,6 +13,8 @@ const Onboarding1 = lazy(() => import("@/pages/Onboarding1"));
 const Onboarding2 = lazy(() => import("@/pages/Onboarding2"));
 const Onboarding3 = lazy(() => import("@/pages/Onboarding3"));
 const VerifyEmail = lazy(() => import("@/pages/VerifyEmail"));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const PulseCheck = lazy(() => import("@/pages/PulseCheck"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -64,6 +66,8 @@ function Router() {
         <Route path="/onboarding/2" component={Onboarding2} />
         <Route path="/onboarding/3" component={Onboarding3} />
         <Route path="/auth" component={Auth} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
         {/* Crisis and self-help info stays reachable without an account */}
         <Route path="/resources" component={Resources} />
 

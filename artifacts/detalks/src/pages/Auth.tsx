@@ -139,6 +139,16 @@ export default function Auth() {
           {busy ? "One moment…" : mode === "signup" ? "Create my space" : "Sign in"}
         </button>
 
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={() => setLocation("/forgot-password")}
+            className="font-sans text-[13px] text-[#8C7B6A] min-h-[44px] -mt-2 text-left"
+          >
+            Forgot your password?
+          </button>
+        )}
+
         <button
           type="button"
           onClick={() => {

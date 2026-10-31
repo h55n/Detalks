@@ -99,4 +99,16 @@ CREATE INDEX IF NOT EXISTS email_verifications_user_idx ON email_verifications(u
     name: "0003_session_consent",
     sql: `ALTER TABLE talk_sessions ADD COLUMN IF NOT EXISTS consent_version text;`,
   },
+  {
+    name: "0004_password_resets",
+    sql: `
+CREATE TABLE IF NOT EXISTS password_resets (
+  token_hash text PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets(user_id);
+`,
+  },
 ];

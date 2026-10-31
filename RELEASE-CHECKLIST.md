@@ -10,6 +10,7 @@ This remains a wellness pilot, not a clinically validated service. Do not launch
 - Consent explaining Groq processing, storage and the limits of automated safety screening.
 - Mood check-in, journal create/edit/delete, guided reflection saved to journal, session history, post-session reflection, export and account deletion.
 - Email verification tokens: hashed, 30-minute expiry, account-bound and single-use. Unverified accounts cannot post or react in shared circles.
+- Password reset by email: hashed, 30-minute, single-use tokens. A successful reset ends every existing session and burns outstanding reset links. Requests never reveal whether an email owns an account. Shares the verification sender gate: without a configured sender the app says reset is unavailable instead of pretending a link was sent.
 - Service worker caches static assets only. No API responses or writes are cached; old caches are removed.
 - Public resource notes have distinct topic content and are labelled editorial reflections, not external authorship or clinical guidance.
 
@@ -22,7 +23,7 @@ This remains a wellness pilot, not a clinically validated service. Do not launch
 
 ## Remaining launch gates
 
-1. Set up a DeTalks-owned transactional sending domain and verify mail delivery. Email verification code is ready, but outbound verification is not live until the sender is configured. Password recovery is not implemented; do not promise it.
+1. Set up a DeTalks-owned transactional sending domain and verify mail delivery. Email verification and password-reset code are ready, but outbound mail is not live until the sender is configured.
 2. Independent clinical/safety review and a larger multilingual crisis/benign test set. Automated screening can miss or overflag messages. Human companion matching, human moderation and therapist booking are not implemented.
 3. Durable, cross-instance abuse/rate controls before opening the pilot to broad traffic. The existing in-memory auth limiter is per process and is not a distributed production defense.
 4. Managed database backup/restore drill, TLS CA verification, retention policy and an incident response owner. The current managed database connection retains the existing encrypted-but-unverified TLS configuration; this is a launch gate, not a security guarantee.

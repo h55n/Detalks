@@ -4,6 +4,7 @@ import { z } from "zod";
 import { usersTable, type Database } from "@workspace/db";
 import { hashPassword, verifyPassword } from "../lib/password";
 import { consumeVerification, requestVerification, type VerificationSender } from "../lib/verification";
+import { consumePasswordReset, requestPasswordReset, type PasswordResetSender } from "../lib/password-reset";
 import { generateAlias } from "../lib/alias";
 import {
   clearSessionCookie,
@@ -26,7 +27,7 @@ const loginSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
-export function createAuthRouter(db: Database, sendVerification?: VerificationSender): IRouter {
+export function createAuthRouter(db: Database, sendVerification?: VerificationSender, sendPasswordReset?: PasswordResetSender): IRouter {
   const router: IRouter = Router();
 
   router.post("/auth/signup", async (req, res) => {
@@ -129,6 +130,48 @@ export function createAuthRouter(db: Database, sendVerification?: VerificationSe
     const parsed = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) }).safeParse(req.body);
     if (!parsed.success || !(await consumeVerification(db, parsed.data.token, currentUser(res).id))) {
       res.status(400).json({ error: "This verification link is invalid or expired. Request a new one." });
+      return;
+    }
+    res.json({ ok: true });
+  });
+
+  // Answers the same way whether or not the email owns an account, so the
+  // endpoint cannot be used to enumerate registered addresses.
+  router.post("/auth/password/forgot", async (req, res) => {
+    const parsed = z.object({ email: z.string().trim().toLowerCase().email().max(200) }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Enter the email you signed up with" });
+      return;
+    }
+    if (!sendPasswordReset || !process.env.APP_ORIGIN) {
+      res.status(503).json({ error: "Password reset by email is not available yet. If you are locked out, contact us and we will help." });
+      return;
+    }
+    try {
+      await requestPasswordReset(db, parsed.data.email, sendPasswordReset, process.env.APP_ORIGIN);
+      res.json({ ok: true });
+    } catch {
+      res.status(503).json({ error: "Could not send the reset email. Try again later." });
+    }
+  });
+
+  router.post("/auth/password/reset", async (req, res) => {
+    const parsed = z.object({
+      token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+      password: z.string().min(8).max(200),
+    }).safeParse(req.body);
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      if (issue?.path[0] === "password") {
+        res.status(400).json({ error: "Password needs at least 8 characters" });
+        return;
+      }
+      res.status(400).json({ error: "This reset link is invalid or expired. Request a new one." });
+      return;
+    }
+    const ok = await consumePasswordReset(db, parsed.data.token, await hashPassword(parsed.data.password));
+    if (!ok) {
+      res.status(400).json({ error: "This reset link is invalid or expired. Request a new one." });
       return;
     }
     res.json({ ok: true });

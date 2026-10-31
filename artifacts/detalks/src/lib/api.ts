@@ -98,6 +98,8 @@ export const api = {
     call<{ user: ApiUser }>("POST", "/api/auth/signup", input),
   login: (input: { email: string; password: string }) =>
     call<{ user: ApiUser }>("POST", "/api/auth/login", input),
+  forgotPassword: (email: string) => call<{ ok: true }>("POST", "/api/auth/password/forgot", { email }),
+  resetPassword: (token: string, password: string) => call<{ ok: true }>("POST", "/api/auth/password/reset", { token, password }),
   requestVerification: () => call<{ ok: true }>("POST", "/api/auth/verification/request"),
   confirmVerification: (token: string) => call<{ ok: true }>("POST", "/api/auth/verification/confirm", { token }),
   logout: () => call<{ ok: true }>("POST", "/api/auth/logout"),

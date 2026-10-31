@@ -12,6 +12,7 @@ import { createCirclesRouter } from "./routes/circles";
 import { createAccountRouter } from "./routes/account";
 import { createDishaResponder, dishaConfigFromEnv, type DishaResponder } from "./lib/disha";
 import { verificationSenderFromEnv, type VerificationSender } from "./lib/verification";
+import { passwordResetSenderFromEnv, type PasswordResetSender } from "./lib/password-reset";
 import { createSafetyScanner, type SafetyScanner } from "./lib/model-safety";
 import type { Database } from "@workspace/db";
 import { logger } from "./lib/logger";
@@ -20,6 +21,7 @@ export interface AppDeps {
   db: Database;
   disha?: DishaResponder;
   sendVerification?: VerificationSender;
+  sendPasswordReset?: PasswordResetSender;
   safety?: SafetyScanner;
 }
 
@@ -48,7 +50,7 @@ function rateLimit(limit: number, windowMs: number) {
   };
 }
 
-export function createApp({ db, disha, sendVerification, safety }: AppDeps): Express {
+export function createApp({ db, disha, sendVerification, sendPasswordReset, safety }: AppDeps): Express {
   const app = express();
   app.disable("x-powered-by");
   // Behind Vercel/Render the client IP arrives in X-Forwarded-For. Without
@@ -88,8 +90,8 @@ export function createApp({ db, disha, sendVerification, safety }: AppDeps): Exp
   const authRateLimit = rateLimit(30, 15 * 60 * 1000);
 
   app.use("/api", healthRouter);
-  app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/verification/request", "/api/auth/verification/confirm"], authRateLimit);
-  app.use("/api", createAuthRouter(db, sendVerification ?? verificationSenderFromEnv(process.env)));
+  app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/verification/request", "/api/auth/verification/confirm", "/api/auth/password/forgot", "/api/auth/password/reset"], authRateLimit);
+  app.use("/api", createAuthRouter(db, sendVerification ?? verificationSenderFromEnv(process.env), sendPasswordReset ?? passwordResetSenderFromEnv(process.env)));
   app.use("/api", createMoodsRouter(db));
   app.use("/api", createJournalRouter(db));
   app.use("/api", createProgressRouter(db));

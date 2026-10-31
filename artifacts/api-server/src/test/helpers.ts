@@ -8,14 +8,21 @@ import { eq } from "drizzle-orm";
 import { usersTable } from "@workspace/db";
 import { createApp } from "../app";
 import type { DishaResponder } from "../lib/disha";
+import type { PasswordResetSender } from "../lib/password-reset";
+import type { Database } from "@workspace/db";
 
 export interface TestServer {
   baseUrl: string;
+  db: Database;
   close: () => Promise<void>;
   verifyEmail: (email: string) => Promise<void>;
 }
 
-export async function startTestServer(disha?: DishaResponder): Promise<TestServer> {
+export interface TestServerOptions {
+  sendPasswordReset?: PasswordResetSender;
+}
+
+export async function startTestServer(disha?: DishaResponder, options: TestServerOptions = {}): Promise<TestServer> {
   const client = new PGlite();
   // PGlite's query() rejects multi-statement strings; exec() handles them.
   const executor: SqlExecutor = {
@@ -30,6 +37,7 @@ export async function startTestServer(disha?: DishaResponder): Promise<TestServe
   const app: Express = createApp({
     db,
     disha: disha ?? (async () => "I'm here and listening. Tell me more."),
+    sendPasswordReset: options.sendPasswordReset,
   });
   const server = await new Promise<ReturnType<Express["listen"]>>((resolve) => {
     const s = app.listen(0, () => resolve(s));
@@ -37,6 +45,7 @@ export async function startTestServer(disha?: DishaResponder): Promise<TestServe
   const { port } = server.address() as AddressInfo;
   return {
     baseUrl: `http://127.0.0.1:${port}`,
+    db,
     verifyEmail: async (email) => { await db.update(usersTable).set({ emailVerifiedAt: new Date() }).where(eq(usersTable.email, email)); },
     close: () =>
       new Promise((resolve, reject) =>
