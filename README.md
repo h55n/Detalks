@@ -9,6 +9,8 @@ The tone is calm and non-clinical: warm cream background, forest green, serif he
 ## What is in the app
 
 - Email sign-up with an anonymous alias; shared-circle writes require email verification
+- Password reset by email with single-use links; resets sign out every other session (live once a sending domain is configured)
+- Durable, database-backed rate limiting on the auth endpoints
 - Onboarding, consent and a daily pulse check
 - Mood tracker, journal and a progress view built from real activity
 - Breathing and grounding exercises, plus a practices library
@@ -54,7 +56,8 @@ pnpm --filter detalks run dev
 
 - `DATABASE_URL` — PostgreSQL connection string (required)
 - `GROQ_API_KEY`, `GROQ_MODEL` - Groq Disha and additive Kavach screening (server-side secrets only)
-- `APP_ORIGIN`, `RESEND_API_KEY`, `VERIFICATION_FROM` - email verification, requiring a verified sending domain
+- `APP_ORIGIN`, `RESEND_API_KEY`, `VERIFICATION_FROM` - email verification and password reset, requiring a verified sending domain
+- `DATABASE_CA_CERT` - optional managed-Postgres CA (PEM); upgrades the database connection to full TLS chain verification
 - `HF_TOKEN` — Hugging Face inference token for Disha's replies (optional)
 - `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` — any OpenAI-compatible provider instead of Hugging Face (optional). Without a key Disha answers with a theme-aware reflective listener
 - `PORT` — listen port (required)
