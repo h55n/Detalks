@@ -138,3 +138,28 @@ test("a new reset request supersedes nothing but a successful send keeps its tok
     await server.close();
   }
 });
+
+test("email-status reports delivery availability without account data", async () => {
+  const unavailable = await startTestServer();
+  try {
+    const client = new Client(unavailable.baseUrl);
+    const res = await client.get("/api/auth/email-status");
+    assert.equal(res.status, 200);
+    assert.deepEqual(res.json, { verification: false, passwordReset: false });
+  } finally {
+    await unavailable.close();
+  }
+
+  const sender = captureSender();
+  const available = await startTestServer(undefined, { sendPasswordReset: sender.send });
+  try {
+    const client = new Client(available.baseUrl);
+    const res = await client.get("/api/auth/email-status");
+    assert.equal(res.status, 200);
+    assert.equal(res.json.passwordReset, true);
+    // Verification sender is separate and still unconfigured here.
+    assert.equal(res.json.verification, false);
+  } finally {
+    await available.close();
+  }
+});

@@ -177,6 +177,17 @@ export function createAuthRouter(db: Database, sendVerification?: VerificationSe
     res.json({ ok: true });
   });
 
+  // Public, unauthenticated availability signal so the UI can say email
+  // delivery is unavailable before anyone types their address. Reveals
+  // configuration state only, never account data.
+  router.get("/auth/email-status", (_req, res) => {
+    const originConfigured = Boolean(process.env.APP_ORIGIN);
+    res.json({
+      verification: Boolean(sendVerification) && originConfigured,
+      passwordReset: Boolean(sendPasswordReset) && originConfigured,
+    });
+  });
+
   router.post("/auth/logout", requireAuth(db), async (_req, res) => {
     clearSessionCookie(res);
     res.json({ ok: true });
