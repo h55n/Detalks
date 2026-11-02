@@ -1,6 +1,6 @@
 # Incident response
 
-**Owner: Hassan Rehman (@h55n).** He decides, he communicates, he closes the
+**Owner: Hassan Rehman (@h55n), confirmed by him on 2026-11-02.** He decides, he communicates, he closes the
 incident. If he is unreachable, the safest default for any suspected data or
 safety incident is to take the app offline (pause the Vercel deployment)
 rather than leave a suspected harm running.
