@@ -10,14 +10,36 @@ import { currentUser, requireAuth, requireVerifiedEmail } from "../lib/auth";
 import { CIRCLES, isCircleId } from "../lib/circles";
 import type { SafetyScanner } from "../lib/model-safety";
 import { CRISIS_RESOURCES, kavachScan } from "../lib/kavach";
+import { createDbRateLimit } from "../lib/rate-limit";
 
 const postSchema = z.object({
   content: z.string().trim().min(1).max(1000),
 });
 
-export function createCirclesRouter(db: Database, scan: SafetyScanner = async (text) => kavachScan(text)): IRouter {
+export interface CircleQuotas {
+  postsPerDay?: number;
+  likesPerDay?: number;
+}
+
+export function createCirclesRouter(db: Database, scan: SafetyScanner = async (text) => kavachScan(text), quotas: CircleQuotas = {}): IRouter {
   const router: IRouter = Router();
   router.use(requireAuth(db));
+
+  // Per-account daily quotas on shared-space writes (release gate 3). Same
+  // durable Postgres windows as the auth limiter, but keyed by person so a
+  // shared network cannot exhaust someone's quota and one person cannot
+  // multiply it by changing networks.
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const postLimit = createDbRateLimit(db, quotas.postsPerDay ?? 20, DAY_MS, {
+    bucket: "circle-post",
+    keyFor: (_req, res) => currentUser(res).id,
+    message: "That's a lot of sharing for one day. Your words matter - come back tomorrow.",
+  });
+  const likeLimit = createDbRateLimit(db, quotas.likesPerDay ?? 100, DAY_MS, {
+    bucket: "circle-like",
+    keyFor: (_req, res) => currentUser(res).id,
+    message: "That's a lot of love for one day. Come back tomorrow.",
+  });
 
   // Circle summaries: the six circles, how many voices each holds, and the
   // latest anonymous excerpt for the list preview.
@@ -86,7 +108,7 @@ export function createCirclesRouter(db: Database, scan: SafetyScanner = async (t
     });
   });
 
-  router.post("/circles/:circleId/posts", requireVerifiedEmail, async (req, res) => {
+  router.post("/circles/:circleId/posts", requireVerifiedEmail, postLimit, async (req, res) => {
     const circleId = req.params.circleId as string;
     if (!isCircleId(circleId)) {
       res.status(404).json({ error: "Circle not found" });
@@ -130,7 +152,7 @@ export function createCirclesRouter(db: Database, scan: SafetyScanner = async (t
     });
   });
 
-  router.post("/circles/posts/:postId/like", requireVerifiedEmail, async (req, res) => {
+  router.post("/circles/posts/:postId/like", requireVerifiedEmail, likeLimit, async (req, res) => {
     const postId = req.params.postId as string;
     const userId = currentUser(res).id;
     if (!z.string().uuid().safeParse(postId).success) { res.status(404).json({ error: "Post not found" }); return; }

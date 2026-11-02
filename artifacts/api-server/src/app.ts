@@ -10,6 +10,7 @@ import { createProgressRouter } from "./routes/progress";
 import { createSessionsRouter } from "./routes/sessions";
 import { createCirclesRouter } from "./routes/circles";
 import { createAccountRouter } from "./routes/account";
+import { createInternalRouter } from "./routes/internal";
 import { createDishaResponder, dishaConfigFromEnv, type DishaResponder } from "./lib/disha";
 import { verificationSenderFromEnv, type VerificationSender } from "./lib/verification";
 import { passwordResetSenderFromEnv, type PasswordResetSender } from "./lib/password-reset";
@@ -26,9 +27,18 @@ export interface AppDeps {
   // Tests shrink the window/limit; production uses the defaults.
   authRateLimit?: { limit: number; windowMs: number };
   safety?: SafetyScanner;
+  // Per-account/per-network volume quotas (release gate 3); tests shrink
+  // these to tiny numbers, production uses the defaults.
+  quotas?: {
+    signupPerDay?: number;
+    circlePostsPerDay?: number;
+    circleLikesPerDay?: number;
+    sessionsPerDay?: number;
+    sessionMessagesPerDay?: number;
+  };
 }
 
-export function createApp({ db, disha, sendVerification, sendPasswordReset, safety, authRateLimit }: AppDeps): Express {
+export function createApp({ db, disha, sendVerification, sendPasswordReset, safety, authRateLimit, quotas }: AppDeps): Express {
   const app = express();
   app.disable("x-powered-by");
   // Behind Vercel/Render the client IP arrives in X-Forwarded-For. Without
@@ -66,8 +76,15 @@ export function createApp({ db, disha, sendVerification, sendPasswordReset, safe
   app.use(cookieParser());
 
   const authLimiter = createDbRateLimit(db, authRateLimit?.limit ?? 30, authRateLimit?.windowMs ?? 15 * 60 * 1000);
+  // The burst limiter slows credential attacks; this one caps account
+  // creation volume per network per day (release gate 3).
+  const signupDailyLimiter = createDbRateLimit(db, quotas?.signupPerDay ?? 10, 24 * 60 * 60 * 1000, {
+    bucket: "signup-daily",
+    message: "Too many new accounts from this network today. Please try again tomorrow.",
+  });
 
   app.use("/api", healthRouter);
+  app.use("/api/auth/signup", signupDailyLimiter);
   app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/verification/request", "/api/auth/verification/confirm", "/api/auth/password/forgot", "/api/auth/password/reset"], authLimiter);
   app.use("/api", createAuthRouter(db, sendVerification ?? verificationSenderFromEnv(process.env), sendPasswordReset ?? passwordResetSenderFromEnv(process.env)));
   app.use("/api", createMoodsRouter(db));
@@ -75,8 +92,15 @@ export function createApp({ db, disha, sendVerification, sendPasswordReset, safe
   app.use("/api", createProgressRouter(db));
   const modelConfig = dishaConfigFromEnv(process.env);
   const scan = safety ?? createSafetyScanner(modelConfig);
-  app.use("/api", createSessionsRouter(db, disha ?? createDishaResponder(modelConfig), scan));
-  app.use("/api", createCirclesRouter(db, scan));
+  app.use("/api", createSessionsRouter(db, disha ?? createDishaResponder(modelConfig), scan, {
+    sessionsPerDay: quotas?.sessionsPerDay,
+    messagesPerDay: quotas?.sessionMessagesPerDay,
+  }));
+  app.use("/api", createCirclesRouter(db, scan, {
+    postsPerDay: quotas?.circlePostsPerDay,
+    likesPerDay: quotas?.circleLikesPerDay,
+  }));
+  app.use("/api", createInternalRouter(db));
   app.use("/api", createAccountRouter(db));
 
   // JSON 404 for unknown API routes

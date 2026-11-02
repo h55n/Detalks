@@ -8,7 +8,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "tsx --test src/test/*.test.ts"
+    "test": "tsx --test src/test/*.test.ts",
+    "retention": "tsx src/run-retention.ts"
   },
   "dependencies": {
     "@vercel/functions": "^3.10.1",

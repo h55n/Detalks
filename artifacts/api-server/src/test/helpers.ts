@@ -21,6 +21,13 @@ export interface TestServer {
 export interface TestServerOptions {
   sendPasswordReset?: PasswordResetSender;
   authRateLimit?: { limit: number; windowMs: number };
+  quotas?: {
+    signupPerDay?: number;
+    circlePostsPerDay?: number;
+    circleLikesPerDay?: number;
+    sessionsPerDay?: number;
+    sessionMessagesPerDay?: number;
+  };
 }
 
 export async function startTestServer(disha?: DishaResponder, options: TestServerOptions = {}): Promise<TestServer> {
@@ -40,6 +47,7 @@ export async function startTestServer(disha?: DishaResponder, options: TestServe
     disha: disha ?? (async () => "I'm here and listening. Tell me more."),
     sendPasswordReset: options.sendPasswordReset,
     authRateLimit: options.authRateLimit,
+    quotas: options.quotas,
   });
   const server = await new Promise<ReturnType<Express["listen"]>>((resolve) => {
     const s = app.listen(0, () => resolve(s));
@@ -61,12 +69,13 @@ export class Client {
   private cookie = "";
   constructor(private baseUrl: string) {}
 
-  async req(method: string, path: string, body?: unknown) {
+  async req(method: string, path: string, body?: unknown, headers: Record<string, string> = {}) {
     const res = await fetch(`${this.baseUrl}${path}`, {
       method,
       headers: {
         "Content-Type": "application/json",
         ...(this.cookie ? { Cookie: this.cookie } : {}),
+        ...headers,
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     });

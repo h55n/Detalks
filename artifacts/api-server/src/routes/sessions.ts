@@ -11,6 +11,7 @@ import { currentUser, requireAuth } from "../lib/auth";
 import { kavachReply, kavachScan } from "../lib/kavach";
 import type { SafetyScanner } from "../lib/model-safety";
 import type { ChatTurn, DishaResponder } from "../lib/disha";
+import { createDbRateLimit } from "../lib/rate-limit";
 
 const SESSION_LIMIT_MINUTES = 45;
 const MESSAGE_LIMIT = 200;
@@ -46,13 +47,34 @@ function openingMessage(arrivalState: string): string {
   );
 }
 
+export interface SessionQuotas {
+  sessionsPerDay?: number;
+  messagesPerDay?: number;
+}
+
 export function createSessionsRouter(
   db: Database,
   disha: DishaResponder,
   scan: SafetyScanner = async (text) => kavachScan(text),
+  quotas: SessionQuotas = {},
 ): IRouter {
   const router: IRouter = Router();
   router.use(requireAuth(db));
+
+  // Per-account daily quotas on companion use (release gate 3): every message
+  // costs a provider call, so volume is capped per person, durably across
+  // serverless instances.
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const startLimit = createDbRateLimit(db, quotas.sessionsPerDay ?? 10, DAY_MS, {
+    bucket: "session-start",
+    keyFor: (_req, res) => currentUser(res).id,
+    message: "That's a lot of sessions for one day. Disha will be here tomorrow.",
+  });
+  const messageLimit = createDbRateLimit(db, quotas.messagesPerDay ?? 300, DAY_MS, {
+    bucket: "session-message",
+    keyFor: (_req, res) => currentUser(res).id,
+    message: "That's a lot for one day. Disha will be here tomorrow.",
+  });
 
   // History list, newest first, with duration and message counts.
   router.get("/sessions", async (_req, res) => {
@@ -94,7 +116,7 @@ export function createSessionsRouter(
     });
   });
 
-  router.post("/sessions", async (req, res) => {
+  router.post("/sessions", startLimit, async (req, res) => {
     const parsed = startSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: "Review chat consent, then pick how you are arriving today" });
@@ -146,7 +168,7 @@ export function createSessionsRouter(
     res.json({ session, messages });
   });
 
-  router.post("/sessions/:id/messages", async (req, res) => {
+  router.post("/sessions/:id/messages", messageLimit, async (req, res) => {
     const session = await loadOwnedSession(req, res);
     if (!session) {
       res.status(404).json({ error: "Session not found" });

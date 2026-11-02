@@ -10,7 +10,7 @@ The tone is calm and non-clinical: warm cream background, forest green, serif he
 
 - Email sign-up with an anonymous alias; shared-circle writes require email verification
 - Password reset by email with single-use links; resets sign out every other session (live once a sending domain is configured)
-- Durable, database-backed rate limiting on the auth endpoints
+- Durable, database-backed rate limiting on the auth endpoints, plus per-account daily quotas on circles and companion chat
 - Onboarding, consent and a daily pulse check
 - Mood tracker, journal and a progress view built from real activity
 - Breathing and grounding exercises, plus a practices library
@@ -57,7 +57,8 @@ pnpm --filter detalks run dev
 - `DATABASE_URL` — PostgreSQL connection string (required)
 - `GROQ_API_KEY`, `GROQ_MODEL` - Groq Disha and additive Kavach screening (server-side secrets only)
 - `APP_ORIGIN`, `RESEND_API_KEY`, `VERIFICATION_FROM` - email verification and password reset, requiring a verified sending domain
-- `DATABASE_CA_CERT` - optional managed-Postgres CA (PEM); upgrades the database connection to full TLS chain verification
+- `DATABASE_CA_CERT` - managed-Postgres CA (PEM); set in production, upgrades the database connection to full TLS chain verification
+- `CRON_SECRET` - bearer token guarding `GET /api/internal/retention`, called by the daily Vercel cron
 - `HF_TOKEN` — Hugging Face inference token for Disha's replies (optional)
 - `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` — any OpenAI-compatible provider instead of Hugging Face (optional). Without a key Disha answers with a theme-aware reflective listener
 - `PORT` — listen port (required)
@@ -69,7 +70,7 @@ The current live app uses Vercel, with `vercel.json` building the web app and se
 
 Alternative: `render.yaml` deploys the whole app as one free Render web service: it builds the frontend, bundles the API, and serves both from a single origin. Provision a free Postgres, set `DATABASE_URL` (and `HF_TOKEN`), done.
 
-See [RELEASE-CHECKLIST.md](./RELEASE-CHECKLIST.md) for current launch gates. This is a working pilot, not a clinically validated production service.
+See [RELEASE-CHECKLIST.md](./RELEASE-CHECKLIST.md) for current launch gates. This is a working pilot, not a clinically validated production service. Operations: [backup/restore](docs/BACKUP-RESTORE.md), [retention](docs/RETENTION.md), [incident response](docs/INCIDENT-RESPONSE.md).
 
 ## Contribution split
 
